@@ -63,20 +63,22 @@ theorem IndexedInducedPath.interior_external_neighbor_hits_path_neighbor
   rcases hj with hjp_adj | hjq_adj
   · refine ⟨p, ?_, hip, hjp_adj⟩
     intro h
-    subst p
-    exact hip.ne rfl
+    have hval := congrArg Fin.val h
+    dsimp [p] at hval
+    omega
   · refine ⟨q, ?_, hiq, hjq_adj⟩
     intro h
-    subst q
-    exact hiq.ne rfl
+    have hval := congrArg Fin.val h
+    dsimp [q] at hval
+    omega
 
 /-- The two-neighbor hole case of Lemma 7: if `p` and `q` are exactly the
 neighbors of an external vertex on a hole, then `p` and `q` are adjacent. -/
 theorem IndexedInducedHole.two_external_neighbors_are_adjacent
     (C : IndexedInducedHole G) (hclaw : G.IsClawFree) {j : V}
     (hjC : j ∉ Set.range C.vertex) {p q : Fin C.card}
-    (hpq : p ≠ q) (hjp : G.Adj j (C.vertex p))
-    (hjq : G.Adj j (C.vertex q))
+    (_hpq : p ≠ q) (hjp : G.Adj j (C.vertex p))
+    (_hjq : G.Adj j (C.vertex q))
     (hexact : ∀ k : Fin C.card,
       G.Adj j (C.vertex k) → k = p ∨ k = q) :
     G.Adj (C.vertex p) (C.vertex q) := by

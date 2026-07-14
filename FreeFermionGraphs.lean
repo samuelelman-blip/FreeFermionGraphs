@@ -1,2 +1,3 @@
 import FreeFermionGraphs.ClawFree
 import FreeFermionGraphs.Neighboring
+import FreeFermionGraphs.InducedStructures

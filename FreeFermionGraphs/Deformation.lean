@@ -146,7 +146,9 @@ def deform (C : IndexedInducedHole G) {s : V} {i : Fin C.card}
           have hi := i.isLt
           have hcard := C.four_le_card
           omega
-        exact iff_of_false (G.loopless.irrefl s) hcyc
+        apply iff_of_false
+        · simpa [replaceVertex] using G.loopless.irrefl s
+        · exact hcyc
       · simp only [replaceVertex, if_pos, if_neg hq]
         rw [h.adj_iff q, C.adj_iff i q]
         simp [hq]

@@ -4,3 +4,4 @@ import FreeFermionGraphs.InducedStructures
 import FreeFermionGraphs.ExternalNeighbors
 import FreeFermionGraphs.TwoNeighbors
 import FreeFermionGraphs.ThreeNeighbors
+import FreeFermionGraphs.ThreeNeighborEndpoint

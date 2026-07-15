@@ -29,6 +29,24 @@ def ExactlyTwoOfFour (w x y z : Prop) : Prop :=
     (¬w ∧ x ∧ ¬y ∧ z) ∨
     (¬w ∧ ¬x ∧ y ∧ z)
 
+/-- The indicator sum of four propositions satisfying `ExactlyTwoOfFour`
+is two. -/
+theorem exactlyTwoOfFour_indicator_eq_two
+    {w x y z : Prop}
+    [Decidable w] [Decidable x] [Decidable y] [Decidable z]
+    (h : ExactlyTwoOfFour w x y z) :
+    (if w then 1 else 0) + (if x then 1 else 0) +
+      (if y then 1 else 0) + (if z then 1 else 0) = 2 := by
+  rcases h with ⟨hw, hx, hy, hz⟩ | ⟨hw, hx, hy, hz⟩ |
+    ⟨hw, hx, hy, hz⟩ | ⟨hw, hx, hy, hz⟩ |
+    ⟨hw, hx, hy, hz⟩ | ⟨hw, hx, hy, hz⟩
+  · simp [hw, hx, hy, hz]
+  · simp [hw, hx, hy, hz]
+  · simp [hw, hx, hy, hz]
+  · simp [hw, hx, hy, hz]
+  · simp [hw, hx, hy, hz]
+  · simp [hw, hx, hy, hz]
+
 /-- The ten possible edges on `p`, `q`, `r`, `s`, and `t` give every
 vertex degree two.  This is precisely the five-cycle case. -/
 def FiveNeighborCycleCase
@@ -61,9 +79,48 @@ theorem exactlyTwoOfFour_of_triple_bounds
     (hwyz : OneOrTwoOfThree w y z)
     (hxyz : OneOrTwoOfThree x y z) :
     ExactlyTwoOfFour w x y z := by
-  simp only [OneOrTwoOfThree, ExactlyOneOfThree, ExactlyTwoOfThree,
-    ExactlyTwoOfFour] at *
-  tauto
+  classical
+  have hwxy' :
+      (if w then 1 else 0) + (if x then 1 else 0) +
+          (if y then 1 else 0) = 1 ∨
+        (if w then 1 else 0) + (if x then 1 else 0) +
+          (if y then 1 else 0) = 2 := by
+    rcases hwxy with hwxy | hwxy
+    · exact Or.inl (exactlyOneOfThree_indicator_eq_one hwxy)
+    · exact Or.inr (exactlyTwoOfThree_indicator_eq_two hwxy)
+  have hwxz' :
+      (if w then 1 else 0) + (if x then 1 else 0) +
+          (if z then 1 else 0) = 1 ∨
+        (if w then 1 else 0) + (if x then 1 else 0) +
+          (if z then 1 else 0) = 2 := by
+    rcases hwxz with hwxz | hwxz
+    · exact Or.inl (exactlyOneOfThree_indicator_eq_one hwxz)
+    · exact Or.inr (exactlyTwoOfThree_indicator_eq_two hwxz)
+  have hwyz' :
+      (if w then 1 else 0) + (if y then 1 else 0) +
+          (if z then 1 else 0) = 1 ∨
+        (if w then 1 else 0) + (if y then 1 else 0) +
+          (if z then 1 else 0) = 2 := by
+    rcases hwyz with hwyz | hwyz
+    · exact Or.inl (exactlyOneOfThree_indicator_eq_one hwyz)
+    · exact Or.inr (exactlyTwoOfThree_indicator_eq_two hwyz)
+  have hxyz' :
+      (if x then 1 else 0) + (if y then 1 else 0) +
+          (if z then 1 else 0) = 1 ∨
+        (if x then 1 else 0) + (if y then 1 else 0) +
+          (if z then 1 else 0) = 2 := by
+    rcases hxyz with hxyz | hxyz
+    · exact Or.inl (exactlyOneOfThree_indicator_eq_one hxyz)
+    · exact Or.inr (exactlyTwoOfThree_indicator_eq_two hxyz)
+  have hsum :
+      (if w then 1 else 0) + (if x then 1 else 0) +
+        (if y then 1 else 0) + (if z then 1 else 0) = 2 := by
+    omega
+  by_cases hw : w <;>
+    by_cases hx : x <;>
+    by_cases hy : y <;>
+    by_cases hz : z <;>
+    simp_all [ExactlyTwoOfFour]
 
 /-- If all five four-vertex restrictions have one of the degree shapes from
 the cardinality-four classification, the five-vertex graph is a cycle. -/
@@ -164,8 +221,13 @@ theorem five_exact_two_restrictions_impossible
     (habde : ExactlyTwoOfFour a b d e)
     (hacde : ExactlyTwoOfFour a c d e)
     (hbcde : ExactlyTwoOfFour b c d e) : False := by
-  simp only [ExactlyTwoOfFour] at *
-  tauto
+  classical
+  have habcd' := exactlyTwoOfFour_indicator_eq_two habcd
+  have habce' := exactlyTwoOfFour_indicator_eq_two habce
+  have habde' := exactlyTwoOfFour_indicator_eq_two habde
+  have hacde' := exactlyTwoOfFour_indicator_eq_two hacde
+  have hbcde' := exactlyTwoOfFour_indicator_eq_two hbcde
+  omega
 
 /-- Six distinct external neighbors of an indexed induced path are
 impossible.  This is the upper-bound part of Lemma 7 for paths. -/

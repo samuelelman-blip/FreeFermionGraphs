@@ -37,6 +37,7 @@ def FiveCycleEdges
 
 /-- A degree-two graph on five labelled vertices contains a cycle through
 all five vertices. -/
+set_option maxHeartbeats 2000000 in
 theorem FiveNeighborCycleCase.cycle_edges
     {pq pr ps pt qr qs qt rs rt st : Prop}
     (h : FiveNeighborCycleCase pq pr ps pt qr qs qt rs rt st) :

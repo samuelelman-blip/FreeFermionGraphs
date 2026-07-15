@@ -9,3 +9,4 @@ import FreeFermionGraphs.FourNeighbors
 import FreeFermionGraphs.FiveNeighbors
 import FreeFermionGraphs.FiveNeighborExact
 import FreeFermionGraphs.Lemma7
+import FreeFermionGraphs.Corollaries23

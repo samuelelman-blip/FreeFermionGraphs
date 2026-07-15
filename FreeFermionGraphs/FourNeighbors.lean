@@ -103,10 +103,10 @@ theorem exactlyOneOrTwoOfThree_of_bounds
 /-- The indicator sum of three propositions satisfying `ExactlyOneOfThree`
 is one. -/
 theorem exactlyOneOfThree_indicator_eq_one
-    {x y z : Prop} (h : ExactlyOneOfThree x y z) :
+    {x y z : Prop} [Decidable x] [Decidable y] [Decidable z]
+    (h : ExactlyOneOfThree x y z) :
     (if x then 1 else 0) + (if y then 1 else 0) +
       (if z then 1 else 0) = 1 := by
-  classical
   rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
   · simp [hx, hy, hz]
   · simp [hx, hy, hz]
@@ -115,10 +115,10 @@ theorem exactlyOneOfThree_indicator_eq_one
 /-- The indicator sum of three propositions satisfying `ExactlyTwoOfThree`
 is two. -/
 theorem exactlyTwoOfThree_indicator_eq_two
-    {x y z : Prop} (h : ExactlyTwoOfThree x y z) :
+    {x y z : Prop} [Decidable x] [Decidable y] [Decidable z]
+    (h : ExactlyTwoOfThree x y z) :
     (if x then 1 else 0) + (if y then 1 else 0) +
       (if z then 1 else 0) = 2 := by
-  classical
   rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
   · simp [hx, hy, hz]
   · simp [hx, hy, hz]
@@ -135,6 +135,7 @@ theorem fourNeighborDegreeShape_of_bounds
     (hr_lt_three : ¬(pr ∧ qr ∧ rs))
     (hs_lt_three : ¬(ps ∧ qs ∧ rs)) :
     FourNeighborDegreeShape pq pr ps qr qs rs := by
+  classical
   have hp := exactlyOneOrTwoOfThree_of_bounds hp_pos hp_lt_three
   have hq := exactlyOneOrTwoOfThree_of_bounds hq_pos hq_lt_three
   have hr := exactlyOneOrTwoOfThree_of_bounds hr_pos hr_lt_three

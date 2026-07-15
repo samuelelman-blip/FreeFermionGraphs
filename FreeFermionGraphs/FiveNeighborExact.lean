@@ -35,14 +35,139 @@ def FiveCycleEdges
     (ps ∧ qs ∧ qr ∧ rt ∧ pt) ∨
     (ps ∧ rs ∧ qr ∧ qt ∧ pt)
 
+/-- Swapping the first two inputs preserves `ExactlyOneOfThree`. -/
+theorem ExactlyOneOfThree.swap12 {x y z : Prop}
+    (h : ExactlyOneOfThree x y z) : ExactlyOneOfThree y x z := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · exact Or.inr (Or.inl ⟨hy, hx, hz⟩)
+  · exact Or.inl ⟨hy, hx, hz⟩
+  · exact Or.inr (Or.inr ⟨hy, hx, hz⟩)
+
+/-- Swapping the last two inputs preserves `ExactlyOneOfThree`. -/
+theorem ExactlyOneOfThree.swap23 {x y z : Prop}
+    (h : ExactlyOneOfThree x y z) : ExactlyOneOfThree x z y := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · exact Or.inl ⟨hx, hz, hy⟩
+  · exact Or.inr (Or.inr ⟨hx, hz, hy⟩)
+  · exact Or.inr (Or.inl ⟨hx, hz, hy⟩)
+
+/-- Swapping the first two inputs preserves `ExactlyTwoOfThree`. -/
+theorem ExactlyTwoOfThree.swap12 {x y z : Prop}
+    (h : ExactlyTwoOfThree x y z) : ExactlyTwoOfThree y x z := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · exact Or.inl ⟨hy, hx, hz⟩
+  · exact Or.inr (Or.inr ⟨hy, hx, hz⟩)
+  · exact Or.inr (Or.inl ⟨hy, hx, hz⟩)
+
+/-- Swapping the last two inputs preserves `ExactlyTwoOfThree`. -/
+theorem ExactlyTwoOfThree.swap23 {x y z : Prop}
+    (h : ExactlyTwoOfThree x y z) : ExactlyTwoOfThree x z y := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · exact Or.inr (Or.inl ⟨hx, hz, hy⟩)
+  · exact Or.inl ⟨hx, hz, hy⟩
+  · exact Or.inr (Or.inr ⟨hx, hz, hy⟩)
+
+/-- If the first of four propositions is true and exactly two are true,
+exactly one of the remaining three is true. -/
+theorem ExactlyTwoOfFour.tail_exactlyOne {w x y z : Prop}
+    (h : ExactlyTwoOfFour w x y z) (hw : w) :
+    ExactlyOneOfThree x y z := by
+  rcases h with ⟨_, hx, hy, hz⟩ | ⟨_, hx, hy, hz⟩ |
+    ⟨_, hx, hy, hz⟩ | ⟨hnw, _, _, _⟩ |
+    ⟨hnw, _, _, _⟩ | ⟨hnw, _, _, _⟩
+  · exact Or.inl ⟨hx, hy, hz⟩
+  · exact Or.inr (Or.inl ⟨hx, hy, hz⟩)
+  · exact Or.inr (Or.inr ⟨hx, hy, hz⟩)
+  · exact (hnw hw).elim
+  · exact (hnw hw).elim
+  · exact (hnw hw).elim
+
+/-- If the first of four propositions is false and exactly two are true,
+exactly two of the remaining three are true. -/
+theorem ExactlyTwoOfFour.tail_exactlyTwo {w x y z : Prop}
+    (h : ExactlyTwoOfFour w x y z) (hw : ¬w) :
+    ExactlyTwoOfThree x y z := by
+  rcases h with ⟨hw', _, _, _⟩ | ⟨hw', _, _, _⟩ |
+    ⟨hw', _, _, _⟩ | ⟨_, hx, hy, hz⟩ |
+    ⟨_, hx, hy, hz⟩ | ⟨_, hx, hy, hz⟩
+  · exact (hw hw').elim
+  · exact (hw hw').elim
+  · exact (hw hw').elim
+  · exact Or.inl ⟨hx, hy, hz⟩
+  · exact Or.inr (Or.inl ⟨hx, hy, hz⟩)
+  · exact Or.inr (Or.inr ⟨hx, hy, hz⟩)
+
+/-- If the first two of four vertices have residual degree one and the last
+two have residual degree two, the four vertices form one of the two paths
+joining the first pair through the last pair. -/
+theorem five_cycle_extension
+    {ab ac ad bc bd cd : Prop}
+    (ha : ExactlyOneOfThree ab ac ad)
+    (hb : ExactlyOneOfThree ab bc bd)
+    (hc : ExactlyTwoOfThree ac bc cd)
+    (hd : ExactlyTwoOfThree ad bd cd) :
+    (ac ∧ cd ∧ bd) ∨ (ad ∧ cd ∧ bc) := by
+  rcases ha with ⟨hab, hnac, hnad⟩ |
+      ⟨hnab, hac, hnad⟩ | ⟨hnab, hnac, had⟩ <;>
+    rcases hb with ⟨hab', hnbc, hnbd⟩ |
+      ⟨hnab', hbc, hnbd⟩ | ⟨hnab', hnbc, hbd⟩ <;>
+    simp_all [ExactlyTwoOfThree]
+
 /-- A degree-two graph on five labelled vertices contains a cycle through
 all five vertices. -/
 theorem FiveNeighborCycleCase.cycle_edges
     {pq pr ps pt qr qs qt rs rt st : Prop}
     (h : FiveNeighborCycleCase pq pr ps pt qr qs qt rs rt st) :
     FiveCycleEdges pq pr ps pt qr qs qt rs rt st := by
-  simp only [FiveNeighborCycleCase, ExactlyTwoOfFour, FiveCycleEdges] at *
-  tauto
+  rcases h with ⟨hp, hq, hr, hs, ht⟩
+  rcases hp with ⟨hpq, hpr, hnps, hnpt⟩ |
+      ⟨hpq, hnpr, hps, hnpt⟩ |
+      ⟨hpq, hnpr, hnps, hpt⟩ |
+      ⟨hnpq, hpr, hps, hnpt⟩ |
+      ⟨hnpq, hpr, hnps, hpt⟩ |
+      ⟨hnpq, hnpr, hps, hpt⟩
+  · have hq' := hq.tail_exactlyOne hpq
+    have hr' := hr.tail_exactlyOne hpr
+    have hs' := hs.tail_exactlyTwo hnps
+    have ht' := ht.tail_exactlyTwo hnpt
+    rcases five_cycle_extension hq' hr' hs' ht' with
+      ⟨hqs, hst, hrt⟩ | ⟨hqt, hst, hrs⟩ <;>
+      unfold FiveCycleEdges <;> aesop
+  · have hq' := (hq.tail_exactlyOne hpq).swap12
+    have hs' := hs.tail_exactlyOne hps
+    have hr' := hr.tail_exactlyTwo hnpr
+    have ht' := (ht.tail_exactlyTwo hnpt).swap23
+    rcases five_cycle_extension hq' hs' hr' ht' with
+      ⟨hqr, hrt, hst⟩ | ⟨hqt, hrt, hrs⟩ <;>
+      unfold FiveCycleEdges <;> aesop
+  · have hq' := (hq.tail_exactlyOne hpq).swap23.swap12
+    have ht' := ht.tail_exactlyOne hpt
+    have hr' := (hr.tail_exactlyTwo hnpr).swap23
+    have hs' := (hs.tail_exactlyTwo hnps).swap23
+    rcases five_cycle_extension hq' ht' hr' hs' with
+      ⟨hqr, hrs, hst⟩ | ⟨hqs, hrs, hrt⟩ <;>
+      unfold FiveCycleEdges <;> aesop
+  · have hr' := (hr.tail_exactlyOne hpr).swap12
+    have hs' := (hs.tail_exactlyOne hps).swap12
+    have hq' := hq.tail_exactlyTwo hnpq
+    have ht' := (ht.tail_exactlyTwo hnpt).swap12.swap23
+    rcases five_cycle_extension hr' hs' hq' ht' with
+      ⟨hqr, hqt, hst⟩ | ⟨hrt, hqt, hqs⟩ <;>
+      unfold FiveCycleEdges <;> aesop
+  · have hr' := (hr.tail_exactlyOne hpr).swap23.swap12
+    have ht' := (ht.tail_exactlyOne hpt).swap12
+    have hq' := (hq.tail_exactlyTwo hnpq).swap23
+    have hs' := (hs.tail_exactlyTwo hnps).swap12.swap23
+    rcases five_cycle_extension hr' ht' hq' hs' with
+      ⟨hqr, hqs, hst⟩ | ⟨hrs, hqs, hqt⟩ <;>
+      unfold FiveCycleEdges <;> aesop
+  · have hs' := (hs.tail_exactlyOne hps).swap23.swap12
+    have ht' := (ht.tail_exactlyOne hpt).swap23.swap12
+    have hq' := (hq.tail_exactlyTwo hnpq).swap12.swap23
+    have hr' := (hr.tail_exactlyTwo hnpr).swap12.swap23
+    rcases five_cycle_extension hs' ht' hq' hr' with
+      ⟨hqs, hqr, hrt⟩ | ⟨hrs, hqr, hqt⟩ <;>
+      unfold FiveCycleEdges <;> aesop
 
 /-- Five distinct vertices of an indexed induced path cannot form a cycle. -/
 theorem IndexedInducedPath.not_five_cycle

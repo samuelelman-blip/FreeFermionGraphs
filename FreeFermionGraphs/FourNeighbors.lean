@@ -69,6 +69,61 @@ def FourNeighborDegreeShape
     FourNeighborPathCase pq pr ps qr qs rs ∨
     FourNeighborCycleCase pq pr ps qr qs rs
 
+/-- A nonempty proper subset of three propositions contains exactly one or
+exactly two propositions. -/
+theorem exactlyOneOrTwoOfThree_of_bounds
+    {x y z : Prop} (hpos : x ∨ y ∨ z) (hlt : ¬(x ∧ y ∧ z)) :
+    ExactlyOneOfThree x y z ∨ ExactlyTwoOfThree x y z := by
+  by_cases hx : x
+  · by_cases hy : y
+    · have hnz : ¬z := by
+        intro hz
+        exact hlt ⟨hx, hy, hz⟩
+      refine Or.inr ?_
+      exact Or.inl ⟨hx, hy, hnz⟩
+    · by_cases hz : z
+      · refine Or.inr ?_
+        exact Or.inr (Or.inl ⟨hx, hy, hz⟩)
+      · refine Or.inl ?_
+        exact Or.inl ⟨hx, hy, hz⟩
+  · by_cases hy : y
+    · by_cases hz : z
+      · refine Or.inr ?_
+        exact Or.inr (Or.inr ⟨hx, hy, hz⟩)
+      · refine Or.inl ?_
+        exact Or.inr (Or.inl ⟨hx, hy, hz⟩)
+    · have hz : z := by
+        rcases hpos with hx' | hy' | hz
+        · exact (hx hx').elim
+        · exact (hy hy').elim
+        · exact hz
+      refine Or.inl ?_
+      exact Or.inr (Or.inr ⟨hx, hy, hz⟩)
+
+/-- The indicator sum of three propositions satisfying `ExactlyOneOfThree`
+is one. -/
+theorem exactlyOneOfThree_indicator_eq_one
+    {x y z : Prop} [Decidable x] [Decidable y] [Decidable z]
+    (h : ExactlyOneOfThree x y z) :
+    (if x then 1 else 0) + (if y then 1 else 0) +
+      (if z then 1 else 0) = 1 := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · simp [hx, hy, hz]
+  · simp [hx, hy, hz]
+  · simp [hx, hy, hz]
+
+/-- The indicator sum of three propositions satisfying `ExactlyTwoOfThree`
+is two. -/
+theorem exactlyTwoOfThree_indicator_eq_two
+    {x y z : Prop} [Decidable x] [Decidable y] [Decidable z]
+    (h : ExactlyTwoOfThree x y z) :
+    (if x then 1 else 0) + (if y then 1 else 0) +
+      (if z then 1 else 0) = 2 := by
+  rcases h with ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩ | ⟨hx, hy, hz⟩
+  · simp [hx, hy, hz]
+  · simp [hx, hy, hz]
+  · simp [hx, hy, hz]
+
 /-- If every vertex in a four-vertex graph has degree at least one and at
 most two, its degree pattern is one of the three cases above. -/
 theorem fourNeighborDegreeShape_of_bounds
@@ -80,10 +135,83 @@ theorem fourNeighborDegreeShape_of_bounds
     (hr_lt_three : ¬(pr ∧ qr ∧ rs))
     (hs_lt_three : ¬(ps ∧ qs ∧ rs)) :
     FourNeighborDegreeShape pq pr ps qr qs rs := by
-  simp only [FourNeighborDegreeShape, FourNeighborTwoEdgesCase,
-    FourNeighborPathCase, FourNeighborCycleCase, ExactlyOneOfThree,
-    ExactlyTwoOfThree]
-  tauto
+  classical
+  have hp := exactlyOneOrTwoOfThree_of_bounds hp_pos hp_lt_three
+  have hq := exactlyOneOrTwoOfThree_of_bounds hq_pos hq_lt_three
+  have hr := exactlyOneOrTwoOfThree_of_bounds hr_pos hr_lt_three
+  have hs := exactlyOneOrTwoOfThree_of_bounds hs_pos hs_lt_three
+  rcases hp with hp1 | hp2 <;>
+    rcases hq with hq1 | hq2 <;>
+    rcases hr with hr1 | hr2 <;>
+    rcases hs with hs1 | hs2
+  · unfold FourNeighborDegreeShape FourNeighborTwoEdgesCase
+    exact Or.inl ⟨hp1, hq1, hr1, hs1⟩
+  · exfalso
+    have hpw := exactlyOneOfThree_indicator_eq_one hp1
+    have hqw := exactlyOneOfThree_indicator_eq_one hq1
+    have hrw := exactlyOneOfThree_indicator_eq_one hr1
+    have hsw := exactlyTwoOfThree_indicator_eq_two hs2
+    omega
+  · exfalso
+    have hpw := exactlyOneOfThree_indicator_eq_one hp1
+    have hqw := exactlyOneOfThree_indicator_eq_one hq1
+    have hrw := exactlyTwoOfThree_indicator_eq_two hr2
+    have hsw := exactlyOneOfThree_indicator_eq_one hs1
+    omega
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inl ⟨hp1, hq1, hr2, hs2⟩))
+  · exfalso
+    have hpw := exactlyOneOfThree_indicator_eq_one hp1
+    have hqw := exactlyTwoOfThree_indicator_eq_two hq2
+    have hrw := exactlyOneOfThree_indicator_eq_one hr1
+    have hsw := exactlyOneOfThree_indicator_eq_one hs1
+    omega
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inl ⟨hp1, hr1, hq2, hs2⟩)))
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inl
+      ⟨hp1, hs1, hq2, hr2⟩))))
+  · exfalso
+    have hpw := exactlyOneOfThree_indicator_eq_one hp1
+    have hqw := exactlyTwoOfThree_indicator_eq_two hq2
+    have hrw := exactlyTwoOfThree_indicator_eq_two hr2
+    have hsw := exactlyTwoOfThree_indicator_eq_two hs2
+    omega
+  · exfalso
+    have hpw := exactlyTwoOfThree_indicator_eq_two hp2
+    have hqw := exactlyOneOfThree_indicator_eq_one hq1
+    have hrw := exactlyOneOfThree_indicator_eq_one hr1
+    have hsw := exactlyOneOfThree_indicator_eq_one hs1
+    omega
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inl
+      ⟨hq1, hr1, hp2, hs2⟩)))))
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl
+      ⟨hq1, hs1, hp2, hr2⟩))))))
+  · exfalso
+    have hpw := exactlyTwoOfThree_indicator_eq_two hp2
+    have hqw := exactlyOneOfThree_indicator_eq_one hq1
+    have hrw := exactlyTwoOfThree_indicator_eq_two hr2
+    have hsw := exactlyTwoOfThree_indicator_eq_two hs2
+    omega
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr
+      ⟨hr1, hs1, hp2, hq2⟩))))))
+  · exfalso
+    have hpw := exactlyTwoOfThree_indicator_eq_two hp2
+    have hqw := exactlyTwoOfThree_indicator_eq_two hq2
+    have hrw := exactlyOneOfThree_indicator_eq_one hr1
+    have hsw := exactlyTwoOfThree_indicator_eq_two hs2
+    omega
+  · exfalso
+    have hpw := exactlyTwoOfThree_indicator_eq_two hp2
+    have hqw := exactlyTwoOfThree_indicator_eq_two hq2
+    have hrw := exactlyTwoOfThree_indicator_eq_two hr2
+    have hsw := exactlyOneOfThree_indicator_eq_one hs1
+    omega
+  · unfold FourNeighborDegreeShape FourNeighborCycleCase
+    exact Or.inr (Or.inr ⟨hp2, hq2, hr2, hs2⟩)
 
 /-- Among four distinct neighbors of one vertex in a claw-free graph, a
 selected vertex cannot be isolated if the other three do not form a triangle. -/

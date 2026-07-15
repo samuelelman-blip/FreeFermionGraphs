@@ -26,7 +26,7 @@ theorem exists_five_of_ncard_eq_five
       S = {a, b, c, d, e} := by
   have hsucc : S.ncard = 4 + 1 := by omega
   obtain ⟨e, T, heT, hinsert, hT4⟩ :=
-    (Set.ncard_eq_succ (s := S) (n := 4)).1 hsucc
+    Set.eq_insert_of_ncard_eq_succ hsucc
   obtain ⟨a, b, c, d, hab, hac, had, hbc, hbd, hcd, hT⟩ :=
     Set.ncard_eq_four.mp hT4
   have hae : a ≠ e := by
@@ -68,7 +68,7 @@ theorem exists_six_of_ncard_eq_six
       S = {a, b, c, d, e, f} := by
   have hsucc : S.ncard = 5 + 1 := by omega
   obtain ⟨f, T, hfT, hinsert, hT5⟩ :=
-    (Set.ncard_eq_succ (s := S) (n := 5)).1 hsucc
+    Set.eq_insert_of_ncard_eq_succ hsucc
   obtain ⟨a, b, c, d, e, hab, hac, had, hae, hbc, hbd, hbe,
     hcd, hce, hde, hT⟩ := exists_five_of_ncard_eq_five hT5
   have haf : a ≠ f := by
@@ -201,13 +201,15 @@ theorem IndexedInducedPath.lemma7
   · exact Or.inl hzero
   · refine Or.inr (Or.inl ⟨hone, ?_⟩)
     intro p hjp
+    obtain ⟨a, hset⟩ := Set.ncard_eq_one.mp hone
     have hp : p ∈ P.neighborIndexSet j := by simpa using hjp
-    have hle : (P.neighborIndexSet j).ncard ≤ 1 := by omega
+    have hpa : p = a := by simpa [hset] using hp
     have hunique : ∀ k : Fin P.card,
         G.Adj j (P.vertex k) → k = p := by
       intro k hjk
       have hk : k ∈ P.neighborIndexSet j := by simpa using hjk
-      exact (Set.ncard_le_one.mp hle) k hk p hp
+      have hka : k = a := by simpa [hset] using hk
+      exact hka.trans hpa.symm
     exact P.unique_external_neighbor_is_endpoint hclaw hjP hjp hunique
   · refine Or.inr (Or.inr (Or.inl ⟨htwo, ?_⟩))
     intro p q hpq hjp hjq hexact
@@ -254,12 +256,11 @@ theorem IndexedInducedHole.lemma7
   · exact Or.inl hzero
   · obtain ⟨p, hset⟩ := Set.ncard_eq_one.mp hone
     have hp : p ∈ C.neighborIndexSet j := by rw [hset]; simp
-    have hle : (C.neighborIndexSet j).ncard ≤ 1 := by omega
     have hunique : ∀ k : Fin C.card,
         G.Adj j (C.vertex k) → k = p := by
       intro k hjk
       have hk : k ∈ C.neighborIndexSet j := by simpa using hjk
-      exact (Set.ncard_le_one.mp hle) k hk p hp
+      simpa [hset] using hk
     exact ((C.not_unique_external_neighbor hclaw hjC p hp) hunique).elim
   · refine Or.inr (Or.inl ⟨htwo, ?_⟩)
     intro p q hpq hjp hjq hexact

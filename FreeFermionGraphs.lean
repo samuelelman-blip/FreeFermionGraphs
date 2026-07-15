@@ -5,3 +5,4 @@ import FreeFermionGraphs.ExternalNeighbors
 import FreeFermionGraphs.TwoNeighbors
 import FreeFermionGraphs.ThreeNeighbors
 import FreeFermionGraphs.ThreeNeighborEndpoint
+import FreeFermionGraphs.FourNeighbors

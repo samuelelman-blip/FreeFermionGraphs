@@ -71,6 +71,12 @@ def FourNeighborDegreeShape
 
 /-- If every vertex in a four-vertex graph has degree at least one and at
 most two, its degree pattern is one of the three cases above. -/
+theorem exactlyOneOrTwoOfThree_of_bounds
+    {x y z : Prop} (hpos : x ∨ y ∨ z) (hlt : ¬(x ∧ y ∧ z)) :
+    ExactlyOneOfThree x y z ∨ ExactlyTwoOfThree x y z := by
+  simp only [ExactlyOneOfThree, ExactlyTwoOfThree]
+  tauto
+
 theorem fourNeighborDegreeShape_of_bounds
     {pq pr ps qr qs rs : Prop}
     (hp_pos : pq ∨ pr ∨ ps) (hq_pos : pq ∨ qr ∨ qs)
@@ -80,10 +86,58 @@ theorem fourNeighborDegreeShape_of_bounds
     (hr_lt_three : ¬(pr ∧ qr ∧ rs))
     (hs_lt_three : ¬(ps ∧ qs ∧ rs)) :
     FourNeighborDegreeShape pq pr ps qr qs rs := by
-  simp only [FourNeighborDegreeShape, FourNeighborTwoEdgesCase,
-    FourNeighborPathCase, FourNeighborCycleCase, ExactlyOneOfThree,
-    ExactlyTwoOfThree]
-  tauto
+  have hp := exactlyOneOrTwoOfThree_of_bounds hp_pos hp_lt_three
+  have hq := exactlyOneOrTwoOfThree_of_bounds hq_pos hq_lt_three
+  have hr := exactlyOneOrTwoOfThree_of_bounds hr_pos hr_lt_three
+  have hs := exactlyOneOrTwoOfThree_of_bounds hs_pos hs_lt_three
+  rcases hp with hp1 | hp2 <;>
+    rcases hq with hq1 | hq2 <;>
+    rcases hr with hr1 | hr2 <;>
+    rcases hs with hs1 | hs2
+  · unfold FourNeighborDegreeShape FourNeighborTwoEdgesCase
+    exact Or.inl ⟨hp1, hq1, hr1, hs1⟩
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp1 hq1 hr1 hs2
+    tauto
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp1 hq1 hr2 hs1
+    tauto
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inl ⟨hp1, hq1, hr2, hs2⟩))
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp1 hq2 hr1 hs1
+    tauto
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inl ⟨hp1, hr1, hq2, hs2⟩)))
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inl
+      ⟨hp1, hs1, hq2, hr2⟩))))
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp1 hq2 hr2 hs2
+    tauto
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp2 hq1 hr1 hs1
+    tauto
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inl
+      ⟨hq1, hr1, hp2, hs2⟩)))))
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl
+      ⟨hq1, hs1, hp2, hr2⟩))))))
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp2 hq1 hr2 hs2
+    tauto
+  · unfold FourNeighborDegreeShape FourNeighborPathCase
+    exact Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr
+      ⟨hr1, hs1, hp2, hq2⟩))))))
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp2 hq2 hr1 hs2
+    tauto
+  · exfalso
+    simp only [ExactlyOneOfThree, ExactlyTwoOfThree] at hp2 hq2 hr2 hs1
+    tauto
+  · unfold FourNeighborDegreeShape FourNeighborCycleCase
+    exact Or.inr (Or.inr ⟨hp2, hq2, hr2, hs2⟩)
 
 /-- Among four distinct neighbors of one vertex in a claw-free graph, a
 selected vertex cannot be isolated if the other three do not form a triangle. -/

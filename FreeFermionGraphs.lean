@@ -10,3 +10,4 @@ import FreeFermionGraphs.FiveNeighbors
 import FreeFermionGraphs.FiveNeighborExact
 import FreeFermionGraphs.Lemma7
 import FreeFermionGraphs.Corollaries23
+import FreeFermionGraphs.Deformation

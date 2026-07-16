@@ -22,3 +22,4 @@ import FreeFermionGraphs.TokenSliding
 import FreeFermionGraphs.TokenSlidingReachability
 import FreeFermionGraphs.TokenSlidingGraph
 import FreeFermionGraphs.TokenSlidingComponents
+import FreeFermionGraphs.DeformationTokenSliding

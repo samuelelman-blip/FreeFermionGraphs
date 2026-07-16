@@ -211,6 +211,275 @@ theorem CloneAt.dependent_neighbor_restriction {k : Nat}
       exact h.right_additional_neighbor hclaw (Or.inr ⟨rfl, hts⟩)
         htai htb hta hvC htv hvu hvb hva
 
+/-- In the left-hand arm, the candidate on the opposite side either
+coincides with the permitted outer vertex (the four-cycle degeneracy) or is
+not adjacent to `t`. -/
+theorem CloneAt.left_opposite_outer_eq_or_not_adj {k : Nat}
+    {C : EvenHoleLabeling G k} {s t u : V} {i : Fin k}
+    (h : C.CloneAt s i) (hclaw : G.IsClawFree)
+    (htC : t ∉ Set.insert s C.carrier)
+    (hchoice :
+      (u = s ∧ ¬G.Adj t (C.a i)) ∨
+      (u = C.a i ∧ ¬G.Adj t s))
+    (htu : G.Adj t u)
+    (htb : G.Adj t (C.b i))
+    (hta : G.Adj t (C.a (C.prev i))) :
+    C.b (C.next i) = C.b (C.prev i) ∨
+      ¬G.Adj t (C.b (C.next i)) := by
+  by_cases heq : C.b (C.next i) = C.b (C.prev i)
+  · exact Or.inl heq
+  · refine Or.inr ?_
+    have hidx : C.next i ≠ C.prev i := by
+      intro hidx
+      exact heq (congrArg C.b hidx)
+    have ht_anext : ¬G.Adj t (C.a (C.next i)) := by
+      intro htanext
+      have hane_u : C.a (C.next i) ≠ u := by
+        rcases hchoice with ⟨rfl, _⟩ | ⟨rfl, _⟩
+        · intro has
+          exact h.outside (has ▸ C.a_mem_carrier (C.next i))
+        · exact C.a_ne_next i
+      have hane_bi : C.a (C.next i) ≠ C.b i :=
+        C.color_disjoint (C.next i) i
+      have hane_aprev : C.a (C.next i) ≠ C.a (C.prev i) := by
+        intro haa
+        exact hidx (C.a_injective haa)
+      rcases h.left_additional_neighbor hclaw hchoice htu htb hta
+          (Set.mem_insert_iff.2
+            (Or.inr (C.a_mem_carrier (C.next i))))
+          htanext hane_u hane_bi hane_aprev with hbad | hbad
+      · exact C.color_disjoint (C.next i) (C.prev i) hbad
+      · exact C.color_disjoint (C.next i) (C.next i) hbad
+    have ht_ai : t ≠ C.a i := by
+      intro htai
+      exact htC (Set.mem_insert_iff.2
+        (Or.inr (htai.symm ▸ C.a_mem_carrier i)))
+    have ht_anext_ne : t ≠ C.a (C.next i) := by
+      intro htanext
+      exact htC (Set.mem_insert_iff.2
+        (Or.inr (htanext.symm ▸ C.a_mem_carrier (C.next i))))
+    have ht_s : t ≠ s := by
+      intro hts
+      exact htC (Set.mem_insert_iff.2 (Or.inl hts))
+    intro htwrong
+    rcases hchoice with ⟨rfl, htai⟩ | ⟨rfl, hts⟩
+    · rcases hclaw.adjacent_to_one_of_nonadjacent_neighbors
+          htwrong (C.adj_a_b_next i).symm
+          (C.adj_a_b (C.next i)).symm
+          ht_ai ht_anext_ne (C.a_ne_next i).symm
+          (C.adj_aa i (C.next i)) with htai' | htanext'
+      · exact htai htai'
+      · exact ht_anext htanext'
+    · have hs_anext : s ≠ C.a (C.next i) := by
+        intro hsa
+        exact h.outside (hsa.symm ▸ C.a_mem_carrier (C.next i))
+      rcases hclaw.adjacent_to_one_of_nonadjacent_neighbors
+          htwrong h.adj_b_next.symm
+          (C.adj_a_b (C.next i)).symm
+          ht_s ht_anext_ne hs_anext h.not_adj_a_next with
+        hts' | htanext'
+      · exact hts hts'
+      · exact ht_anext htanext'
+
+/-- Symmetric opposite-side exclusion for the right-hand arm. -/
+theorem CloneAt.right_opposite_outer_eq_or_not_adj {k : Nat}
+    {C : EvenHoleLabeling G k} {s t u : V} {i : Fin k}
+    (h : C.CloneAt s i) (hclaw : G.IsClawFree)
+    (htC : t ∉ Set.insert s C.carrier)
+    (hchoice :
+      (u = s ∧ ¬G.Adj t (C.a i)) ∨
+      (u = C.a i ∧ ¬G.Adj t s))
+    (htu : G.Adj t u)
+    (htb : G.Adj t (C.b (C.next i)))
+    (hta : G.Adj t (C.a (C.next i))) :
+    C.b i = C.b (C.next (C.next i)) ∨ ¬G.Adj t (C.b i) := by
+  by_cases heq : C.b i = C.b (C.next (C.next i))
+  · exact Or.inl heq
+  · refine Or.inr ?_
+    have hidx : C.prev i ≠ C.next i := by
+      intro hidx
+      have hn := congrArg C.next hidx
+      rw [C.next_prev i] at hn
+      exact heq (congrArg C.b hn)
+    have ht_aprev : ¬G.Adj t (C.a (C.prev i)) := by
+      intro htaprev
+      have hape_u : C.a (C.prev i) ≠ u := by
+        rcases hchoice with ⟨rfl, _⟩ | ⟨rfl, _⟩
+        · intro has
+          exact h.outside (has ▸ C.a_mem_carrier (C.prev i))
+        · exact C.a_ne_prev i
+      have hape_bnext : C.a (C.prev i) ≠ C.b (C.next i) :=
+        C.color_disjoint (C.prev i) (C.next i)
+      have hape_anext : C.a (C.prev i) ≠ C.a (C.next i) := by
+        intro haa
+        exact hidx (C.a_injective haa)
+      rcases h.right_additional_neighbor hclaw hchoice htu htb hta
+          (Set.mem_insert_iff.2
+            (Or.inr (C.a_mem_carrier (C.prev i))))
+          htaprev hape_u hape_bnext hape_anext with hbad | hbad
+      · exact C.color_disjoint (C.prev i) i hbad
+      · exact C.color_disjoint (C.prev i) (C.next (C.next i)) hbad
+    have ht_ai : t ≠ C.a i := by
+      intro htai
+      exact htC (Set.mem_insert_iff.2
+        (Or.inr (htai.symm ▸ C.a_mem_carrier i)))
+    have ht_aprev_ne : t ≠ C.a (C.prev i) := by
+      intro htaprev
+      exact htC (Set.mem_insert_iff.2
+        (Or.inr (htaprev.symm ▸ C.a_mem_carrier (C.prev i))))
+    have ht_s : t ≠ s := by
+      intro hts
+      exact htC (Set.mem_insert_iff.2 (Or.inl hts))
+    intro htwrong
+    rcases hchoice with ⟨rfl, htai⟩ | ⟨rfl, hts⟩
+    · rcases hclaw.adjacent_to_one_of_nonadjacent_neighbors
+          htwrong (C.adj_a_b i).symm (C.adj_a_prev_b i).symm
+          ht_ai ht_aprev_ne (C.a_ne_prev i).symm
+          (C.adj_aa i (C.prev i)) with htai' | htaprev'
+      · exact htai htai'
+      · exact ht_aprev htaprev'
+    · have hs_aprev : s ≠ C.a (C.prev i) := by
+        intro hsa
+        exact h.outside (hsa.symm ▸ C.a_mem_carrier (C.prev i))
+      rcases hclaw.adjacent_to_one_of_nonadjacent_neighbors
+          htwrong h.adj_b.symm (C.adj_a_prev_b i).symm
+          ht_s ht_aprev_ne hs_aprev h.not_adj_a_prev with
+        hts' | htaprev'
+      · exact hts hts'
+      · exact ht_aprev htaprev'
+
+/-- The four exact neighborhood alternatives in Lemma 8, written in the
+alternating labeling at an arbitrary index `i`. -/
+def Lemma8Cases {k : Nat} (C : EvenHoleLabeling G k)
+    (s t : V) (i : Fin k) : Prop :=
+  ∃ u : V, (u = s ∨ u = C.a i) ∧
+    ((∀ v : V, v ∈ Set.insert s C.carrier →
+        (G.Adj t v ↔
+          v = C.a (C.prev i) ∨ v = C.b i ∨ v = u)) ∨
+     (∀ v : V, v ∈ Set.insert s C.carrier →
+        (G.Adj t v ↔
+          v = C.b (C.prev i) ∨ v = C.a (C.prev i) ∨
+            v = C.b i ∨ v = u)) ∨
+     (∀ v : V, v ∈ Set.insert s C.carrier →
+        (G.Adj t v ↔
+          v = u ∨ v = C.b (C.next i) ∨
+            v = C.a (C.next i))) ∨
+     (∀ v : V, v ∈ Set.insert s C.carrier →
+        (G.Adj t v ↔
+          v = u ∨ v = C.b (C.next i) ∨
+            v = C.a (C.next i) ∨
+            v = C.b (C.next (C.next i)))))
+
+/-- Lemma 8 of the paper. -/
+theorem CloneAt.lemma8 {k : Nat}
+    {C : EvenHoleLabeling G k} {s t : V} {i : Fin k}
+    (h : C.CloneAt s i) (hclaw : G.IsClawFree)
+    (htC : t ∉ Set.insert s C.carrier)
+    (hexact :
+      (G.Adj t s ∧ ¬G.Adj t (C.a i)) ∨
+      (¬G.Adj t s ∧ G.Adj t (C.a i))) :
+    C.Lemma8Cases s t i := by
+  obtain ⟨u, hchoice, htu, hside⟩ :=
+    h.dependent_neighbor_restriction hclaw htC hexact
+  have hu : u = s ∨ u = C.a i := by
+    rcases hchoice with ⟨hus, _⟩ | ⟨hua, _⟩
+    · exact Or.inl hus
+    · exact Or.inr hua
+  refine ⟨u, hu, ?_⟩
+  rcases hside with hleft | hright
+  · rcases hleft with ⟨htb, hta, hrestrict⟩
+    have hopen := h.left_opposite_outer_eq_or_not_adj
+      hclaw htC hchoice htu htb hta
+    have hall : ∀ v : V, v ∈ Set.insert s C.carrier → G.Adj t v →
+        v = u ∨ v = C.b i ∨ v = C.a (C.prev i) ∨
+          v = C.b (C.prev i) := by
+      intro v hvC htv
+      by_cases hvu : v = u
+      · exact Or.inl hvu
+      by_cases hvb : v = C.b i
+      · exact Or.inr (Or.inl hvb)
+      by_cases hva : v = C.a (C.prev i)
+      · exact Or.inr (Or.inr (Or.inl hva))
+      rcases hrestrict v hvC htv hvu hvb hva with hvprev | hvnext
+      · exact Or.inr (Or.inr (Or.inr hvprev))
+      · rcases hopen with heq | hnot
+        · exact Or.inr (Or.inr (Or.inr (hvnext.trans heq)))
+        · exact (hnot (hvnext ▸ htv)).elim
+    by_cases htouter : G.Adj t (C.b (C.prev i))
+    · refine Or.inr (Or.inl ?_)
+      intro v hvC
+      constructor
+      · intro htv
+        rcases hall v hvC htv with hvu | hvb | hva | hvouter
+        · exact Or.inr (Or.inr (Or.inr hvu))
+        · exact Or.inr (Or.inr (Or.inl hvb))
+        · exact Or.inr (Or.inl hva)
+        · exact Or.inl hvouter
+      · intro hv
+        rcases hv with hvouter | hva | hvb | hvu
+        · exact hvouter.symm ▸ htouter
+        · exact hva.symm ▸ hta
+        · exact hvb.symm ▸ htb
+        · exact hvu.symm ▸ htu
+    · refine Or.inl ?_
+      intro v hvC
+      constructor
+      · intro htv
+        rcases hall v hvC htv with hvu | hvb | hva | hvouter
+        · exact Or.inr (Or.inr hvu)
+        · exact Or.inr (Or.inl hvb)
+        · exact Or.inl hva
+        · exact (htouter (hvouter ▸ htv)).elim
+      · intro hv
+        rcases hv with hva | hvb | hvu
+        · exact hva.symm ▸ hta
+        · exact hvb.symm ▸ htb
+        · exact hvu.symm ▸ htu
+  · rcases hright with ⟨htb, hta, hrestrict⟩
+    have hopen := h.right_opposite_outer_eq_or_not_adj
+      hclaw htC hchoice htu htb hta
+    have hall : ∀ v : V, v ∈ Set.insert s C.carrier → G.Adj t v →
+        v = u ∨ v = C.b (C.next i) ∨
+          v = C.a (C.next i) ∨
+          v = C.b (C.next (C.next i)) := by
+      intro v hvC htv
+      by_cases hvu : v = u
+      · exact Or.inl hvu
+      by_cases hvb : v = C.b (C.next i)
+      · exact Or.inr (Or.inl hvb)
+      by_cases hva : v = C.a (C.next i)
+      · exact Or.inr (Or.inr (Or.inl hva))
+      rcases hrestrict v hvC htv hvu hvb hva with hvi | hvouter
+      · rcases hopen with heq | hnot
+        · exact Or.inr (Or.inr (Or.inr (hvi.trans heq)))
+        · exact (hnot (hvi ▸ htv)).elim
+      · exact Or.inr (Or.inr (Or.inr hvouter))
+    by_cases htouter : G.Adj t (C.b (C.next (C.next i)))
+    · refine Or.inr (Or.inr (Or.inr ?_))
+      intro v hvC
+      constructor
+      · exact hall v hvC
+      · intro hv
+        rcases hv with hvu | hvb | hva | hvouter
+        · exact hvu.symm ▸ htu
+        · exact hvb.symm ▸ htb
+        · exact hva.symm ▸ hta
+        · exact hvouter.symm ▸ htouter
+    · refine Or.inr (Or.inr (Or.inl ?_))
+      intro v hvC
+      constructor
+      · intro htv
+        rcases hall v hvC htv with hvu | hvb | hva | hvouter
+        · exact Or.inl hvu
+        · exact Or.inr (Or.inl hvb)
+        · exact Or.inr (Or.inr hva)
+        · exact (htouter (hvouter ▸ htv)).elim
+      · intro hv
+        rcases hv with hvu | hvb | hva
+        · exact hvu.symm ▸ htu
+        · exact hvb.symm ▸ htb
+        · exact hva.symm ▸ hta
+
 end EvenHoleLabeling
 
 end SimpleGraph

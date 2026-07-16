@@ -33,12 +33,12 @@ they differ by one token slide. -/
 def tokenSlideSolutionGraph (G : SimpleGraph V) (k : Nat) [DecidableEq V] :
     SimpleGraph (TokenConfiguration G k) where
   Adj S T := G.TokenSlide (S.1 : Set V) (T.1 : Set V)
-  symm := by
+  symm := ⟨by
     intro S T h
-    exact TokenSlide.symm h
-  loopless := by
+    exact TokenSlide.symm h⟩
+  loopless := ⟨by
     intro S
-    exact TokenSlide.irrefl (S.1 : Set V)
+    exact TokenSlide.irrefl (S.1 : Set V)⟩
 
 @[simp]
 theorem tokenSlideSolutionGraph_adj {G : SimpleGraph V} {k : Nat}

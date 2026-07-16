@@ -47,12 +47,25 @@ theorem externalDegreeAfterReplacement_eq_add_one
     ext q
     by_cases hqi : q = i
     · subst q
-      simp [replaceVertex, huIntroduced]
-    · simp [replaceVertex, hqi]
+      constructor
+      · intro _
+        exact Set.mem_insert_iff.2 (Or.inl rfl)
+      · intro _
+        simpa [replaceVertex] using huIntroduced
+    · constructor
+      · intro hAdj
+        have hAdj' : G.Adj u (C.vertex q) := by
+          simpa [replaceVertex, hqi] using hAdj
+        exact Set.mem_insert_iff.2 (Or.inr hAdj')
+      · intro hmem
+        rcases Set.mem_insert_iff.1 hmem with heq | hAdj
+        · exact (hqi heq).elim
+        · simpa [replaceVertex, hqi] using hAdj
   have hi : i ∉ C.neighborIndexSet u := by
     simpa using huRemoved
   unfold externalDegreeAfterReplacement externalDegree
-  rw [hset, Set.ncard_insert_of_notMem hi]
+  rw [hset]
+  exact Set.ncard_insert_of_notMem hi
 
 /-- Removing a neighbor and introducing a nonneighbor decreases external
 degree by one, written without truncated subtraction. -/
@@ -71,15 +84,28 @@ theorem externalDegree_eq_afterReplacement_add_one
     ext q
     by_cases hqi : q = i
     · subst q
-      simp [replaceVertex, huRemoved]
-    · simp [replaceVertex, hqi]
+      constructor
+      · intro _
+        exact Set.mem_insert_iff.2 (Or.inl rfl)
+      · intro _
+        simpa using huRemoved
+    · constructor
+      · intro hAdj
+        apply Set.mem_insert_iff.2
+        right
+        simpa [replaceVertex, hqi] using hAdj
+      · intro hmem
+        rcases Set.mem_insert_iff.1 hmem with heq | hAdj
+        · exact (hqi heq).elim
+        · simpa [replaceVertex, hqi] using hAdj
   have hi :
       i ∉ ({q : Fin C.card |
         G.Adj u (C.replaceVertex introduced i q)} :
         Set (Fin C.card)) := by
     simpa [replaceVertex] using huIntroduced
   unfold externalDegree externalDegreeAfterReplacement
-  rw [hset, Set.ncard_insert_of_notMem hi]
+  rw [hset]
+  exact Set.ncard_insert_of_notMem hi
 
 /-- If adjacency to the introduced and removed vertices agrees, replacement
 does not change external degree. -/

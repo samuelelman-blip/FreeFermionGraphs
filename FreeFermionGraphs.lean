@@ -13,3 +13,4 @@ import FreeFermionGraphs.Corollaries23
 import FreeFermionGraphs.Deformation
 import FreeFermionGraphs.EvenHoleLabeling
 import FreeFermionGraphs.Lemma8
+import FreeFermionGraphs.Corollaries45

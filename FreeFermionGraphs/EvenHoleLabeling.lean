@@ -31,6 +31,7 @@ structure EvenHoleLabeling (G : SimpleGraph V) (k : Nat) where
   next : Fin k → Fin k
   prev : Fin k → Fin k
   next_ne : ∀ i, next i ≠ i
+  next_next_ne : 2 < k → ∀ i, next (next i) ≠ i
   next_prev : ∀ i, next (prev i) = i
   prev_next : ∀ i, prev (next i) = i
   a_injective : Function.Injective a
@@ -64,6 +65,13 @@ theorem prev_ne {k : Nat} (C : EvenHoleLabeling G k) (i : Fin k) :
   rw [C.next_prev i] at hn
   exact C.next_ne i hn.symm
 
+theorem prev_ne_next {k : Nat} (C : EvenHoleLabeling G k)
+    (hk : 2 < k) (i : Fin k) : C.prev i ≠ C.next i := by
+  intro h
+  have hn := congrArg C.next h
+  rw [C.next_prev i] at hn
+  exact C.next_next_ne hk i hn.symm
+
 theorem a_ne_next {k : Nat} (C : EvenHoleLabeling G k) (i : Fin k) :
     C.a (C.next i) ≠ C.a i := by
   intro h
@@ -78,6 +86,18 @@ theorem b_ne_next {k : Nat} (C : EvenHoleLabeling G k) (i : Fin k) :
     C.b (C.next i) ≠ C.b i := by
   intro h
   exact C.next_ne i (C.b_injective h)
+
+theorem b_prev_ne_next {k : Nat} (C : EvenHoleLabeling G k)
+    (hk : 2 < k) (i : Fin k) :
+    C.b (C.prev i) ≠ C.b (C.next i) := by
+  intro h
+  exact C.prev_ne_next hk i (C.b_injective h)
+
+theorem b_ne_next_next {k : Nat} (C : EvenHoleLabeling G k)
+    (hk : 2 < k) (i : Fin k) :
+    C.b i ≠ C.b (C.next (C.next i)) := by
+  intro h
+  exact C.next_next_ne hk i (C.b_injective h).symm
 
 theorem adj_a_b {k : Nat} (C : EvenHoleLabeling G k) (i : Fin k) :
     G.Adj (C.a i) (C.b i) := by

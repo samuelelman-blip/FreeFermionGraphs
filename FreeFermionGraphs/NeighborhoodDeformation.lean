@@ -34,13 +34,13 @@ def deformedCarrier {k : Nat} (C : EvenHoleLabeling G k)
 @[simp]
 theorem clone_mem_deformedCarrier {k : Nat} (C : EvenHoleLabeling G k)
     (s : V) (i : Fin k) : s ∈ C.deformedCarrier s i := by
-  simp [deformedCarrier]
+  exact Set.mem_insert_iff.2 (Or.inl rfl)
 
 theorem mem_deformedCarrier_of_mem {k : Nat}
     (C : EvenHoleLabeling G k) {s v : V} {i : Fin k}
     (hv : v ∈ C.carrier) (hvi : v ≠ C.a i) :
     v ∈ C.deformedCarrier s i := by
-  simp [deformedCarrier, hv, hvi]
+  exact Set.mem_insert_iff.2 (Or.inr ⟨hv, by simpa using hvi⟩)
 
 /-- The two cycle neighbors of the replaced `a`-vertex remain in the
 deformed carrier. -/

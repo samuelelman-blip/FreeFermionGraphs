@@ -35,3 +35,4 @@ import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8
 import FreeFermionGraphs.Corollary9
+import FreeFermionGraphs.DependentSubsets

@@ -18,15 +18,13 @@ namespace SimpleGraph
 
 /-- An oriented token slide from `S` to `T`: remove `removed`, slide its token
 across an edge to `added`, and require both endpoint sets to be independent. -/
-structure ForwardTokenSlide (G : SimpleGraph V) (S T : Set V) : Prop where
-  source_independent : G.IsIndepSet S
-  target_independent : G.IsIndepSet T
-  removed : V
-  added : V
-  adjacent : G.Adj removed added
-  removed_mem : removed ∈ S \ T
-  added_mem : added ∈ T \ S
-  slide_eq : T = Set.insert added (S \ {removed})
+def ForwardTokenSlide (G : SimpleGraph V) (S T : Set V) : Prop :=
+  G.IsIndepSet S ∧ G.IsIndepSet T ∧
+    ∃ removed added : V,
+      G.Adj removed added ∧
+      removed ∈ S \ T ∧
+      added ∈ T \ S ∧
+      T = Set.insert added (S \ {removed})
 
 /-- Definition 13: two independent sets are related by a token slide.  The
 disjunction makes the reversibility stated after (A4) definitional. -/

@@ -51,7 +51,6 @@ theorem CloneAt.adj_iff_of_mem {k : Nat} {C : EvenHoleLabeling G k}
     G.Adj s v ↔
       v = C.a i ∨ v = C.b i ∨ v = C.b (C.next i) := by
   rw [h.adj_iff v hv, C.adj_a_iff_of_mem hv]
-  tauto
 
 /-- Corollary 3 restricts an additional neighbor of the left-hand base arm
 `a (prev i)-b i-u` to `b (prev i)` or `b (next i)`. -/
@@ -98,14 +97,14 @@ theorem CloneAt.left_additional_neighbor {k : Nat}
   · rcases hchoice with ⟨rfl, htai⟩ | ⟨rfl, hts⟩
     · rcases Set.mem_insert_iff.1 hvC with hvs | hvCarrier
       · exact (hvu hvs).elim
-      · rcases (h.adj_iff_of_mem hvCarrier).1 hvu' with
+      · rcases (h.adj_iff_of_mem hvCarrier).1 hvu'.symm with
           hvai | hvi | hvnext
         · exact (htai (hvai ▸ htv)).elim
         · exact (hvb hvi).elim
         · exact Or.inr hvnext
     · rcases Set.mem_insert_iff.1 hvC with hvs | hvCarrier
       · exact (hts (hvs ▸ htv)).elim
-      · rcases (C.adj_a_iff_of_mem hvCarrier).1 hvu' with
+      · rcases (C.adj_a_iff_of_mem hvCarrier).1 hvu'.symm with
           hvi | hvnext
         · exact (hvb hvi).elim
         · exact Or.inr hvnext

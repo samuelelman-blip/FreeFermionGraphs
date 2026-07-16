@@ -16,3 +16,4 @@ import FreeFermionGraphs.Lemma8
 import FreeFermionGraphs.Corollaries45
 import FreeFermionGraphs.NeighborhoodDeformation
 import FreeFermionGraphs.NeighborhoodDeformationAll
+import FreeFermionGraphs.Lemma9

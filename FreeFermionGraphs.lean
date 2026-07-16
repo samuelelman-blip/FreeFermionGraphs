@@ -39,3 +39,4 @@ import FreeFermionGraphs.DependentSubsets
 import FreeFermionGraphs.Corollary10
 import FreeFermionGraphs.Lemma11Degree
 import FreeFermionGraphs.PathCommutation
+import FreeFermionGraphs.Lemma11PathCounts

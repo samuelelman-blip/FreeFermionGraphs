@@ -368,7 +368,7 @@ def Lemma8Cases {k : Nat} (C : EvenHoleLabeling G k)
         (G.Adj t v ↔
           v = u ∨ v = C.b (C.next i) ∨
             v = C.a (C.next i) ∨
-            v = C.b (C.next (C.next i))))
+            v = C.b (C.next (C.next i)))))
 
 /-- Lemma 8 of the paper. -/
 theorem CloneAt.lemma8 {k : Nat}

@@ -42,3 +42,4 @@ import FreeFermionGraphs.PathCommutation
 import FreeFermionGraphs.Lemma11PathCounts
 import FreeFermionGraphs.Lemma11A
 import FreeFermionGraphs.Lemma11CommonNeighbor
+import FreeFermionGraphs.PairingType

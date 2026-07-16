@@ -58,12 +58,12 @@ theorem CloneAt.deformedAColorClass_isIndepSet {k : Nat}
     {C : EvenHoleLabeling G k} {s : V} {i : Fin k}
     (h : C.CloneAt s i) :
     G.IsIndepSet (C.deformedAColorClass s i) := by
-  intro x hx y hy _
-  simp only [deformedAColorClass, Set.mem_insert_iff, Set.mem_diff,
-    Set.mem_singleton_iff] at hx hy
+  intro x hx y hy hxy
+  change x = s ∨ (x ∈ C.aColorClass ∧ x ≠ C.a i) at hx
+  change y = s ∨ (y ∈ C.aColorClass ∧ y ≠ C.a i) at hy
   rcases hx with rfl | hx
   · rcases hy with rfl | hy
-    · exact G.irrefl s
+    · exact (hxy rfl).elim
     · rcases hy.1 with ⟨j, rfl⟩
       exact h.not_adj_a_of_ne hy.2
   · rcases hy with rfl | hy
@@ -88,8 +88,16 @@ theorem CloneAt.forwardTokenSlide_aColorClass {k : Nat}
         apply h.outside
         rw [← his]
         exact C.a_mem_carrier i
-      simp [deformedAColorClass, hais]
-  · exact ⟨by simp [deformedAColorClass], h.not_mem_aColorClass⟩
+      intro hmem
+      change C.a i = s ∨
+        (C.a i ∈ C.aColorClass ∧ C.a i ≠ C.a i) at hmem
+      rcases hmem with his | hne
+      · exact hais his
+      · exact hne.2 rfl
+  · constructor
+    · change s = s ∨ (s ∈ C.aColorClass ∧ s ≠ C.a i)
+      exact Or.inl rfl
+    · exact h.not_mem_aColorClass
 
 /-- Paper-facing form: a single-vertex even-hole deformation is a token
 slide on its coloring class. -/

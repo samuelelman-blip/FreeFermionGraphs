@@ -14,3 +14,4 @@ import FreeFermionGraphs.Deformation
 import FreeFermionGraphs.EvenHoleLabeling
 import FreeFermionGraphs.Lemma8
 import FreeFermionGraphs.Corollaries45
+import FreeFermionGraphs.NeighborhoodDeformation

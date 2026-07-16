@@ -32,6 +32,15 @@ noncomputable def tokenSlidingCharge (G : SimpleGraph V) (k : Nat)
   exact ∑ S : TokenConfiguration G k,
     if G.tokenSlidingComponentMk k S = μ then weight S else 0
 
+/-- The finite collection `Ξₖ` of all token-sliding components. -/
+noncomputable def tokenSlidingComponentFinset (G : SimpleGraph V) (k : Nat)
+    [Fintype V] [DecidableEq V] :
+    Finset (TokenSlidingComponent G k) := by
+  classical
+  letI : Fintype (TokenSlidingComponent G k) :=
+    Fintype.ofFinite (TokenSlidingComponent G k)
+  exact Finset.univ
+
 /-- A component charge depends only on weights from that component. -/
 theorem tokenSlidingCharge_congr (G : SimpleGraph V) (k : Nat)
     [Fintype V] [DecidableEq V] {A : Type w} [AddCommMonoid A]
@@ -55,12 +64,11 @@ theorem sum_tokenSlidingCharge_eq_independentSetCharge
     (G : SimpleGraph V) (k : Nat)
     [Fintype V] [DecidableEq V] {A : Type w} [AddCommMonoid A]
     (weight : TokenConfiguration G k → A) :
-    (∑ μ : TokenSlidingComponent G k,
+    (∑ μ in G.tokenSlidingComponentFinset k,
       G.tokenSlidingCharge k weight μ) =
       G.independentSetCharge k weight := by
   classical
-  letI : Fintype (TokenSlidingComponent G k) :=
-    Fintype.ofFinite (TokenSlidingComponent G k)
-  simp [tokenSlidingCharge, independentSetCharge, Finset.sum_comm]
+  simp [tokenSlidingComponentFinset, tokenSlidingCharge,
+    independentSetCharge, Finset.sum_comm]
 
 end SimpleGraph

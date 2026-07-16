@@ -19,3 +19,4 @@ import FreeFermionGraphs.NeighborhoodDeformationAll
 import FreeFermionGraphs.Lemma9
 import FreeFermionGraphs.Corollary6
 import FreeFermionGraphs.TokenSliding
+import FreeFermionGraphs.TokenSlidingReachability

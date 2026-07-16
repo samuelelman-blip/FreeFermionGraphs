@@ -29,3 +29,4 @@ import FreeFermionGraphs.GeneralizedCycleSymmetry
 import FreeFermionGraphs.InducedPathTree
 import FreeFermionGraphs.CliqueInducedPathTree
 import FreeFermionGraphs.BubbleWand
+import FreeFermionGraphs.DirectedHoppingGraph

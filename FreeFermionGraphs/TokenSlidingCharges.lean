@@ -64,7 +64,7 @@ theorem sum_tokenSlidingCharge_eq_independentSetCharge
     (G : SimpleGraph V) (k : Nat)
     [Fintype V] [DecidableEq V] {A : Type w} [AddCommMonoid A]
     (weight : TokenConfiguration G k → A) :
-    (∑ μ in G.tokenSlidingComponentFinset k,
+    (∑ μ ∈ G.tokenSlidingComponentFinset k,
       G.tokenSlidingCharge k weight μ) =
       G.independentSetCharge k weight := by
   classical

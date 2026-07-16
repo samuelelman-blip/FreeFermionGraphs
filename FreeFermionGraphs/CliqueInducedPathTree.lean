@@ -40,7 +40,7 @@ theorem adjoinRootAdj_irrefl (G : SimpleGraph V) (K : Set V)
   intro h
   cases x with
   | none => exact h
-  | some x => exact G.irrefl x h
+  | some x => exact G.irrefl h
 
 /-- The augmented graph `G*` used in Definition 17. -/
 def adjoinRootAt (G : SimpleGraph V) (K : Set V) : SimpleGraph (Option V) where

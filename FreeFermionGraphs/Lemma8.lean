@@ -379,13 +379,14 @@ theorem CloneAt.lemma8 {k : Nat}
       (G.Adj t s ∧ ¬G.Adj t (C.a i)) ∨
       (¬G.Adj t s ∧ G.Adj t (C.a i))) :
     C.Lemma8Cases s t i := by
-  obtain ⟨u, hchoice, htu, hleft | hright⟩ :=
+  obtain ⟨u, hchoice, htu, hside⟩ :=
     h.dependent_neighbor_restriction hclaw htC hexact
   have hu : u = s ∨ u = C.a i := by
     rcases hchoice with ⟨hus, _⟩ | ⟨hua, _⟩
     · exact Or.inl hus
     · exact Or.inr hua
   refine ⟨u, hu, ?_⟩
+  rcases hside with hleft | hright
   · rcases hleft with ⟨htb, hta, hrestrict⟩
     have hopen := h.left_opposite_outer_eq_or_not_adj
       hclaw htC hchoice htu htb hta

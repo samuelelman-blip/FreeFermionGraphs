@@ -43,8 +43,9 @@ theorem CloneAt.mem_openNeighborhood_deformedCarrier_of_mem_insert
     {k : Nat} {C : EvenHoleLabeling G k} {s t : V} {i : Fin k}
     (h : C.CloneAt s i) (ht : t ∈ Set.insert s C.carrier) :
     t ∈ G.openNeighborhood (C.deformedCarrier s i) := by
-  rcases Set.mem_insert_iff.1 ht with rfl | htC
-  · exact ⟨C.b i, C.b_mem_deformedCarrier s i, h.adj_b⟩
+  rcases Set.mem_insert_iff.1 ht with hts | htC
+  · subst t
+    exact ⟨C.b i, C.b_mem_deformedCarrier s i, h.adj_b⟩
   · rcases htC with ⟨j, rfl⟩ | ⟨j, rfl⟩
     · by_cases hji : j = i
       · subst j

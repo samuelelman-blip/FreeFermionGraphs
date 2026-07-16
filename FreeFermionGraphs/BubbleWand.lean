@@ -35,11 +35,15 @@ variable {G : SimpleGraph V}
 
 /-- The vertex immediately after the handle. -/
 def nextIndex (B : BubbleWand G) : Fin B.path.card :=
-  ⟨B.split.val + 1, by omega⟩
+  ⟨B.split.val + 1, by
+    have hgap := B.gap
+    omega⟩
 
 /-- The final endpoint index of the underlying path. -/
 def lastIndex (B : BubbleWand G) : Fin B.path.card :=
-  ⟨B.path.card - 1, by omega⟩
+  ⟨B.path.card - 1, by
+    have hpos : 0 < B.path.card := B.path.nonempty
+    omega⟩
 
 /-- The carrier of the full bubble-wand graph `B = P ∪ {j}`. -/
 def carrier (B : BubbleWand G) : Set V :=
@@ -87,6 +91,7 @@ theorem adj_last (B : BubbleWand G) :
   apply (B.adj_iff B.lastIndex).2
   exact Or.inr (Or.inr (by
     change B.path.card - 1 + 1 = B.path.card
+    have hpos : 0 < B.path.card := B.path.nonempty
     omega))
 
 end BubbleWand

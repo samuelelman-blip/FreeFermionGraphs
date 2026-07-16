@@ -24,3 +24,4 @@ import FreeFermionGraphs.TokenSlidingGraph
 import FreeFermionGraphs.TokenSlidingComponents
 import FreeFermionGraphs.DeformationTokenSliding
 import FreeFermionGraphs.TokenSlidingCharges
+import FreeFermionGraphs.DeformationClosureRelation

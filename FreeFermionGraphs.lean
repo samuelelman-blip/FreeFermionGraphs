@@ -21,3 +21,4 @@ import FreeFermionGraphs.Corollary6
 import FreeFermionGraphs.TokenSliding
 import FreeFermionGraphs.TokenSlidingReachability
 import FreeFermionGraphs.TokenSlidingGraph
+import FreeFermionGraphs.TokenSlidingComponents

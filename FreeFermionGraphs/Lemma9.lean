@@ -52,7 +52,7 @@ theorem InEvenHoleDeformationClosure.openNeighborhood_eq
     (hclaw : G.IsClawFree) :
     G.openNeighborhood A = G.openNeighborhood B := by
   induction hclosure with
-  | refl A => rfl
+  | refl => rfl
   | tail hAB hBC ih =>
       exact ih.trans (hBC.openNeighborhood_eq hclaw)
 

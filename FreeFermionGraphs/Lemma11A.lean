@@ -50,7 +50,7 @@ theorem lemma11a_dependent_step
         G.Adj u v ∧
         G.Adj introduced v ∧
         G.Adj (C.vertex i) v := by
-  refine ⟨G.dependentVertex_ne_introduced huDependent, ?_, ?_, ?_⟩
+  refine ⟨dependentVertex_ne_introduced huDependent, ?_, ?_, ?_⟩
   · exact P.anticommutesWith_count_eq_one_or_three
       hclaw huOutsidePath hanti
   · exact hdeform.dependent_externalDegree_deform_eq_add_one

@@ -25,3 +25,4 @@ import FreeFermionGraphs.TokenSlidingComponents
 import FreeFermionGraphs.DeformationTokenSliding
 import FreeFermionGraphs.TokenSlidingCharges
 import FreeFermionGraphs.DeformationClosureRelation
+import FreeFermionGraphs.GeneralizedCycleSymmetry

@@ -31,3 +31,4 @@ import FreeFermionGraphs.CliqueInducedPathTree
 import FreeFermionGraphs.BubbleWand
 import FreeFermionGraphs.DirectedHoppingGraph
 import FreeFermionGraphs.BubbleWandHoppingArc
+import FreeFermionGraphs.FixedPairingPaths

@@ -131,7 +131,7 @@ theorem earlierAnticommutingWitness_sharesPath
     EarlierAnticommutingWitness
       U Anticommutes O.SharesPath s u := by
   exact earlierAnticommutingWitness_of_descent hdesc
-    (fun hy hxy hyz =>
+    (fun {_s} {_x} {_y} {_z} hy hxy hyz =>
       O.sharesPath_trans_of_atMostOne (hunique hy) hxy hyz)
     hu hcomm
 

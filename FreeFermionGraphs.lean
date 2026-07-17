@@ -44,3 +44,4 @@ import FreeFermionGraphs.Lemma11A
 import FreeFermionGraphs.Lemma11CommonNeighbor
 import FreeFermionGraphs.PairingType
 import FreeFermionGraphs.Lemma11Pairing
+import FreeFermionGraphs.Lemma11OppositePairing

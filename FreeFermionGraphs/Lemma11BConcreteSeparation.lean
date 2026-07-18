@@ -58,9 +58,10 @@ theorem ConcreteDeformationStep.dependent_not_mem_cc
     (hgeom : O.ACStepGeometry S)
     {u : V} (hu : u ∈ S.dependentSet) :
     u ∉ O.Cc := by
+  intro huCc
   have hmem :=
     (ConcreteDeformationStep.mem_dependentSet S).1 hu
-  exact hgeom.cc_independent hmem.2.1 hgeom.introduced_cc
+  exact hgeom.cc_independent huCc hgeom.introduced_cc hmem.2.1
 
 /-- A dependent vertex outside the active path cannot lie in `Cₐ`:
 otherwise its edge to the introduced `C'꜀` vertex belongs to an

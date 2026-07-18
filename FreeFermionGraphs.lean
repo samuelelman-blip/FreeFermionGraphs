@@ -75,3 +75,4 @@ import FreeFermionGraphs.Lemma11BEvenness
 import FreeFermionGraphs.Lemma11BDefinition20Attachment
 import FreeFermionGraphs.Lemma11BFinalHoleColors
 import FreeFermionGraphs.Lemma11BDefinition20CommonNeighbor
+import FreeFermionGraphs.Lemma11BFinalNeighborIndices

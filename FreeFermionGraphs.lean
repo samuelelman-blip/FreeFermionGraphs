@@ -66,3 +66,4 @@ import FreeFermionGraphs.Lemma11BThreeNeighborObstruction
 import FreeFermionGraphs.Lemma11BIsolatedTriple
 import FreeFermionGraphs.Lemma11BColorTriple
 import FreeFermionGraphs.Lemma11BPredecessorBase
+import FreeFermionGraphs.Lemma11BPredecessorLocal

@@ -44,11 +44,9 @@ theorem anticommutesWith_of_first_neighbor_not_second_not_last
   intro hcomm
   rcases P.commutesWith_count_eq_zero_or_two_or_four
       hclaw huOutside hcomm with hzero | htwo | hfour
-  · have hnonempty : (P.neighborIndexSet u).Nonempty := by
-      exact ⟨first, huFirst⟩
-    have hpos : 0 < (P.neighborIndexSet u).ncard :=
-      Set.ncard_pos.mpr hnonempty
-    omega
+  · exact
+      (Set.ncard_ne_zero_of_mem
+        (show first ∈ P.neighborIndexSet u from huFirst)) hzero
   · have twoImpossible
         (q : Fin P.card)
         (hfirstq : first ≠ q)
@@ -231,17 +229,26 @@ theorem baseDependentAnticommutes_of_baseParity
     D.dependent_not_mem_path M.stepLabeling hu
   have huLast := hopposite hu
   rw [← D.activePath_eq D.firstIndex] at huOutside huLast ⊢
-  refine
-    (D.deformation.step D.firstIndex).activePath.
+  have huFirst :
+      G.Adj u
+        ((D.deformation.step D.firstIndex).activePath.vertex
+          (M.stepLabeling D.firstIndex).introducedPathIndex) := by
+    rw [(M.stepLabeling D.firstIndex).introduced_eq]
+    exact hmem.2.1
+  have huSecond :
+      ¬G.Adj u
+        ((D.deformation.step D.firstIndex).activePath.vertex
+          (M.stepLabeling D.firstIndex).removedPathIndex) := by
+    rw [(M.stepLabeling D.firstIndex).removed_eq]
+    exact hmem.2.2.2
+  exact
+    IndexedInducedPath.
       anticommutesWith_of_first_neighbor_not_second_not_last
+        (D.deformation.step D.firstIndex).activePath
         hclaw huOutside
         (M.firstIntroducedIndex_val_eq_zero horder)
         (M.firstRemovedIndex_val_eq_one horder)
-        ?_ ?_ huLast
-  · rw [(M.stepLabeling D.firstIndex).introduced_eq]
-    exact hmem.2.1
-  · rw [(M.stepLabeling D.firstIndex).removed_eq]
-    exact hmem.2.2.2
+        huFirst huSecond huLast
 
 /-- The reduced base parity input and the one/two-step attachment rule give
 the complete common-`C_b` predecessor rule. -/

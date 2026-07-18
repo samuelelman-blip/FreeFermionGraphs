@@ -73,7 +73,9 @@ theorem ConcreteDeformationStep.dependent_not_mem_activePath
   have hqOutside :
       S.activePath.vertex q ∉ Cprime :=
     hlabel.otherNeighbor_outsidePrime q hqRemoved hadj
-  exact hqOutside (hqu ▸ hmem.1)
+  apply hqOutside
+  rw [hqu]
+  exact hmem.1
 
 /-- Pairing-side separation now follows from the concrete path labeling,
 without an outside-path hypothesis supplied by the caller. -/

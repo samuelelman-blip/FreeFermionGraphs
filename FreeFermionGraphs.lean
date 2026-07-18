@@ -54,3 +54,4 @@ import FreeFermionGraphs.Lemma11BPredecessor
 import FreeFermionGraphs.Lemma11BComponents
 import FreeFermionGraphs.Lemma11BFinal
 import FreeFermionGraphs.Corollary11
+import FreeFermionGraphs.Corollary11Components

@@ -28,7 +28,7 @@ variable {G : SimpleGraph V}
 at one deformation step. -/
 structure StepPathLabeling
     {O : FixedPairingPathFamily G} {Cprime : Set V}
-    (S : ConcreteDeformationStep O Cprime) : Prop where
+    (S : ConcreteDeformationStep O Cprime) where
   introducedPathIndex : Fin S.activePath.card
   removedPathIndex : Fin S.activePath.card
   introduced_eq :

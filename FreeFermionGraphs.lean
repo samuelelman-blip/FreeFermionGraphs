@@ -70,3 +70,4 @@ import FreeFermionGraphs.Lemma11BPredecessorLocal
 import FreeFermionGraphs.Lemma11BPredecessorConcrete
 import FreeFermionGraphs.Lemma11BPredecessorNeighbor
 import FreeFermionGraphs.Lemma11BBasePathOrder
+import FreeFermionGraphs.Lemma11BBaseParity

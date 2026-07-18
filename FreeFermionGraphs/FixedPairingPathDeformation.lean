@@ -139,9 +139,8 @@ theorem sideSeparated
     ⟨s, D.index_lt_of_mem_dependentAt hu⟩
   have huStep : u ∈ (D.deformation.step i).dependentSet := by
     exact D.mem_step_dependentSet_of_mem_dependentAt hu
-  exact (D.deformation.step i)
-    |>.dependent_pairingSideSeparated_of_labeling
-      (M.stepGeometry i).base (M.stepLabeling i) huStep
+  exact (D.deformation.step i).dependent_pairingSideSeparated_of_labeling
+    (M.stepGeometry i).base (M.stepLabeling i) huStep
 
 /-- Terminal path containment, in fact proved for every dependent vertex
 in the path block. -/

@@ -99,7 +99,7 @@ theorem commonBPredecessorRule_of_successor
       .ac D.dependentAt D.path.AnticommutesWith := by
   exact O.commonBPredecessorRule_of_base_and_successor
     .ac D.dependentAt D.path.AnticommutesWith
-    (fun hu => D.baseDependentAnticommutes hbase hu)
+    (fun {_u} hu => D.baseDependentAnticommutes hbase hu)
     hsucc
 
 /-- Concrete Lemma 11(b) with the degree input reduced to the color-class

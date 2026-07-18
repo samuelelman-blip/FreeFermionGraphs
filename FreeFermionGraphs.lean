@@ -60,3 +60,4 @@ import FreeFermionGraphs.FixedPairingDeformation
 import FreeFermionGraphs.Lemma11BConcreteSeparation
 import FreeFermionGraphs.Lemma11BTerminalContainment
 import FreeFermionGraphs.Lemma11BOutsidePath
+import FreeFermionGraphs.FixedPairingPathDeformation

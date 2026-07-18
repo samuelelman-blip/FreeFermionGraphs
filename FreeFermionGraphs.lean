@@ -63,3 +63,4 @@ import FreeFermionGraphs.Lemma11BOutsidePath
 import FreeFermionGraphs.FixedPairingPathDeformation
 import FreeFermionGraphs.Lemma11BConcreteDegree
 import FreeFermionGraphs.Lemma11BThreeNeighborObstruction
+import FreeFermionGraphs.Lemma11BIsolatedTriple

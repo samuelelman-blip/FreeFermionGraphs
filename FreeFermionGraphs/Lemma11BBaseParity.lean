@@ -242,9 +242,8 @@ theorem baseDependentAnticommutes_of_baseParity
     rw [(M.stepLabeling D.firstIndex).removed_eq]
     exact hmem.2.2.2
   exact
-    IndexedInducedPath.
-      anticommutesWith_of_first_neighbor_not_second_not_last
-        (D.deformation.step D.firstIndex).activePath
+    IndexedInducedPath.anticommutesWith_of_first_neighbor_not_second_not_last
+      (D.deformation.step D.firstIndex).activePath
         hclaw huOutside
         (M.firstIntroducedIndex_val_eq_zero horder)
         (M.firstRemovedIndex_val_eq_one horder)

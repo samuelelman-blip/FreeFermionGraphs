@@ -52,3 +52,4 @@ import FreeFermionGraphs.Lemma11BBase
 import FreeFermionGraphs.Lemma11BFourNeighbors
 import FreeFermionGraphs.Lemma11BPredecessor
 import FreeFermionGraphs.Lemma11BComponents
+import FreeFermionGraphs.Lemma11BFinal

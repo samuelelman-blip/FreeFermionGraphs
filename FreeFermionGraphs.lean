@@ -67,3 +67,4 @@ import FreeFermionGraphs.Lemma11BIsolatedTriple
 import FreeFermionGraphs.Lemma11BColorTriple
 import FreeFermionGraphs.Lemma11BPredecessorBase
 import FreeFermionGraphs.Lemma11BPredecessorLocal
+import FreeFermionGraphs.Lemma11BPredecessorConcrete

@@ -8,11 +8,11 @@ single-vertex replacements.  This module groups those concrete steps into
 one nonempty block with a common active path and supplies the natural
 Nat-indexed dependent subsets used in the paper.
 
-The mechanical Definition 19/20 geometry constructs four fields of
-`Lemma11BNeighborhoodData`: pairing-side separation, terminal path
-containment, exclusion from the active path, and component edge coverage.
-The remaining obligations are exactly the local neighbor-count identity
-and the strict predecessor construction.
+The mechanical Definition 19/20 geometry constructs every nonlocal field
+of `Lemma11BNeighborhoodData`: pairing-side separation, terminal path
+containment, exclusion from the active path where it is needed, and
+component edge coverage.  The remaining obligations are exactly the
+degree-four local case analysis and the strict predecessor construction.
 -/
 
 universe u
@@ -165,18 +165,15 @@ theorem edgeCoverage
   (M.stepGeometry D.firstIndex).bdEdgeCoverage
 
 /-- Construct the final Lemma 11(b) neighborhood package from concrete
-Definition 19/20 data and the three genuinely local remaining rules. -/
+Definition 19/20 data and the two genuinely local remaining rules. -/
 def toLemma11BNeighborhoodData
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
     (degree : Nat → V → Nat)
-    (hthree : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+    (hdegreeFour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
       ¬D.path.AnticommutesWith u →
-        3 ≤ (D.path.neighborIndexSet u).ncard)
-    (hdegreeCount : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-      u ∈ D.dependentAt s →
-        degree s u = (D.path.neighborIndexSet u).ncard)
+        degree s u = 4)
     (hpred :
       O.CommonBPredecessorRule
         .ac D.dependentAt D.path.AnticommutesWith) :
@@ -187,31 +184,24 @@ def toLemma11BNeighborhoodData
   terminalContained := by
     intro s u hu _
     exact M.contained hclaw hu
-  outsidePath := by
-    intro s u hu
-    exact D.dependent_not_mem_path M.stepLabeling hu
-  three_le := hthree
-  degree_eq_pathCount := hdegreeCount
+  degree_four := hdegreeFour
   edgeCoverage := M.edgeCoverage
   predecessor := hpred
 
 end MechanicalData
 
-/-- Lemma 11(b) for a concrete one-path deformation.  Four former
-neighborhood assumptions are now consequences; only the two local count
-facts and the common-neighbor predecessor rule remain. -/
+/-- Lemma 11(b) for a concrete one-path deformation.  All bookkeeping
+assumptions are now consequences; only the degree-four case analysis and
+the common-neighbor predecessor rule remain. -/
 theorem lemma11b_of_concretePathDeformation
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
     (degree : Nat → V → Nat)
-    (hthree : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+    (hdegreeFour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
       ¬D.path.AnticommutesWith u →
-        3 ≤ (D.path.neighborIndexSet u).ncard)
-    (hdegreeCount : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-      u ∈ D.dependentAt s →
-        degree s u = (D.path.neighborIndexSet u).ncard)
+        degree s u = 4)
     (hpred :
       O.CommonBPredecessorRule
         .ac D.dependentAt D.path.AnticommutesWith)
@@ -221,9 +211,9 @@ theorem lemma11b_of_concretePathDeformation
     degree s u = 4 ∧
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
-  O.lemma11b D.path hclaw D.dependentAt degree
+  O.lemma11b D.path D.dependentAt degree
     (M.toLemma11BNeighborhoodData
-      hclaw degree hthree hdegreeCount hpred)
+      hclaw degree hdegreeFour hpred)
     hu hcomm
 
 end ConcretePathDeformation

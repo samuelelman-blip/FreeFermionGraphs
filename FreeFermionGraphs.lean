@@ -72,3 +72,4 @@ import FreeFermionGraphs.Lemma11BPredecessorNeighbor
 import FreeFermionGraphs.Lemma11BBasePathOrder
 import FreeFermionGraphs.Lemma11BBaseParity
 import FreeFermionGraphs.Lemma11BEvenness
+import FreeFermionGraphs.Lemma11BDefinition20Attachment

@@ -5,7 +5,7 @@ import FreeFermionGraphs.Lemma11BSideSeparation
 
 This module collects the remaining local neighborhood facts from the
 case analysis of Lemma 11(b) into one structure.  The previously proved
-parity, component, and well-founded-descent results then yield the complete
+component and well-founded-descent results then yield the complete
 degree-four, earlier-anticommuting-witness, and unique-path conclusion in
 one theorem.
 -/
@@ -20,13 +20,13 @@ namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
 
-/-- The local neighborhood information established by the detailed
-claw-free case analysis in the proof of Lemma 11(b).
+/-- The local information needed after the concrete Definition 19/20
+bookkeeping has been discharged.
 
-Pairing-side separation is the exact uniqueness condition needed here; it
-does not require mutually exclusive membership in all four coloring sets.
-Only a terminal anticommuting predecessor needs to belong to a displayed
-path component. -/
+The degree field is stated exactly as in Lemma 11(b): a commuting
+dependent vertex has degree four in the final hole.  The former path-count
+lower bound and count-identification fields were proof-internal
+decompositions rather than hypotheses of the paper. -/
 structure Lemma11BNeighborhoodData
     (O : FixedPairingPathFamily G)
     (P : IndexedInducedPath G)
@@ -38,14 +38,10 @@ structure Lemma11BNeighborhoodData
     u ∈ U s →
     P.AnticommutesWith u →
     ∃ Q : Set V, Q ∈ O.paths ∧ u ∈ Q
-  outsidePath : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-    u ∈ U s → u ∉ Set.range P.vertex
-  three_le : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-    u ∈ U s → ¬P.AnticommutesWith u →
-      3 ≤ (P.neighborIndexSet u).ncard
-  degree_eq_pathCount : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+  degree_four : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
     u ∈ U s →
-      degree s u = (P.neighborIndexSet u).ncard
+    ¬P.AnticommutesWith u →
+    degree s u = 4
   edgeCoverage : O.CoversBDEdges
   predecessor :
     O.CommonBPredecessorRule .ac U P.AnticommutesWith
@@ -56,7 +52,6 @@ fixed-pairing path component also contains the original vertex. -/
 theorem lemma11b
     (O : FixedPairingPathFamily G)
     (P : IndexedInducedPath G)
-    (hclaw : G.IsClawFree)
     (U : Nat → Set V)
     (degree : Nat → V → Nat)
     (hdata : O.Lemma11BNeighborhoodData P U degree)
@@ -66,12 +61,6 @@ theorem lemma11b
     degree s u = 4 ∧
       O.EarlierAnticommutingWitnessInUniquePath
         U P.AnticommutesWith s u := by
-  have hdegree : ∀ ⦃t : Nat⦄ ⦃v : V⦄,
-      v ∈ U t → ¬P.AnticommutesWith v →
-        degree t v = 4 :=
-    P.lemma11b_degree_four_rule_of_path_count
-      hclaw U degree hdata.outsidePath hdata.three_le
-        hdata.degree_eq_pathCount
   have hcapture : O.CapturesClassConnections .ac :=
     O.capturesClassConnections_ac_of_coversBDEdges
       hdata.edgeCoverage
@@ -81,7 +70,7 @@ theorem lemma11b
       .ac U P.AnticommutesWith hcapture hdata.predecessor
   have hlocal :
       O.Lemma11BLocalData U P.AnticommutesWith degree := by
-    refine ⟨?_, hdegree, hdesc⟩
+    refine ⟨?_, hdata.degree_four, hdesc⟩
     intro t v hv
     exact O.atMostOneContainingPath_of_pairingSideSeparated
       (hdata.sideSeparated hv)

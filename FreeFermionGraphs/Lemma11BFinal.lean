@@ -1,13 +1,13 @@
-import FreeFermionGraphs.Lemma11BComponents
+import FreeFermionGraphs.Lemma11BSideSeparation
 
 /-!
 # Lemma 11(b): final assembly
 
 This module collects the remaining local neighborhood facts from the
 case analysis of Lemma 11(b) into one structure.  The previously proved
-parity, coloring, component, and well-founded-descent results then yield
-the complete degree-four, earlier-anticommuting-witness, and unique-path
-conclusion in one theorem.
+parity, component, and well-founded-descent results then yield the complete
+degree-four, earlier-anticommuting-witness, and unique-path conclusion in
+one theorem.
 -/
 
 universe u
@@ -23,19 +23,20 @@ variable {G : SimpleGraph V}
 /-- The local neighborhood information established by the detailed
 claw-free case analysis in the proof of Lemma 11(b).
 
-The path-count fields identify the post-deformation degree with the active
-path count and force at least three neighbors in the commuting case.  The
-last two fields encode the component decomposition and the strictly earlier
-common-neighbor predecessor constructed in the paper. -/
+Pairing-side separation is the exact uniqueness condition needed here; it
+does not require mutually exclusive membership in all four coloring sets.
+Only a terminal anticommuting predecessor needs to belong to a displayed
+path component. -/
 structure Lemma11BNeighborhoodData
     (O : FixedPairingPathFamily G)
     (P : IndexedInducedPath G)
     (U : Nat → Set V)
     (degree : Nat → V → Nat) : Prop where
-  exactColoring : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-    u ∈ U s → ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd
-  contained : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+  sideSeparated : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+    u ∈ U s → O.PairingSideSeparated u
+  terminalContained : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
     u ∈ U s →
+    P.AnticommutesWith u →
     ∃ Q : Set V, Q ∈ O.paths ∧ u ∈ Q
   outsidePath : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
     u ∈ U s → u ∉ Set.range P.vertex
@@ -71,10 +72,26 @@ theorem lemma11b
     P.lemma11b_degree_four_rule_of_path_count
       hclaw U degree hdata.outsidePath hdata.three_le
         hdata.degree_eq_pathCount
-  exact O.lemma11b_of_bdEdgeCoverage
-    U P.AnticommutesWith degree
-    hdata.exactColoring hdata.contained hdegree
-    hdata.edgeCoverage hdata.predecessor hu hcomm
+  have hcapture : O.CapturesClassConnections .ac :=
+    O.capturesClassConnections_ac_of_coversBDEdges
+      hdata.edgeCoverage
+  have hdesc :
+      DependentDescentRule U P.AnticommutesWith O.SharesPath :=
+    O.dependentDescentRule_of_commonBPredecessors
+      .ac U P.AnticommutesWith hcapture hdata.predecessor
+  have hlocal :
+      O.Lemma11BLocalData U P.AnticommutesWith degree := by
+    refine ⟨?_, hdegree, hdesc⟩
+    intro t v hv
+    exact O.atMostOneContainingPath_of_pairingSideSeparated
+      (hdata.sideSeparated hv)
+  apply O.lemma11b_with_uniquePath
+    U P.AnticommutesWith degree hlocal hu hcomm
+  intro t v _ hv hanti
+  obtain ⟨Q, hQ, hvQ⟩ := hdata.terminalContained hv hanti
+  exact ⟨Q,
+    O.isUniqueContainingPath_of_pairingSideSeparated
+      hQ hvQ (hdata.sideSeparated hv)⟩
 
 end FixedPairingPathFamily
 

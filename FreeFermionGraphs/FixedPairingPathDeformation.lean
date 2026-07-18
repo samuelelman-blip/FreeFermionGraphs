@@ -48,7 +48,9 @@ def firstIndex (D : ConcretePathDeformation O Cprime) :
 /-- Index of the final replacement along the path. -/
 def lastIndex (D : ConcretePathDeformation O Cprime) :
     Fin D.deformation.stepCount :=
-  ⟨D.deformation.stepCount - 1, by omega⟩
+  ⟨D.deformation.stepCount - 1, by
+    have hpos : 0 < D.deformation.stepCount := D.nonempty
+    omega⟩
 
 /-- Hole immediately before deforming along this path. -/
 def initialHole (D : ConcretePathDeformation O Cprime) :
@@ -179,10 +181,15 @@ def toLemma11BNeighborhoodData
       O.CommonBPredecessorRule
         .ac D.dependentAt D.path.AnticommutesWith) :
     O.Lemma11BNeighborhoodData D.path D.dependentAt degree where
-  sideSeparated := fun hu => M.sideSeparated hu
-  terminalContained := fun hu _ => M.contained hclaw hu
-  outsidePath := fun hu =>
-    D.dependent_not_mem_path M.stepLabeling hu
+  sideSeparated := by
+    intro s u hu
+    exact M.sideSeparated hu
+  terminalContained := by
+    intro s u hu _
+    exact M.contained hclaw hu
+  outsidePath := by
+    intro s u hu
+    exact D.dependent_not_mem_path M.stepLabeling hu
   three_le := hthree
   degree_eq_pathCount := hdegreeCount
   edgeCoverage := M.edgeCoverage

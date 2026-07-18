@@ -58,3 +58,4 @@ import FreeFermionGraphs.Corollary11
 import FreeFermionGraphs.Corollary11Components
 import FreeFermionGraphs.FixedPairingDeformation
 import FreeFermionGraphs.Lemma11BConcreteSeparation
+import FreeFermionGraphs.Lemma11BTerminalContainment

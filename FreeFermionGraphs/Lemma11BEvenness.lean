@@ -65,7 +65,7 @@ theorem before_card_eq_first
     (s : Nat) (hs : s < D.stepCount) :
     (D.step ⟨s, hs⟩).before.card =
       (D.step ⟨0, hpos⟩).before.card := by
-  induction s generalizing hs with
+  induction s with
   | zero =>
       rfl
   | succ s ih =>
@@ -106,6 +106,7 @@ theorem finalHole_card_eq_initialHole_card
   have hlast :
       D.deformation.stepCount - 1 <
         D.deformation.stepCount := by
+    have hpos : 0 < D.deformation.stepCount := D.nonempty
     omega
   have hbefore :
       (D.deformation.step D.lastIndex).before.card =

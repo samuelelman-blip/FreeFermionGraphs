@@ -70,7 +70,7 @@ theorem introduced_ne_later_removed
     (D : ConcretePathDeformation O Cprime)
     (L : Definition19GlobalOverlapPathOrder D)
     (i j : Fin D.deformation.stepCount)
-    (hij : i.val < j.val) :
+    (_hij : i.val < j.val) :
     (D.deformation.step i).introduced ≠
       (D.deformation.step j).before.vertex
         (D.deformation.step j).removedIndex := by
@@ -182,10 +182,14 @@ theorem introduced_mem_finalHole
     (i : Fin D.deformation.stepCount) :
     (D.deformation.step i).introduced ∈
       Set.range D.finalHole.vertex := by
+  have hpos : 0 < D.deformation.stepCount :=
+    D.nonempty
   have hlast :
       D.deformation.stepCount - 1 <
         D.deformation.stepCount := by
     omega
+  have hi : i.val < D.deformation.stepCount :=
+    i.isLt
   have hiLast :
       i.val ≤ D.deformation.stepCount - 1 := by
     omega

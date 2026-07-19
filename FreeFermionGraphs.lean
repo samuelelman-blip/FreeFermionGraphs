@@ -77,3 +77,4 @@ import FreeFermionGraphs.Lemma11BFinalHoleColors
 import FreeFermionGraphs.Lemma11BDefinition20CommonNeighbor
 import FreeFermionGraphs.Lemma11BFinalNeighborIndices
 import FreeFermionGraphs.Lemma11BStrictDefinition20Descent
+import FreeFermionGraphs.Lemma11BInPathDependent

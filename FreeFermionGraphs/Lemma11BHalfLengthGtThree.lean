@@ -220,9 +220,7 @@ theorem adj_previous_introduced_of_three_lt
     omega
   let C : EvenHoleLabeling G k := A.labeling previous
   let r : Fin k := A.removedAIndex previous
-  let hprevious : C.CloneAt
-      (D.deformation.step previous).introduced r := by
-    simpa [C, r] using A.cloneAt previous
+  let hprevious := A.cloneAt previous
   let C1 : EvenHoleLabeling G k := C.deform hprevious
   have hcurrent :
       C1.CloneAt
@@ -238,7 +236,6 @@ theorem adj_previous_introduced_of_three_lt
     calc
       C1.carrier = (A.labeling current).carrier := by
         rw [A.transport_eq hij]
-        rfl
       _ = _ := A.carrier_eq current
   have huStep :
       u ∈ (D.deformation.step current).dependentSet := by

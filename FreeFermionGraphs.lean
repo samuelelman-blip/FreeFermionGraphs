@@ -101,3 +101,4 @@ import FreeFermionGraphs.Lemma11BOutsideFourPathBlock
 import FreeFermionGraphs.Lemma11BConsecutiveFourCommonNeighbor
 import FreeFermionGraphs.Lemma11BAlternatingHoleCoordinates
 import FreeFermionGraphs.EvenHoleLabelingDeform
+import FreeFermionGraphs.EvenHoleIndexedDeformation

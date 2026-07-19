@@ -139,6 +139,13 @@ theorem deform_b {k : Nat} (C : EvenHoleLabeling G k)
     (C.deform h).b q = C.b q :=
   rfl
 
+@[simp]
+theorem deform_next {k : Nat} (C : EvenHoleLabeling G k)
+    {s : V} {i : Fin k} (h : C.CloneAt s i)
+    (q : Fin k) :
+    (C.deform h).next q = C.next q :=
+  rfl
+
 /-- The transported labeling has exactly the carrier obtained by replacing
 `a i` by its clone. -/
 theorem deform_carrier {k : Nat} (C : EvenHoleLabeling G k)

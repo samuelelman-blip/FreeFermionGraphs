@@ -149,8 +149,7 @@ theorem deform_carrier {k : Nat} (C : EvenHoleLabeling G k)
     v ∈ Set.range (C.replaceA s i) ∪ Set.range C.b ↔
       v ∈ Set.insert s
         ((Set.range C.a ∪ Set.range C.b) \ {C.a i})
-  simp only [Set.mem_union, Set.mem_range, Set.mem_insert_iff,
-    Set.mem_sdiff, Set.mem_singleton_iff]
+  simp only [Set.mem_union, Set.mem_range]
   constructor
   · rintro (⟨q, hq⟩ | ⟨q, hq⟩)
     · by_cases hqi : q = i
@@ -166,7 +165,7 @@ theorem deform_carrier {k : Nat} (C : EvenHoleLabeling G k)
     · right
       refine ⟨Or.inr ⟨q, hq⟩, ?_⟩
       intro hvi
-      exact C.color_disjoint i q (hvi.trans hq.symm)
+      exact C.color_disjoint i q (hvi.symm.trans hq.symm)
   · rintro (rfl | ⟨hcarrier, hvne⟩)
     · left
       exact ⟨i, by simp [replaceA]⟩

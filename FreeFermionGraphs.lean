@@ -87,3 +87,4 @@ import FreeFermionGraphs.Lemma11BInPathDegree
 import FreeFermionGraphs.Lemma11BInPathTwoNeighbors
 import FreeFermionGraphs.Lemma11BInPathThirdNeighbor
 import FreeFermionGraphs.Lemma11BBranchAssembly
+import FreeFermionGraphs.Lemma11BDescentBranches

@@ -78,9 +78,8 @@ theorem previous_introduced_or_current_degreeAfter_eq_four_of_halfLength_three
         simpa [initialHole, firstIndex] using hInitialEven
       have hbeforeFour :
           (D.deformation.step previous).before.externalDegree u = 4 :=
-        (D.deformation.step previous).before
-          |>.externalDegree_eq_four_of_even_card
-            hclaw hEvenPrevious hfour
+        (D.deformation.step previous).before.externalDegree_eq_four_of_even_card
+          hclaw hEvenPrevious hfour
       have hpreviousAfterThree :
           (D.deformation.step previous).degreeAfter u = 3 := by
         have hdrop :
@@ -88,9 +87,9 @@ theorem previous_introduced_or_current_degreeAfter_eq_four_of_halfLength_three
               (D.deformation.step previous).degreeAfter u + 1 := by
           simpa [ConcreteDeformationStep.degreeAfter,
             ConcreteDeformationStep.after] using
-            (D.deformation.step previous).deformation
-              |>.externalDegree_eq_deform_add_one
-                huPreviousIntroduced huPreviousRemoved
+            IndexedInducedHole.SingleVertexDeformation.externalDegree_eq_deform_add_one
+              (D.deformation.step previous).deformation
+              huPreviousIntroduced huPreviousRemoved
         omega
       have hcurrentBeforeThree :
           (D.deformation.step current).degreeBefore u = 3 := by

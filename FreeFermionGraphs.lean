@@ -94,3 +94,4 @@ import FreeFermionGraphs.Lemma11BConsolidatedDescent
 import FreeFermionGraphs.Lemma11BExternalNeighborSets
 import FreeFermionGraphs.Lemma11BHoleVertexDegree
 import FreeFermionGraphs.Lemma11BInPathDegreeRecurrence
+import FreeFermionGraphs.Lemma11BInPathFinalDegree

@@ -82,3 +82,4 @@ import FreeFermionGraphs.Lemma11BInPathIndex
 import FreeFermionGraphs.Lemma11BRemovedVertex
 import FreeFermionGraphs.Lemma11BInPathPreviousRemoval
 import FreeFermionGraphs.Lemma11BInPathCurrentExternal
+import FreeFermionGraphs.Lemma11BInPathFinalExternal

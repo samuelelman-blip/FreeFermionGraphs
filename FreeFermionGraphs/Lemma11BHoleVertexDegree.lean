@@ -63,7 +63,7 @@ theorem externalDegree_vertex_eq_two
           omega)
       · exact Or.inr (Or.inr (Or.inl ⟨hfirst, by
           dsimp [q]
-          omega⟩)))
+          omega⟩))
   · by_cases hlast : i.val + 1 = C.card
     · let p : Fin C.card := ⟨0, by omega⟩
       let q : Fin C.card := ⟨C.card - 2, by omega⟩

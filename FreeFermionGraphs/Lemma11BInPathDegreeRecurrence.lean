@@ -61,7 +61,7 @@ theorem dependent_mem_path_current_degreeAfter_eq_four
         ((D.deformation.step previous).before.vertex
           (D.deformation.step previous).removedIndex) := by
     rw [huRemoved]
-    exact G.loopless.irrefl u
+    exact G.loopless.irrefl _
   have hpreviousAfter :
       (D.deformation.step previous).degreeAfter u = 3 := by
     calc

@@ -109,3 +109,4 @@ import FreeFermionGraphs.Lemma11BHalfLengthTwo
 import FreeFermionGraphs.EvenHoleFullCyclicOrder
 import FreeFermionGraphs.Lemma11BHalfLengthGtThree
 import FreeFermionGraphs.Lemma11BHalfLengthThree
+import FreeFermionGraphs.Lemma11BHalfLengthThreeDegree

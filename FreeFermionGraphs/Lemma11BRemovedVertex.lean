@@ -35,9 +35,14 @@ theorem removed_vertex_not_mem_deform
         introduced = C.vertex i := by
       simpa using hq
     exact h.outside ⟨i, hintroduced.symm⟩
-  · have hvertices :
+  · have haway :
+        (C.deform h).vertex q = C.vertex q :=
+      C.deform_vertex_away h hqi
+    have hvertices :
         C.vertex q = C.vertex i := by
-      simpa [hqi] using hq
+      calc
+        C.vertex q = (C.deform h).vertex q := haway.symm
+        _ = C.vertex i := hq
     exact hqi (C.injective hvertices)
 
 end IndexedInducedHole

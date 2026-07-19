@@ -85,3 +85,4 @@ import FreeFermionGraphs.Lemma11BInPathCurrentExternal
 import FreeFermionGraphs.Lemma11BInPathFinalExternal
 import FreeFermionGraphs.Lemma11BInPathDegree
 import FreeFermionGraphs.Lemma11BInPathTwoNeighbors
+import FreeFermionGraphs.Lemma11BInPathThirdNeighbor

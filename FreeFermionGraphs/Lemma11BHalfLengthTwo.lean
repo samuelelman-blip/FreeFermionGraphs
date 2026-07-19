@@ -58,7 +58,7 @@ theorem adj_clone_of_halfLength_two
     (huNeCurrent : u ≠ C.a (C.next r)) :
     G.Adj u introduced := by
   have hbNe : C.b r ≠ C.b (C.next r) :=
-    (C.b_ne_next r)
+    (C.b_ne_next r).symm
   have huB : G.Adj u (C.b r) := by
     rcases hclaw
         huOriginal.symm
@@ -136,7 +136,8 @@ theorem adj_previous_introduced_of_halfLength_two
       (D.deformation.step current).before.vertex
           (D.deformation.step current).removedIndex =
         C.a (C.next r) := by
-    simpa [C, r, current] using
+    simpa [C, r, current,
+      AlternatingLabelingSequence.toAlternatingHoleCoordinates] using
       A.toAlternatingHoleCoordinates.next_removed_eq hij
   have huStep :
       u ∈ (D.deformation.step current).dependentSet := by
@@ -191,7 +192,7 @@ theorem adj_previous_introduced_of_halfLength_two
     apply houtsideCurrent
     apply Set.mem_insert_iff.2
     right
-    rw [← hCurrentRemoved, huCurrent]
+    rw [huCurrent, ← hCurrentRemoved]
     exact
       ⟨(D.deformation.step current).removedIndex, rfl⟩
   by_cases huCommon :

@@ -91,3 +91,4 @@ import FreeFermionGraphs.Lemma11BDescentBranches
 import FreeFermionGraphs.Lemma11BInPathDescent
 import FreeFermionGraphs.Lemma11BOutsideDescent
 import FreeFermionGraphs.Lemma11BConsolidatedDescent
+import FreeFermionGraphs.Lemma11BExternalNeighborSets

@@ -69,8 +69,9 @@ theorem dependent_mem_path_current_degreeAfter_eq_four
           (D.deformation.step previous).before.externalDegree u + 1 := by
         simpa [ConcreteDeformationStep.degreeAfter,
           ConcreteDeformationStep.after] using
-          (D.deformation.step previous).deformation
+          IndexedInducedHole.SingleVertexDeformation
             .externalDegree_deform_eq_add_one
+              (D.deformation.step previous).deformation
               huPreviousIntroduced huPreviousRemoved
       _ = 2 + 1 := by rw [hbeforeTwo]
       _ = 3 := by omega
@@ -88,8 +89,9 @@ theorem dependent_mem_path_current_degreeAfter_eq_four
     calc
       (D.deformation.step current).degreeAfter u =
           (D.deformation.step current).degreeBefore u + 1 :=
-        (D.deformation.step current)
-          .degreeAfter_eq_add_one_of_mem_dependentSet huCurrent
+        ConcreteDeformationStep
+          .degreeAfter_eq_add_one_of_mem_dependentSet
+            (D.deformation.step current) huCurrent
       _ = 3 + 1 := by rw [hcurrentBefore]
       _ = 4 := by omega
   simpa [current] using hcurrentAfter
@@ -136,7 +138,7 @@ theorem dependent_mem_path_not_adj_later_removed
     (hu : u ∈ D.dependentAt s)
     (huPath : u ∈ Set.range D.path.vertex)
     (j : Fin D.deformation.stepCount)
-    (hsj : s < j.val) :
+    (_hsj : s < j.val) :
     ¬G.Adj u
       ((D.deformation.step j).before.vertex
         (D.deformation.step j).removedIndex) := by

@@ -102,3 +102,4 @@ import FreeFermionGraphs.Lemma11BConsecutiveFourCommonNeighbor
 import FreeFermionGraphs.Lemma11BAlternatingHoleCoordinates
 import FreeFermionGraphs.EvenHoleLabelingDeform
 import FreeFermionGraphs.EvenHoleIndexedDeformation
+import FreeFermionGraphs.Lemma11BAlternatingLabelingSequence

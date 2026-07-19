@@ -81,8 +81,7 @@ theorem hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
       G.Adj
         ((D.deformation.step j).before.vertex
           (D.deformation.step j).removedIndex) w) :
-    ∃ hw : D.HasConsecutiveFourCommonNeighbor i j,
-      w ∈ Set.range (D.deformation.step i).before.vertex := by
+    D.HasConsecutiveFourCommonNeighbor i j := by
   obtain ⟨r, hrw⟩ := hwBefore
   have hri :
       r ≠ (D.deformation.step i).removedIndex := by
@@ -134,7 +133,6 @@ theorem hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
     · exact ((M.stepGeometry i).ca_independent
         (M.stepGeometry i).removed_ca hwCa hiw).elim
     · exact hwCb
-  refine ⟨?_, hwBefore⟩
   exact ⟨w, hwBefore, hwNextBefore,
     hiIntroduced, hiw, hjIntroduced, hjw, hwCb⟩
 
@@ -149,10 +147,9 @@ theorem consecutiveFourCommonNeighborRule_of_removedCommonNeighbors
       D.HasConsecutiveFourCommonNeighbor i j := by
   intro i j hij
   obtain ⟨w, hw, hiw, hjw⟩ := hcommon hij
-  obtain ⟨hcertificate, _⟩ :=
+  exact
     D.hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
       M hij hw hiw hjw
-  exact hcertificate
 
 end ConcretePathDeformation
 

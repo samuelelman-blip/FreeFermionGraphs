@@ -82,6 +82,7 @@ theorem hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
         ((D.deformation.step j).before.vertex
           (D.deformation.step j).removedIndex) w) :
     D.HasConsecutiveFourCommonNeighbor i j := by
+  have hwBeforeCopy := hwBefore
   obtain ⟨r, hrw⟩ := hwBefore
   have hri :
       r ≠ (D.deformation.step i).removedIndex := by
@@ -114,6 +115,7 @@ theorem hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
       w ∈ Set.range (D.deformation.step j).before.vertex := by
     rw [← D.deformation.carrier_chain hij]
     exact hwAfter
+  have hwNextBeforeCopy := hwNextBefore
   obtain ⟨q, hqw⟩ := hwNextBefore
   have hjIntroduced :
       G.Adj (D.deformation.step j).introduced w := by
@@ -128,12 +130,12 @@ theorem hasConsecutiveFourCommonNeighbor_of_removedCommonNeighbor
         hremoved
     simpa [hqw] using hclone
   have hwCb : w ∈ O.Cb := by
-    rcases (M.stepGeometry i).before_subset hwBefore with
+    rcases (M.stepGeometry i).before_subset hwBeforeCopy with
       hwCa | hwCb
     · exact ((M.stepGeometry i).ca_independent
         (M.stepGeometry i).removed_ca hwCa hiw).elim
     · exact hwCb
-  exact ⟨w, hwBefore, hwNextBefore,
+  exact ⟨w, hwBeforeCopy, hwNextBeforeCopy,
     hiIntroduced, hiw, hjIntroduced, hjw, hwCb⟩
 
 /-- The family rule supplies the paper's complete w_(s-1) certificate at

@@ -153,8 +153,7 @@ theorem previous_introduced_or_four_previous_neighbors_of_halfLength_three
     ∃ previous : Fin D.deformation.stepCount,
       previous.val + 1 = s ∧
         (G.Adj u (D.deformation.step previous).introduced ∨
-          (D.deformation.step previous).before
-            |>.HasFourDistinctExternalNeighbors u) := by
+          (D.deformation.step previous).before.HasFourDistinctExternalNeighbors u) := by
   have hs : s < D.deformation.stepCount :=
     D.index_lt_of_mem_dependentAt hu
   obtain ⟨t, ht, hts, huPreviousRemoved⟩ :=

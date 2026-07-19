@@ -106,3 +106,4 @@ import FreeFermionGraphs.Lemma11BAlternatingLabelingSequence
 import FreeFermionGraphs.Lemma11BOutsideCommonNeighborConfig
 import FreeFermionGraphs.Lemma11BCommonForcesPreviousIntroduced
 import FreeFermionGraphs.Lemma11BHalfLengthTwo
+import FreeFermionGraphs.EvenHoleFullCyclicOrder

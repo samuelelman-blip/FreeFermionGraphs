@@ -95,3 +95,4 @@ import FreeFermionGraphs.Lemma11BExternalNeighborSets
 import FreeFermionGraphs.Lemma11BHoleVertexDegree
 import FreeFermionGraphs.Lemma11BInPathDegreeRecurrence
 import FreeFermionGraphs.Lemma11BInPathFinalDegree
+import FreeFermionGraphs.Lemma11BOutsidePathNeighborCount

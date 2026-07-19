@@ -61,8 +61,8 @@ theorem dependent_mem_path_later_degreeAfter_eq_four
             (D.deformation.step current).degreeBefore u :=
         D.dependent_mem_path_later_degreeAfter_eq_degreeBefore
           L hu huPath current (by
-            dsimp [current]
-            omega)
+            change s < n + 1
+            exact Nat.lt_succ_of_le hsn)
       calc
         (D.deformation.step ⟨n + 1, hn⟩).degreeAfter u =
             (D.deformation.step current).degreeAfter u := by

@@ -1,4 +1,5 @@
 import FreeFermionGraphs.Lemma11BAlternatingHoleCoordinates
+import FreeFermionGraphs.NeighborhoodDeformation
 
 /-!
 # Transporting alternating labels through a deformation
@@ -101,7 +102,7 @@ def deform {k : Nat} (C : EvenHoleLabeling G k)
     · subst p
       by_cases hq : q = i
       · subst q
-        simpa [replaceA] using G.loopless.irrefl s
+        simp [replaceA]
       · simpa [replaceA, hq] using hs_not_adj q hq
     · by_cases hq : q = i
       · subst q

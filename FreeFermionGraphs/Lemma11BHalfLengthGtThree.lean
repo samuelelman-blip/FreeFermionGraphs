@@ -113,8 +113,8 @@ theorem adj_previousClone_of_three_lt
           huNeB huNeCommon hbNe with
         huB | huCommon' | hbb
       · exact huB
-      · exact huCommon (by
-          simpa [C1] using huCommon')
+      · exact (huCommon (by
+          simpa [C1] using huCommon')).elim
       · exact (C.adj_bb r (C.next r) hbb).elim
     have hside :=
       hcurrent.dependent_forces_side

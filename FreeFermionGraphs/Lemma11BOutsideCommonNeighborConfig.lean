@@ -30,48 +30,39 @@ namespace ConcretePathDeformation
 variable {O : FixedPairingPathFamily G} {Cprime : Set V}
 
 /-- The complete local configuration at an outside-path commuting step. -/
-structure OutsideConsecutiveConfiguration
+def OutsideConsecutiveConfiguration
     (D : ConcretePathDeformation O Cprime)
-    (s : Nat) (u : V) where
-  current_lt : s < D.deformation.stepCount
-  previous : Fin D.deformation.stepCount
-  previous_succ : previous.val + 1 = s
-  common : V
-  common_mem_previous :
-    common ∈
-      Set.range (D.deformation.step previous).before.vertex
-  common_mem_current :
-    common ∈
-      Set.range
-        (D.deformation.step ⟨s, current_lt⟩).before.vertex
-  common_adj_previous_introduced :
-    G.Adj (D.deformation.step previous).introduced common
-  common_adj_previous_removed :
-    G.Adj
-      ((D.deformation.step previous).before.vertex
-        (D.deformation.step previous).removedIndex)
-      common
-  common_adj_current_introduced :
-    G.Adj
-      (D.deformation.step ⟨s, current_lt⟩).introduced
-      common
-  common_adj_current_removed :
-    G.Adj
-      ((D.deformation.step ⟨s, current_lt⟩).before.vertex
-        (D.deformation.step ⟨s, current_lt⟩).removedIndex)
-      common
-  common_mem_cb : common ∈ O.Cb
-  dependent_adj_previous_removed :
-    G.Adj u
-      ((D.deformation.step previous).before.vertex
-        (D.deformation.step previous).removedIndex)
-  dependent_adj_current_introduced :
-    G.Adj u
-      (D.deformation.step ⟨s, current_lt⟩).introduced
-  dependent_not_adj_current_removed :
-    ¬G.Adj u
-      ((D.deformation.step ⟨s, current_lt⟩).before.vertex
-        (D.deformation.step ⟨s, current_lt⟩).removedIndex)
+    (s : Nat) (u : V) : Prop :=
+  ∃ hs : s < D.deformation.stepCount,
+    ∃ previous : Fin D.deformation.stepCount,
+      previous.val + 1 = s ∧
+      ∃ common : V,
+        common ∈
+            Set.range (D.deformation.step previous).before.vertex ∧
+        common ∈
+            Set.range
+              (D.deformation.step ⟨s, hs⟩).before.vertex ∧
+        G.Adj (D.deformation.step previous).introduced common ∧
+        G.Adj
+            ((D.deformation.step previous).before.vertex
+              (D.deformation.step previous).removedIndex)
+            common ∧
+        G.Adj
+            (D.deformation.step ⟨s, hs⟩).introduced
+            common ∧
+        G.Adj
+            ((D.deformation.step ⟨s, hs⟩).before.vertex
+              (D.deformation.step ⟨s, hs⟩).removedIndex)
+            common ∧
+        common ∈ O.Cb ∧
+        G.Adj u
+            ((D.deformation.step previous).before.vertex
+              (D.deformation.step previous).removedIndex) ∧
+        G.Adj u
+            (D.deformation.step ⟨s, hs⟩).introduced ∧
+        ¬G.Adj u
+            ((D.deformation.step ⟨s, hs⟩).before.vertex
+              (D.deformation.step ⟨s, hs⟩).removedIndex)
 
 /-- Mechanical Definition 19/20 data and the transported alternating
 labeling construct the outside consecutive-step configuration. -/
@@ -111,21 +102,10 @@ theorem outsideConsecutiveConfiguration
   have hmem :=
     (ConcreteDeformationStep.mem_dependentSet
       (D.deformation.step current)).1 huStep
-  refine
-    { current_lt := hs
-      previous := previous
-      previous_succ := ?_
-      common := w
-      common_mem_previous := hwPrevious
-      common_mem_current := ?_
-      common_adj_previous_introduced := hwPreviousIntroduced
-      common_adj_previous_removed := hwPreviousRemoved
-      common_adj_current_introduced := ?_
-      common_adj_current_removed := ?_
-      common_mem_cb := hwCb
-      dependent_adj_previous_removed := ?_
-      dependent_adj_current_introduced := ?_
-      dependent_not_adj_current_removed := ?_ }
+  refine ⟨hs, previous, ?_, w,
+    hwPrevious, ?_,
+    hwPreviousIntroduced, hwPreviousRemoved,
+    ?_, ?_, hwCb, ?_, ?_, ?_⟩
   · dsimp [previous]
     omega
   · simpa [current] using hwCurrent

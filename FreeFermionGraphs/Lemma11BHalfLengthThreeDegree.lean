@@ -63,14 +63,18 @@ theorem previous_introduced_or_current_degreeAfter_eq_four_of_halfLength_three
       obtain ⟨t, ht, hts, huRemovedAtT⟩ :=
         D.adj_previous_removed_of_outside_commuting
           M L hclaw horder hopposite hu huOutside hnotAnti
+      have htval : t = previous.val := by
+        omega
       have htp : (⟨t, ht⟩ : Fin D.deformation.stepCount) = previous := by
         apply Fin.ext
-        omega
+        change t = previous.val
+        exact htval
       have huPreviousRemoved :
           G.Adj u
             ((D.deformation.step previous).before.vertex
               (D.deformation.step previous).removedIndex) := by
-        simpa only [htp] using huRemovedAtT
+        rw [htp] at huRemovedAtT
+        exact huRemovedAtT
       have hEvenPrevious :
           Even (D.deformation.step previous).before.card := by
         rw [D.deformation.before_card_eq_first

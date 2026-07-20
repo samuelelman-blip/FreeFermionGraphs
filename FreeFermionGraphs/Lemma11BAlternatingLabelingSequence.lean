@@ -76,6 +76,44 @@ namespace AlternatingLabelingSequence
 
 variable {D : ConcretePathDeformation O Cprime} {k : Nat}
 
+/-- The carrier of an alternating labeling has exactly twice its
+half-length. -/
+theorem EvenHoleLabeling.carrier_ncard
+    (C : EvenHoleLabeling G k) :
+    C.carrier.ncard = 2 * k := by
+  have hdisjoint : Disjoint (Set.range C.a) (Set.range C.b) := by
+    apply Set.disjoint_left.mpr
+    rintro v ⟨i, rfl⟩ ⟨j, hj⟩
+    exact C.color_disjoint i j hj.symm
+  rw [EvenHoleLabeling.carrier, Set.ncard_union_eq hdisjoint]
+  simp [Set.ncard_range_of_injective C.a_injective,
+    Set.ncard_range_of_injective C.b_injective]
+  omega
+
+/-- The alternating labeling at the first step already proves the paper's
+initial hole is even; this is not a separate integration hypothesis. -/
+theorem initialHole_even
+    (A : D.AlternatingLabelingSequence k) :
+    Even D.initialHole.card := by
+  have hholeCard :
+      (Set.range D.initialHole.vertex).ncard = D.initialHole.card := by
+    simpa using
+      Set.ncard_range_of_injective D.initialHole.injective
+  have hcarrier :
+      (A.labeling D.firstIndex).carrier =
+        Set.range D.initialHole.vertex := by
+    simpa [ConcretePathDeformation.initialHole] using
+      A.carrier_eq D.firstIndex
+  have hcard : D.initialHole.card = 2 * k := by
+    calc
+      D.initialHole.card =
+          (Set.range D.initialHole.vertex).ncard := hholeCard.symm
+      _ = (A.labeling D.firstIndex).carrier.ncard := by rw [hcarrier]
+      _ = 2 * k :=
+        EvenHoleLabeling.carrier_ncard (A.labeling D.firstIndex)
+  rw [hcard]
+  exact ⟨k, by omega⟩
+
 /-- The indexed deformation supplies the alternating clone proof at every
 step of the sequence. -/
 def cloneAt

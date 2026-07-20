@@ -135,6 +135,8 @@ four-neighbor certificates. -/
 def toLemma11BNeighborhoodData_of_fourNeighborCertificates
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (hfour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -146,7 +148,7 @@ def toLemma11BNeighborhoodData_of_fourNeighborCertificates
     O.Lemma11BNeighborhoodData
       D.path D.dependentAt D.finalDegree :=
   M.toLemma11BNeighborhoodData
-    hclaw D.finalDegree
+    hclaw hside D.finalDegree
     (D.finalDegreeFourRule_of_fourNeighborCertificates
       hclaw hEven hfour)
     hpred
@@ -159,6 +161,8 @@ theorem lemma11b_of_concretePathDeformation_of_fourNeighborCertificates
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (hfour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -174,7 +178,7 @@ theorem lemma11b_of_concretePathDeformation_of_fourNeighborCertificates
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_concretePathDeformation
-    M hclaw D.finalDegree
+    M hclaw hside D.finalDegree
     (D.finalDegreeFourRule_of_fourNeighborCertificates
       hclaw hEven hfour)
     hpred hu hcomm

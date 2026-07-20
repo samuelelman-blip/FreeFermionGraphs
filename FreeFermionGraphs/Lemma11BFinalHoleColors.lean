@@ -46,6 +46,52 @@ def PrimeCarrierExactlyColored
     u ∈ Cprime →
       ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd
 
+/-- Paper-faithful coloring of the prime carrier.  Besides exact membership
+in one coloring class, Definition 19 permits precisely the two cross-pair
+overlaps that can occur where an `acPath` and a `bdPath` meet. -/
+def PrimeCarrierOverlapColored
+    (O : FixedPairingPathFamily G) (Cprime : Set V) : Prop :=
+  ∀ ⦃u : V⦄,
+    u ∈ Cprime →
+      ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd ∨
+      (u ∈ O.Ca ∧ u ∉ O.Cb ∧ u ∉ O.Cc ∧ u ∈ O.Cd) ∨
+      (u ∈ O.Cb ∧ u ∉ O.Ca ∧ u ∈ O.Cc ∧ u ∉ O.Cd)
+
+theorem PrimeCarrierExactlyColored.toOverlapColored
+    (h : O.PrimeCarrierExactlyColored Cprime) :
+    O.PrimeCarrierOverlapColored Cprime := by
+  intro u hu
+  exact Or.inl (h hu)
+
+/-- A prime `C'_d` vertex may also be in `C_a`, but never in `C_b` or
+`C'_c`. -/
+theorem PrimeCarrierOverlapColored.not_mem_cb_cc_of_mem_cd
+    (h : O.PrimeCarrierOverlapColored Cprime)
+    {u : V} (huPrime : u ∈ Cprime) (huCd : u ∈ O.Cd) :
+    u ∉ O.Cb ∧ u ∉ O.Cc := by
+  rcases h huPrime with hexact | hacd | hbcc
+  · have hnot :=
+      ExactlyOneOfFour.not_mem_first_three_of_mem_fourth hexact huCd
+    exact ⟨hnot.2.1, hnot.2.2⟩
+  · exact ⟨hacd.2.1, hacd.2.2.1⟩
+  · exact (hbcc.2.2.2 huCd).elim
+
+/-- Pairing-side separation rules out the permitted `C_a ∩ C'_d`
+overlap, recovering exact fourth-class membership when it is actually
+needed. -/
+theorem PrimeCarrierOverlapColored.exactlyOne_of_mem_cd_of_sideSeparated
+    (h : O.PrimeCarrierOverlapColored Cprime)
+    {u : V} (huPrime : u ∈ Cprime) (huCd : u ∈ O.Cd)
+    (hside : O.PairingSideSeparated u) :
+    ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd := by
+  obtain ⟨huNotCb, huNotCc⟩ :=
+    h.not_mem_cb_cc_of_mem_cd huPrime huCd
+  have huNotCa : u ∉ O.Ca := by
+    intro huCa
+    exact hside ⟨Or.inl huCa, Or.inr huCd⟩
+  exact Or.inr (Or.inr (Or.inr
+    ⟨huCd, huNotCa, huNotCb, huNotCc⟩))
+
 namespace ConcretePathDeformation
 
 namespace MechanicalData
@@ -106,6 +152,44 @@ theorem dependent_exactlyOne
     ((ConcreteDeformationStep.mem_dependentSet
       (D.deformation.step i)).1 huStep).1
   exact hcolors huPrime
+
+/-- Outside the active path, the overlap-aware coloring and the concrete
+component geometry recover exact `C'_d` membership. -/
+theorem dependent_exactlyOne_of_outside
+    (M : D.MechanicalData)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
+    {s : Nat} {u : V}
+    (hu : u ∈ D.dependentAt s)
+    (huOutside : u ∉ Set.range D.path.vertex) :
+    ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd := by
+  let i : Fin D.deformation.stepCount :=
+    ⟨s, D.index_lt_of_mem_dependentAt hu⟩
+  have huStep :
+      u ∈ (D.deformation.step i).dependentSet := by
+    simpa [i] using D.mem_step_dependentSet_of_mem_dependentAt hu
+  have huPrime : u ∈ Cprime :=
+    ((ConcreteDeformationStep.mem_dependentSet
+      (D.deformation.step i)).1 huStep).1
+  exact hcolors.exactlyOne_of_mem_cd_of_sideSeparated
+    huPrime (M.dependent_mem_cd hu) (M.sideSeparated hu huOutside)
+
+/-- The final-hole exclusion used by the outside degree branch remains
+valid with Definition 19 overlaps. -/
+theorem dependent_not_mem_finalHole_of_outside
+    (M : D.MechanicalData)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
+    {s : Nat} {u : V}
+    (hu : u ∈ D.dependentAt s)
+    (huOutside : u ∉ Set.range D.path.vertex) :
+    u ∉ Set.range D.finalHole.vertex := by
+  have hnot : u ∉ O.Ca ∧ u ∉ O.Cb ∧ u ∉ O.Cc :=
+    ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
+      (M.dependent_exactlyOne_of_outside hcolors hu huOutside)
+      (M.dependent_mem_cd hu)
+  intro huFinal
+  rcases M.finalHole_subset_ca_cb_cc huFinal with hab | hcc
+  · exact hab.elim hnot.1 hnot.2.1
+  · exact hnot.2.2 hcc
 
 /-- Exact coloring and the mechanical final-hole color bound prove that a
 dependent vertex is external to the final hole. -/
@@ -177,7 +261,12 @@ theorem lemma11b_of_initialEven_ccNeighborData_baseParity_and_definition20Attach
         D.dependentAt D.path.AnticommutesWith s u := by
   apply
     D.lemma11b_of_initialEven_ccTriples_baseParity_and_definition20Attachments
-      M hclaw hInitialEven
+      M hclaw
+      (by
+        intro s' u' hu'
+        exact O.pairingSideSeparated_of_exactlyOne
+          (M.dependent_exactlyOne hcolors hu'))
+      hInitialEven
       (htriple := by
         intro s' u' hu' hcomm'
         exact D.hasCCIsolatedFinalTriple_of_neighborData

@@ -41,7 +41,7 @@ theorem ordinary_prime_neighbor_or_previousDefinition20CommonNeighbor
     (P : D.PrimeAlternatingHoleData kPrime)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}
@@ -58,9 +58,12 @@ theorem ordinary_prime_neighbor_or_previousDefinition20CommonNeighbor
       G.Adj u' (D.deformation.step ⟨t, ht⟩).introduced ∧
       u' ≠ u ∧
       ¬G.Adj u' u ∧
-      (G.Adj u'
+      ((u' =
+          (D.deformation.step ⟨t, ht⟩).before.vertex
+            (D.deformation.step ⟨t, ht⟩).removedIndex ∨
+        G.Adj u'
           ((D.deformation.step ⟨t, ht⟩).before.vertex
-            (D.deformation.step ⟨t, ht⟩).removedIndex) ∨
+            (D.deformation.step ⟨t, ht⟩).removedIndex)) ∨
         ∃ w : V,
           D.Definition20DependentAt t u' ∧
           w ∈ O.Cb ∧
@@ -90,23 +93,22 @@ theorem ordinary_prime_neighbor_or_previousDefinition20CommonNeighbor
     · exact hu'Cd
   refine ⟨u', hu'Prime, hu'Cd, ?_, hu'NeU, hu'NotU, ?_⟩
   · simpa [previous] using hu'Introduced
+  by_cases hu'EqRemoved :
+      u' =
+        (D.deformation.step previous).before.vertex
+          (D.deformation.step previous).removedIndex
+  · exact Or.inl (Or.inl (by simpa [previous] using hu'EqRemoved))
   by_cases hu'Removed :
       G.Adj u'
         ((D.deformation.step previous).before.vertex
           (D.deformation.step previous).removedIndex)
-  · exact Or.inl (by simpa [previous] using hu'Removed)
+  · exact Or.inl (Or.inr (by simpa [previous] using hu'Removed))
   · apply Or.inr
-    have hu'NotCa : u' ∉ O.Ca :=
-      (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-        (hcolors hu'Prime) hu'Cd).1
     have hu'NeRemoved :
         u' ≠
           (D.deformation.step previous).before.vertex
             (D.deformation.step previous).removedIndex := by
-      intro heq
-      apply hu'NotCa
-      rw [heq]
-      exact (M.stepGeometry previous).removed_ca
+      exact hu'EqRemoved
     have hu'Step :
         u' ∈ (D.deformation.step previous).dependentSet := by
       exact

@@ -226,7 +226,16 @@ theorem baseDependentAnticommutes_of_baseParity
       (D.deformation.step D.firstIndex)).1 huStep
   have huOutside :
       u ∉ Set.range D.path.vertex :=
-    D.dependent_not_mem_path M.stepLabeling hu
+    by
+      have hactive :
+          u ∉ Set.range
+            (D.deformation.step D.firstIndex).activePath.vertex :=
+        (D.deformation.step D.firstIndex).dependent_not_mem_activePath_of_introduced_first
+          (M.stepLabeling D.firstIndex)
+          (M.firstIntroducedIndex_val_eq_zero horder)
+          huStep
+      rw [D.activePath_eq D.firstIndex] at hactive
+      exact hactive
   have huLast := hopposite hu
   rw [← D.activePath_eq D.firstIndex] at huOutside huLast ⊢
   have huFirst :
@@ -286,6 +295,8 @@ theorem lemma11b_of_ccTriples_baseParity_and_attachingPredecessors
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (htriple : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -301,7 +312,7 @@ theorem lemma11b_of_ccTriples_baseParity_and_attachingPredecessors
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_concretePathDeformation_of_ccIsolatedFinalTriples
-    M hclaw hEven htriple
+    M hclaw hside hEven htriple
     (D.commonBPredecessorRule_of_baseParity_and_attachingPredecessors
       M hclaw horder hopposite hattach)
     hu hcomm

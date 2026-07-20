@@ -25,8 +25,8 @@ variable {G : SimpleGraph V} {O : FixedPairingPathFamily G}
 namespace ConcretePathDeformation
 
 /-- The exceptional half-length-three branch has an immediate Definition 20
-predecessor in the same fixed-pairing path component. -/
-theorem exceptional_previousDefinition20_sharesPath
+predecessor in the same `bdPaths` component. -/
+theorem exceptional_previousDefinition20_sharesBDPath
     {kPrime : Nat}
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
@@ -34,7 +34,7 @@ theorem exceptional_previousDefinition20_sharesPath
     (P : D.PrimeAlternatingHoleData kPrime)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s : Nat} {u : V}
@@ -47,7 +47,7 @@ theorem exceptional_previousDefinition20_sharesPath
       ¬G.Adj u (D.deformation.step previous).introduced) :
     ∃ v : V,
       D.Definition20DependentAt previous.val v ∧
-      O.SharesPath v u := by
+      O.SharesBDPath v u := by
   have hs : s < D.deformation.stepCount :=
     D.index_lt_of_mem_dependentAt hu
   let current : Fin D.deformation.stepCount := ⟨s, hs⟩
@@ -209,48 +209,70 @@ theorem exceptional_previousDefinition20_sharesPath
         · exact hxyNot hxy'
       · exact Or.inr hyRemoved
     · exact Or.inl hxRemoved
+  have honeValid :
+      (x ≠
+          (D.deformation.step previous).before.vertex
+            (D.deformation.step previous).removedIndex ∧
+        ¬G.Adj x
+          ((D.deformation.step previous).before.vertex
+            (D.deformation.step previous).removedIndex)) ∨
+      (y ≠
+          (D.deformation.step previous).before.vertex
+            (D.deformation.step previous).removedIndex ∧
+        ¬G.Adj y
+          ((D.deformation.step previous).before.vertex
+            (D.deformation.step previous).removedIndex)) := by
+    rcases honeMisses with hxMisses | hyMisses
+    · by_cases hxEq :
+          x =
+            (D.deformation.step previous).before.vertex
+              (D.deformation.step previous).removedIndex
+      · right
+        refine ⟨?_, ?_⟩
+        · intro hyEq
+          apply hxy
+          exact hxEq.trans hyEq.symm
+        · rw [← hxEq]
+          exact fun h => hxyNot h.symm
+      · exact Or.inl ⟨hxEq, hxMisses⟩
+    · by_cases hyEq :
+          y =
+            (D.deformation.step previous).before.vertex
+              (D.deformation.step previous).removedIndex
+      · left
+        refine ⟨?_, ?_⟩
+        · intro hxEq
+          apply hxy
+          exact hxEq.trans hyEq.symm
+        · rw [← hyEq]
+          exact hxyNot
+      · exact Or.inr ⟨hyEq, hyMisses⟩
   obtain ⟨v, z, hvPrime, hzPrime, hvCd, hzCd,
-      hvIntroduced, hzIntroduced, hvNotRemoved,
+      hvIntroduced, hzIntroduced, hvNeRemoved, hvNotRemoved,
       hvNeZ, hvzNot, hzuNot⟩ :
       ∃ v z : V,
         v ∈ Cprime ∧ z ∈ Cprime ∧
         v ∈ O.Cd ∧ z ∈ O.Cd ∧
         G.Adj v (D.deformation.step previous).introduced ∧
         G.Adj z (D.deformation.step previous).introduced ∧
+        v ≠
+          (D.deformation.step previous).before.vertex
+            (D.deformation.step previous).removedIndex ∧
         ¬G.Adj v
           ((D.deformation.step previous).before.vertex
             (D.deformation.step previous).removedIndex) ∧
         v ≠ z ∧ ¬G.Adj v z ∧ ¬G.Adj z u := by
-    rcases honeMisses with hxMisses | hyMisses
+    rcases honeValid with ⟨hxNe, hxMisses⟩ | ⟨hyNe, hyMisses⟩
     · exact ⟨x, y, hxPrime, hyPrime, hxCd, hyCd,
-        hxIntroduced, hyIntroduced, hxMisses,
+        hxIntroduced, hyIntroduced, hxNe, hxMisses,
         hxy, hxyNot, hyuNot⟩
     · exact ⟨y, x, hyPrime, hxPrime, hyCd, hxCd,
-        hyIntroduced, hxIntroduced, hyMisses,
+        hyIntroduced, hxIntroduced, hyNe, hyMisses,
         hxy.symm, (fun h => hxyNot h.symm), hxuNot⟩
-  have hvNotCa : v ∉ O.Ca :=
-    (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-      (hcolors hvPrime) hvCd).1
   have hvNotCb : v ∉ O.Cb :=
-    (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-      (hcolors hvPrime) hvCd).2.1
-  have hvNotCc : v ∉ O.Cc :=
-    (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-      (hcolors hvPrime) hvCd).2.2
-  have hzNotCa : z ∉ O.Ca :=
-    (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-      (hcolors hzPrime) hzCd).1
+    (hcolors.not_mem_cb_cc_of_mem_cd hvPrime hvCd).1
   have hzNotCb : z ∉ O.Cb :=
-    (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-      (hcolors hzPrime) hzCd).2.1
-  have hvNeRemoved :
-      v ≠
-        (D.deformation.step previous).before.vertex
-          (D.deformation.step previous).removedIndex := by
-    intro h
-    apply hvNotCa
-    rw [h]
-    exact (M.stepGeometry previous).removed_ca
+    (hcolors.not_mem_cb_cc_of_mem_cd hzPrime hzCd).1
   have hvDefinition20 :
       D.Definition20DependentAt previous.val v := by
     exact ⟨previous.isLt, hvPrime, hvIntroduced,
@@ -285,24 +307,17 @@ theorem exceptional_previousDefinition20_sharesPath
     · exact hb1Cb
   by_cases hvB0 : G.Adj v (C.b r)
   · exact ⟨v, hvDefinition20,
-      M.sharesPath_of_common_cb hvCd huCd hb0Cb hvB0 huB0⟩
+      M.sharesBDPath_of_common_cb hvCd huCd hb0Cb hvB0 huB0⟩
   · have hvOutsidePrevious :
         v ∉ Set.insert (D.deformation.step previous).introduced
           C.carrier := by
-      intro hvInsert
-      rcases Set.mem_insert_iff.1 hvInsert with hvEq | hvCarrier
-      · apply hvNotCc
-        rw [hvEq]
-        exact (M.stepGeometry previous).base.introduced_cc
-      · have hvBefore :
-            v ∈ Set.range
-              (D.deformation.step previous).before.vertex := by
-          rw [← A.carrier_eq previous]
-          exact hvCarrier
-        rcases (M.stepGeometry previous).before_subset hvBefore with
-          hvCa | hvCb
-        · exact hvNotCa hvCa
-        · exact hvNotCb hvCb
+      have hvStep :
+          v ∈ (D.deformation.step previous).dependentSet := by
+        exact (ConcreteDeformationStep.mem_dependentSet
+          (D.deformation.step previous)).2
+          ⟨hvPrime, hvIntroduced, hvNeRemoved, hvNotRemoved⟩
+      simpa [C, A.carrier_eq previous] using
+        M.outsideHole previous hvStep
     have hvExact :
         (G.Adj v (D.deformation.step previous).introduced ∧
           ¬G.Adj v (C.a r)) ∨
@@ -338,10 +353,17 @@ theorem exceptional_previousDefinition20_sharesPath
       · exact (hvB0 hvb).elim
       · exact hzb
     by_cases hzRemoved :
-        G.Adj z
+        z =
+            (D.deformation.step previous).before.vertex
+              (D.deformation.step previous).removedIndex ∨
+          G.Adj z
           ((D.deformation.step previous).before.vertex
             (D.deformation.step previous).removedIndex)
     · have hzB1 : G.Adj z (C.b (C.next r)) := by
+        rcases hzRemoved with hzEq | hzRemoved
+        · rw [hzEq]
+          rw [A.removed_eq previous]
+          exact C.adj_a_b_next r
         have hzNeU : z ≠ u := by
           intro h
           apply huNotPreviousIntroduced
@@ -353,8 +375,7 @@ theorem exceptional_previousDefinition20_sharesPath
           rw [h]
           exact hb1Cb
         have huNotCb : u ∉ O.Cb :=
-          (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-            (hcolors huPrime) huCd).2.1
+          (hcolors.not_mem_cb_cc_of_mem_cd huPrime huCd).1
         have huNeB1 : u ≠ C.b (C.next r) := by
           intro h
           apply huNotCb
@@ -373,29 +394,23 @@ theorem exceptional_previousDefinition20_sharesPath
         · exact (hzuNot hzu).elim
         · exact hzb
         · exact (huNotCommon hub).elim
-      have hvzShares : O.SharesPath v z :=
-        M.sharesPath_of_common_cb hvCd hzCd hb1Cb hvB1 hzB1
-      have hzuShares : O.SharesPath z u :=
-        M.sharesPath_of_common_cb hzCd huCd hb0Cb hzB0 huB0
-      have hzUnique : O.AtMostOneContainingPath z :=
-        O.atMostOneContainingPath_of_exactlyOne (hcolors hzPrime)
+      have hvzShares : O.SharesBDPath v z :=
+        M.sharesBDPath_of_common_cb hvCd hzCd hb1Cb hvB1 hzB1
+      have hzuShares : O.SharesBDPath z u :=
+        M.sharesBDPath_of_common_cb hzCd huCd hb0Cb hzB0 huB0
       exact ⟨v, hvDefinition20,
-        O.sharesPath_trans_of_atMostOne hzUnique
-          hvzShares hzuShares⟩
+        O.sharesBDPath_trans hvzShares hzuShares⟩
     · have hzNeRemoved :
           z ≠
             (D.deformation.step previous).before.vertex
               (D.deformation.step previous).removedIndex := by
-        intro h
-        apply hzNotCa
-        rw [h]
-        exact (M.stepGeometry previous).removed_ca
+        exact fun h => hzRemoved (Or.inl h)
       have hzDefinition20 :
           D.Definition20DependentAt previous.val z :=
         ⟨previous.isLt, hzPrime, hzIntroduced,
-          hzNeRemoved, hzRemoved⟩
+          hzNeRemoved, fun h => hzRemoved (Or.inr h)⟩
       exact ⟨z, hzDefinition20,
-        M.sharesPath_of_common_cb hzCd huCd hb0Cb hzB0 huB0⟩
+        M.sharesBDPath_of_common_cb hzCd huCd hb0Cb hzB0 huB0⟩
 
 end ConcretePathDeformation
 

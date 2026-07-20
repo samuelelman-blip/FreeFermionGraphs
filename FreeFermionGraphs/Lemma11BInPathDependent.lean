@@ -25,26 +25,11 @@ namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
 
-/-- Definition 19's local path labeling with the possible overlap vertex
-`k_(s-2) ∈ C ∩ C'` retained. -/
-structure StepPathOverlapLabeling
+/-- Backwards-compatible name for the now overlap-aware base labeling. -/
+abbrev StepPathOverlapLabeling
     {O : FixedPairingPathFamily G} {Cprime : Set V}
-    (S : ConcreteDeformationStep O Cprime) where
-  introducedPathIndex : Fin S.activePath.card
-  removedPathIndex : Fin S.activePath.card
-  introduced_eq :
-    S.activePath.vertex introducedPathIndex = S.introduced
-  removed_eq :
-    S.activePath.vertex removedPathIndex =
-      S.before.vertex S.removedIndex
-  prime_neighbor_precedes_introduced :
-    ∀ q : Fin S.activePath.card,
-      q ≠ removedPathIndex →
-      G.Adj
-        (S.activePath.vertex introducedPathIndex)
-        (S.activePath.vertex q) →
-      S.activePath.vertex q ∈ Cprime →
-      q.val + 1 = introducedPathIndex.val
+    (S : ConcreteDeformationStep O Cprime) :=
+  StepPathLabeling S
 
 /-- A dependent vertex on the active path is the path vertex immediately
 preceding the introduced vertex. -/

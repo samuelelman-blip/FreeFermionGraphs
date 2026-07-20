@@ -187,6 +187,8 @@ theorem lemma11b_of_concretePathDeformation_of_threeNeighborNonpathCertificates
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (hthree : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -202,7 +204,7 @@ theorem lemma11b_of_concretePathDeformation_of_threeNeighborNonpathCertificates
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_concretePathDeformation
-    M hclaw D.finalDegree
+    M hclaw hside D.finalDegree
     (D.finalDegreeFourRule_of_threeNeighborNonpathCertificates
       hclaw hEven hthree)
     hpred hu hcomm

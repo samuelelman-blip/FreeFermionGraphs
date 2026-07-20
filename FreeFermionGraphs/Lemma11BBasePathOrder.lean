@@ -132,6 +132,8 @@ theorem lemma11b_of_ccTriples_pathOrder_and_attachingPredecessors
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (htriple : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -147,7 +149,7 @@ theorem lemma11b_of_ccTriples_pathOrder_and_attachingPredecessors
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_ccTriples_and_attachingPredecessors
-    M hclaw hEven htriple
+    M hclaw hside hEven htriple
     (D.baseStepData_of_pathOrder M horder hunique)
     hattach hu hcomm
 

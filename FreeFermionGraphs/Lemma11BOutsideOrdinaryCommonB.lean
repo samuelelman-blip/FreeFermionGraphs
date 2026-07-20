@@ -39,7 +39,7 @@ theorem ordinary_prime_neighbor_with_commonB_or_previousDefinition20
     (P : D.PrimeAlternatingHoleData kPrime)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}
@@ -59,9 +59,12 @@ theorem ordinary_prime_neighbor_with_commonB_or_previousDefinition20
       w ∈ O.Cb ∧
       G.Adj u' w ∧
       G.Adj u w ∧
-      (G.Adj u'
+      ((u' =
+          (D.deformation.step ⟨t, ht⟩).before.vertex
+            (D.deformation.step ⟨t, ht⟩).removedIndex ∨
+        G.Adj u'
           ((D.deformation.step ⟨t, ht⟩).before.vertex
-            (D.deformation.step ⟨t, ht⟩).removedIndex) ∨
+            (D.deformation.step ⟨t, ht⟩).removedIndex)) ∨
         D.Definition20DependentAt t u') := by
   obtain ⟨u', hu'Prime, hu'Cd, hu'Introduced,
       hu'NeU, hu'NotU, hcandidate⟩ :=
@@ -117,9 +120,16 @@ theorem ordinary_prime_neighbor_with_commonB_or_previousDefinition20
           (M.stepGeometry previous).removed_ca hbNextCa
           hremovedBNext).elim
       · exact hbNextCb
+    rcases hu'Removed with hu'EqRemoved | hu'Removed
+    · have hu'B : G.Adj u' (C.b r) := by
+        rw [hu'EqRemoved]
+        exact hremovedB
+      exact
+        ⟨u', C.b r, hu'Prime, hu'Cd, hu'Introduced,
+          hu'NeU, hu'NotU, hbCb, hu'B, huBoth.1,
+          Or.inl (Or.inl hu'EqRemoved)⟩
     have hu'NotCb : u' ∉ O.Cb :=
-      (ExactlyOneOfFour.not_mem_first_three_of_mem_fourth
-        (hcolors hu'Prime) hu'Cd).2.1
+      (hcolors.not_mem_cb_cc_of_mem_cd hu'Prime hu'Cd).1
     have hu'NeB : u' ≠ C.b r := by
       intro heq
       apply hu'NotCb
@@ -143,11 +153,11 @@ theorem ordinary_prime_neighbor_with_commonB_or_previousDefinition20
     · exact
         ⟨u', C.b r, hu'Prime, hu'Cd, hu'Introduced,
           hu'NeU, hu'NotU, hbCb, hu'B, huBoth.1,
-          Or.inl hu'Removed⟩
+          Or.inl (Or.inr hu'Removed)⟩
     · exact
         ⟨u', C.b (C.next r), hu'Prime, hu'Cd,
           hu'Introduced, hu'NeU, hu'NotU, hbNextCb,
-          hu'BNext, huBoth.2, Or.inl hu'Removed⟩
+          hu'BNext, huBoth.2, Or.inl (Or.inr hu'Removed)⟩
     · exact (C.adj_bb r (C.next r) hbBNext).elim
   · exact
       ⟨u', w, hu'Prime, hu'Cd, hu'Introduced,

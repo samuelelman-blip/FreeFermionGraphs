@@ -521,7 +521,7 @@ theorem adj_removed_b_of_earlier_original_not_clone
     (A : D.AlternatingLabelingSequence k)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (hk : 2 < k)
     {s : Nat} {u : V}
     (hu : u ∈ D.dependentAt s)
@@ -546,7 +546,7 @@ theorem adj_removed_b_of_earlier_original_not_clone
   let hearlierClone := A.cloneAt earlier
   have huExact :
       ExactlyOneOfFour u O.Ca O.Cb O.Cc O.Cd :=
-    M.dependent_exactlyOne hcolors hu
+    M.dependent_exactlyOne_of_outside hcolors hu huOutside
   have huCd : u ∈ O.Cd := M.dependent_mem_cd hu
   have huNotFirstThree :
       u ∉ O.Ca ∧ u ∉ O.Cb ∧ u ∉ O.Cc :=
@@ -601,7 +601,7 @@ theorem adj_two_persistent_b_of_adj_previous_introduced
     (A : D.AlternatingLabelingSequence k)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}
@@ -671,7 +671,7 @@ theorem finalFourNeighbors_of_adj_previous_introduced
     (A : D.AlternatingLabelingSequence k)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}
@@ -727,7 +727,7 @@ theorem finalFourNeighbors_of_adj_previous_introduced
         Set.range D.finalHole.vertex :=
     D.introduced_mem_finalHole L current
   have huFinal : u ∉ Set.range D.finalHole.vertex :=
-    M.dependent_not_mem_finalHole hcolors hu
+    M.dependent_not_mem_finalHole_of_outside hcolors hu huOutside
   have hb₀Previous :
       C.b r ≠ (D.deformation.step previous).introduced := by
     intro hEq
@@ -776,7 +776,7 @@ theorem finalDegree_eq_four_of_adj_previous_introduced
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
     (hInitialEven : Even D.initialHole.card)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}

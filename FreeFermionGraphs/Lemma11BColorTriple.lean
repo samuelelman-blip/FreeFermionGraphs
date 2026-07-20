@@ -112,6 +112,8 @@ theorem lemma11b_of_concretePathDeformation_of_ccIsolatedFinalTriples
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hEven : Even D.finalHole.card)
     (htriple : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -127,7 +129,7 @@ theorem lemma11b_of_concretePathDeformation_of_ccIsolatedFinalTriples
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_concretePathDeformation
-    M hclaw D.finalDegree
+    M hclaw hside D.finalDegree
     (D.finalDegreeFourRule_of_ccIsolatedFinalTriples
       M hclaw hEven htriple)
     hpred hu hcomm

@@ -38,9 +38,12 @@ def OrdinaryTwoStepConfiguration
     G.Adj u' (D.deformation.step ⟨t, ht⟩).introduced ∧
     u' ≠ u ∧
     ¬G.Adj u' u ∧
-    G.Adj u'
-      ((D.deformation.step ⟨t, ht⟩).before.vertex
-        (D.deformation.step ⟨t, ht⟩).removedIndex) ∧
+    (u' =
+        (D.deformation.step ⟨t, ht⟩).before.vertex
+          (D.deformation.step ⟨t, ht⟩).removedIndex ∨
+      G.Adj u'
+        ((D.deformation.step ⟨t, ht⟩).before.vertex
+          (D.deformation.step ⟨t, ht⟩).removedIndex)) ∧
     w ∈ O.Cb ∧
     G.Adj u' w ∧
     G.Adj u w
@@ -56,7 +59,7 @@ theorem ordinary_previousDefinition20_or_twoStepConfiguration
     (P : D.PrimeAlternatingHoleData kPrime)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s t : Nat} {u : V}

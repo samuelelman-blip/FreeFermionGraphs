@@ -53,8 +53,16 @@ theorem introduced_mem
     (P : D.PrimeAlternatingHoleData kPrime)
     (i : Fin D.deformation.stepCount) :
     (D.deformation.step i).introduced ∈ Cprime := by
-  rw [← P.carrier_eq, ← P.introduced_eq i]
-  exact P.labeling.a_mem_carrier (P.introducedIndex i)
+  have ha :
+      P.labeling.a (P.introducedIndex i) ∈ Cprime := by
+    exact
+      Eq.mp
+        (congrArg
+          (fun S : Set V =>
+            P.labeling.a (P.introducedIndex i) ∈ S)
+          P.carrier_eq)
+        (P.labeling.a_mem_carrier (P.introducedIndex i))
+  simpa only [P.introduced_eq i] using ha
 
 /-- If a prime-hole vertex neighbors an introduced a-vertex, the other
 b-neighbor of that a-vertex is distinct and nonadjacent to it. -/

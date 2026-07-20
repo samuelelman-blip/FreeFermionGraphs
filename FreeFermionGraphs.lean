@@ -127,3 +127,4 @@ import FreeFermionGraphs.Lemma11BExceptionalPathDescent
 import FreeFermionGraphs.Lemma11BOrdinaryPathDescent
 import FreeFermionGraphs.Lemma11BDefinition19PathDescent
 import FreeFermionGraphs.Lemma11BFullDefinition19
+import FreeFermionGraphs.Lemma11APathBlock

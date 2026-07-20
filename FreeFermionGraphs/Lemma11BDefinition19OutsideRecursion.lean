@@ -26,14 +26,13 @@ variable {O : FixedPairingPathFamily G} {Cprime : Set V}
 
 /-- The residual local recursion from the proof of Lemma 11(b).
 
-It is required only for the concrete configuration produced from a
-commuting outside dependent vertex and its immediately preceding step.
-The conclusion gives the Definition 20 predecessor one or two steps back,
-together with its common C_b neighbor. -/
+It is required only for the concrete configuration at the positive current
+step `s + 1`. The conclusion gives the Definition 20 predecessor one or two
+steps earlier, together with its common `C_b` neighbor. -/
 def OutsideConsecutiveOneOrTwoStepRule
     (D : ConcretePathDeformation O Cprime) : Prop :=
   ∀ ⦃s : Nat⦄ ⦃u : V⦄,
-    D.OutsideConsecutiveConfiguration s u →
+    D.OutsideConsecutiveConfiguration (Nat.succ s) u →
     ∃ w : V,
       w ∈ O.Cb ∧
       G.Adj u w ∧

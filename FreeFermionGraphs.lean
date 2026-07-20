@@ -111,3 +111,4 @@ import FreeFermionGraphs.Lemma11BHalfLengthGtThree
 import FreeFermionGraphs.Lemma11BHalfLengthThree
 import FreeFermionGraphs.Lemma11BHalfLengthThreeDegree
 import FreeFermionGraphs.Lemma11BOutsideDegreePropagation
+import FreeFermionGraphs.Lemma11BOutsideLaterAgreement

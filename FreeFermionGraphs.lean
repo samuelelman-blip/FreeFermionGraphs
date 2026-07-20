@@ -118,3 +118,4 @@ import FreeFermionGraphs.Lemma11BExceptionalLaterAgreement
 import FreeFermionGraphs.Lemma11BComplete
 import FreeFermionGraphs.Lemma11BPrimeHoleInPathDescent
 import FreeFermionGraphs.Lemma11BOutsideOrdinaryPredecessor
+import FreeFermionGraphs.Lemma11BOutsideOrdinaryCommonB

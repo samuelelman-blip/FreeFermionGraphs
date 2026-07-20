@@ -122,3 +122,4 @@ import FreeFermionGraphs.Lemma11BOutsideOrdinaryCommonB
 import FreeFermionGraphs.Lemma11BThreeStepCoordinates
 import FreeFermionGraphs.Lemma11BOrdinaryTwoStepConfiguration
 import FreeFermionGraphs.Lemma11BOrdinaryTwoStepPath
+import FreeFermionGraphs.Lemma11BFullDefinition19

@@ -1,5 +1,5 @@
 import FreeFermionGraphs.Neighboring
-import Mathlib.Tactic
+import Lean.Elab.Tactic.Omega
 
 /-!
 # Indexed induced paths and holes

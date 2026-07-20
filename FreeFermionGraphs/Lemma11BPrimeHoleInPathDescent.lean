@@ -48,20 +48,38 @@ namespace PrimeAlternatingHoleData
 
 variable {D : ConcretePathDeformation O Cprime} {kPrime : Nat}
 
+/-- Transport prime-hole carrier membership to the named prime carrier
+without rewriting the carrier parameter inside the type of the deformation. -/
+theorem mem_prime_of_mem_carrier
+    (P : D.PrimeAlternatingHoleData kPrime)
+    {x : V}
+    (hx : x ∈ P.labeling.carrier) :
+    x ∈ Cprime := by
+  exact
+    Eq.mp
+      (congrArg (fun S : Set V => x ∈ S) P.carrier_eq)
+      hx
+
+/-- The reverse carrier transport. -/
+theorem mem_carrier_of_mem_prime
+    (P : D.PrimeAlternatingHoleData kPrime)
+    {x : V}
+    (hx : x ∈ Cprime) :
+    x ∈ P.labeling.carrier := by
+  exact
+    Eq.mpr
+      (congrArg (fun S : Set V => x ∈ S) P.carrier_eq)
+      hx
+
 /-- Every introduced vertex belongs to the prime-hole carrier. -/
 theorem introduced_mem
     (P : D.PrimeAlternatingHoleData kPrime)
     (i : Fin D.deformation.stepCount) :
     (D.deformation.step i).introduced ∈ Cprime := by
   have ha :
-      P.labeling.a (P.introducedIndex i) ∈ Cprime := by
-    exact
-      Eq.mp
-        (congrArg
-          (fun S : Set V =>
-            P.labeling.a (P.introducedIndex i) ∈ S)
-          P.carrier_eq)
-        (P.labeling.a_mem_carrier (P.introducedIndex i))
+      P.labeling.a (P.introducedIndex i) ∈ Cprime :=
+    P.mem_prime_of_mem_carrier
+      (P.labeling.a_mem_carrier (P.introducedIndex i))
   simpa only [P.introduced_eq i] using ha
 
 /-- If a prime-hole vertex neighbors an introduced a-vertex, the other
@@ -84,8 +102,7 @@ theorem exists_other_prime_neighbor
       C.a r = (D.deformation.step i).introduced := by
     simpa [C, r] using P.introduced_eq i
   have huCarrier : u ∈ C.carrier := by
-    rw [P.carrier_eq]
-    exact hu
+    simpa [C] using P.mem_carrier_of_mem_prime hu
   change u ∈ Set.range C.a ∪ Set.range C.b at huCarrier
   rcases huCarrier with ⟨q, hqu⟩ | ⟨q, hqu⟩
   · subst u
@@ -100,16 +117,18 @@ theorem exists_other_prime_neighbor
     rcases (C.adj_ab_iff r q).1 hab with hqr | hqr
     · subst q
       refine ⟨C.b (C.next r), ?_, ?_, ?_, ?_⟩
-      · rw [← P.carrier_eq]
-        exact C.b_mem_carrier (C.next r)
+      · exact
+          P.mem_prime_of_mem_carrier
+            (by simpa [C] using C.b_mem_carrier (C.next r))
       · rw [← hintroduced]
         exact (C.adj_a_b_next r).symm
       · exact C.b_ne_next r
       · exact C.adj_bb (C.next r) r
     · subst q
       refine ⟨C.b r, ?_, ?_, ?_, ?_⟩
-      · rw [← P.carrier_eq]
-        exact C.b_mem_carrier r
+      · exact
+          P.mem_prime_of_mem_carrier
+            (by simpa [C] using C.b_mem_carrier r)
       · rw [← hintroduced]
         exact (C.adj_a_b r).symm
       · exact (C.b_ne_next r).symm

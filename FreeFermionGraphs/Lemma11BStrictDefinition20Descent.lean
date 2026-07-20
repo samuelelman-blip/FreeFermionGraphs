@@ -83,6 +83,10 @@ theorem lemma11b_of_initialEven_ccNeighborIndices_and_strictDefinition20Descent
   exact
     D.lemma11b_of_concretePathDeformation_of_ccIsolatedFinalTriples
       M hclaw
+      (by
+        intro s' u' hu'
+        exact O.pairingSideSeparated_of_exactlyOne
+          (M.dependent_exactlyOne hcolors hu'))
       (D.finalHole_even_of_initialHole_even hInitialEven)
       (by
         intro s' u' hu' hcomm'

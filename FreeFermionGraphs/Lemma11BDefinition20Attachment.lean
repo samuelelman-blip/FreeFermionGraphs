@@ -120,6 +120,8 @@ theorem lemma11b_of_initialEven_ccTriples_baseParity_and_definition20Attachments
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (hInitialEven : Even D.initialHole.card)
     (htriple : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -135,7 +137,7 @@ theorem lemma11b_of_initialEven_ccTriples_baseParity_and_definition20Attachments
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u :=
   D.lemma11b_of_initialEven_ccTriples_baseParity_and_attachingPredecessors
-    M hclaw hInitialEven htriple horder hopposite
+    M hclaw hside hInitialEven htriple horder hopposite
     (D.oneOrTwoStepPredecessorAlongBNeighborsRule_of_definition20 hraw)
     hu hcomm
 

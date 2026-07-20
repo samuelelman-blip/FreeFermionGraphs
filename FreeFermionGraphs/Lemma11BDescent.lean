@@ -26,6 +26,61 @@ variable {G : SimpleGraph V}
 def SharesPath (O : FixedPairingPathFamily G) (x y : V) : Prop :=
   ∃ P : Set V, P ∈ O.paths ∧ x ∈ P ∧ y ∈ P
 
+/-- Two vertices occur in a common component of the `C_b ∪ C'_d` side of
+the fixed pairing.  Unlike `SharesPath`, this relation is transitive without
+an exact-colouring hypothesis: members of `bdPaths` are pairwise disjoint by
+construction.  This is the overlap-safe invariant used by the recursive
+part of Lemma 11(b). -/
+def SharesBDPath (O : FixedPairingPathFamily G) (x y : V) : Prop :=
+  ∃ P : Set V, P ∈ O.bdPaths ∧ x ∈ P ∧ y ∈ P
+
+theorem sharesBDPath_symm
+    (O : FixedPairingPathFamily G) {x y : V}
+    (h : O.SharesBDPath x y) :
+    O.SharesBDPath y x := by
+  rcases h with ⟨P, hP, hxP, hyP⟩
+  exact ⟨P, hP, hyP, hxP⟩
+
+/-- `bdPaths` are components of one induced side of the fixed pairing, so
+sharing a `bdPath` composes through any common vertex, including a vertex in
+an overlap of the two holes. -/
+theorem sharesBDPath_trans
+    (O : FixedPairingPathFamily G) {x y z : V}
+    (hxy : O.SharesBDPath x y)
+    (hyz : O.SharesBDPath y z) :
+    O.SharesBDPath x z := by
+  rcases hxy with ⟨P, hP, hxP, hyP⟩
+  rcases hyz with ⟨Q, hQ, hyQ, hzQ⟩
+  have hPQ : P = Q :=
+    O.eq_of_mem_bdPaths hP hQ hyP hyQ
+  subst Q
+  exact ⟨P, hP, hxP, hzQ⟩
+
+/-- Forgetting which side of the fixed pairing contains a component turns a
+`SharesBDPath` witness into the paper's untyped path-component relation. -/
+theorem sharesPath_of_sharesBDPath
+    (O : FixedPairingPathFamily G) {x y : V}
+    (h : O.SharesBDPath x y) :
+    O.SharesPath x y := by
+  rcases h with ⟨P, hP, hxP, hyP⟩
+  exact ⟨P, Or.inr hP, hxP, hyP⟩
+
+/-- A displayed `bdPaths` component is automatically the unique component
+of that pairing type containing the vertex.  No assertion is made about a
+possible component of the opposite pairing type through an overlap vertex. -/
+def IsUniqueContainingBDPath
+    (O : FixedPairingPathFamily G) (x : V) (P : Set V) : Prop :=
+  P ∈ O.bdPaths ∧ x ∈ P ∧
+    ∀ ⦃Q : Set V⦄, Q ∈ O.bdPaths → x ∈ Q → Q = P
+
+theorem isUniqueContainingBDPath
+    (O : FixedPairingPathFamily G) {x : V} {P : Set V}
+    (hP : P ∈ O.bdPaths) (hxP : x ∈ P) :
+    O.IsUniqueContainingBDPath x P := by
+  refine ⟨hP, hxP, ?_⟩
+  intro Q hQ hxQ
+  exact O.eq_of_mem_bdPaths hQ hP hxQ hxP
+
 theorem sharesPath_symm
     (O : FixedPairingPathFamily G) {x y : V}
     (h : O.SharesPath x y) :
@@ -74,6 +129,20 @@ def EarlierAnticommutingWitness
     u' ∈ U s' ∧
     Anticommutes u' ∧
     SameComponent u' u
+
+/-- Paper-faithful recursive conclusion for an `(a,c)` deformation: the
+earlier anticommuting witness and the original vertex lie in the witness's
+unique component of the same (`bd`) pairing type. -/
+def FixedPairingPathFamily.EarlierAnticommutingWitnessInUniqueBDPath
+    {G : SimpleGraph V} (O : FixedPairingPathFamily G)
+    (U : Nat → Set V) (Anticommutes : V → Prop)
+    (s : Nat) (u : V) : Prop :=
+  ∃ s' : Nat, ∃ u' : V, ∃ P : Set V,
+    s' < s ∧
+    u' ∈ U s' ∧
+    Anticommutes u' ∧
+    O.IsUniqueContainingBDPath u' P ∧
+    u ∈ P
 
 /-- The local descent obligation in Lemma 11(b).  Every commuting dependent
 vertex has a component-linked dependent predecessor at a smaller index. -/

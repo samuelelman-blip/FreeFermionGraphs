@@ -372,7 +372,7 @@ theorem finalDegree_eq_four_of_halfLength_three
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
     (hInitialEven : Even D.initialHole.card)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s : Nat} {u : V}
@@ -414,7 +414,7 @@ theorem outside_finalDegree_eq_four_of_alternating
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
     (hInitialEven : Even D.initialHole.card)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s : Nat} {u : V}

@@ -24,7 +24,28 @@ variable {G : SimpleGraph V} {O : FixedPairingPathFamily G}
 namespace ConcretePathDeformation
 
 /-- A displayed `C_b` neighbor is enough to place two `C'_d` vertices in
-the same fixed-pairing path component. -/
+the same `bdPaths` component.  Keeping the side in the conclusion makes
+the recursive invariant transitive even when a path vertex lies in an
+overlap of the two holes. -/
+theorem MechanicalData.sharesBDPath_of_common_cb
+    {D : ConcretePathDeformation O Cprime}
+    (M : D.MechanicalData)
+    {x y w : V}
+    (hxCd : x ∈ O.Cd)
+    (hyCd : y ∈ O.Cd)
+    (hwCb : w ∈ O.Cb)
+    (hxw : G.Adj x w)
+    (hyw : G.Adj y w) :
+    O.SharesBDPath x y := by
+  obtain ⟨P, hP, hxP, hwP⟩ := M.edgeCoverage hxCd hwCb hxw
+  obtain ⟨Q, hQ, hyQ, hwQ⟩ := M.edgeCoverage hyCd hwCb hyw
+  have hPQ : P = Q :=
+    O.eq_of_mem_bdPaths hP hQ hwP hwQ
+  subst Q
+  exact ⟨P, hP, hxP, hyQ⟩
+
+/-- Untyped compatibility wrapper for arguments that only need membership
+in some fixed-pairing component. -/
 theorem MechanicalData.sharesPath_of_common_cb
     {D : ConcretePathDeformation O Cprime}
     (M : D.MechanicalData)
@@ -34,10 +55,9 @@ theorem MechanicalData.sharesPath_of_common_cb
     (hwCb : w ∈ O.Cb)
     (hxw : G.Adj x w)
     (hyw : G.Adj y w) :
-    O.SharesPath x y := by
-  have hcapture : O.CapturesClassConnections .ac :=
-    O.capturesClassConnections_ac_of_coversBDEdges M.edgeCoverage
-  exact hcapture hxCd hyCd hwCb hxw hyw
+    O.SharesPath x y :=
+  O.sharesPath_of_sharesBDPath
+    (M.sharesBDPath_of_common_cb hxCd hyCd hwCb hxw hyw)
 
 /-- On an alternating hole of half-length greater than two, if `q` and
 `q'` are the two `b`-neighbors of `a r` and `a c` is the other

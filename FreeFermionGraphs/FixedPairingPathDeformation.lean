@@ -93,24 +93,6 @@ theorem mem_step_dependentSet_of_mem_dependentAt
   have hs := D.index_lt_of_mem_dependentAt hu
   simpa [dependentAt, hs] using hu
 
-/-- The concrete path labeling discharges exclusion from the common active
-path for the Nat-indexed dependent subsets. -/
-theorem dependent_not_mem_path
-    (D : ConcretePathDeformation O Cprime)
-    (hlabel : ∀ i : Fin D.deformation.stepCount,
-      StepPathLabeling (D.deformation.step i))
-    {s : Nat} {u : V} (hu : u ∈ D.dependentAt s) :
-    u ∉ Set.range D.path.vertex := by
-  let i : Fin D.deformation.stepCount :=
-    ⟨s, D.index_lt_of_mem_dependentAt hu⟩
-  have huStep : u ∈ (D.deformation.step i).dependentSet := by
-    exact D.mem_step_dependentSet_of_mem_dependentAt hu
-  have houtside :=
-    (D.deformation.step i).dependent_not_mem_activePath
-      (hlabel i) huStep
-  rw [D.activePath_eq i] at houtside
-  exact houtside
-
 /-- Mechanical data attached to a one-path deformation block.  This is
 data-valued because the step labelings contain explicit path indices. -/
 structure MechanicalData
@@ -135,14 +117,19 @@ variable {D : ConcretePathDeformation O Cprime}
 component geometry. -/
 theorem sideSeparated
     (M : D.MechanicalData) {s : Nat} {u : V}
-    (hu : u ∈ D.dependentAt s) :
+    (hu : u ∈ D.dependentAt s)
+    (huOutside : u ∉ Set.range D.path.vertex) :
     O.PairingSideSeparated u := by
   let i : Fin D.deformation.stepCount :=
     ⟨s, D.index_lt_of_mem_dependentAt hu⟩
   have huStep : u ∈ (D.deformation.step i).dependentSet := by
     exact D.mem_step_dependentSet_of_mem_dependentAt hu
-  exact (D.deformation.step i).dependent_pairingSideSeparated_of_labeling
-    (M.stepGeometry i).base (M.stepLabeling i) huStep
+  have huOutsideActive :
+      u ∉ Set.range (D.deformation.step i).activePath.vertex := by
+    rw [D.activePath_eq i]
+    exact huOutside
+  exact (D.deformation.step i).dependent_pairingSideSeparated_of_outside
+    (M.stepGeometry i).base huStep huOutsideActive
 
 /-- Terminal path containment, in fact proved for every dependent vertex
 in the path block. -/
@@ -169,6 +156,8 @@ Definition 19/20 data and the two genuinely local remaining rules. -/
 def toLemma11BNeighborhoodData
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (degree : Nat → V → Nat)
     (hdegreeFour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -180,7 +169,7 @@ def toLemma11BNeighborhoodData
     O.Lemma11BNeighborhoodData D.path D.dependentAt degree where
   sideSeparated := by
     intro s u hu
-    exact M.sideSeparated hu
+    exact hside hu
   terminalContained := by
     intro s u hu _
     exact M.contained hclaw hu
@@ -197,6 +186,8 @@ theorem lemma11b_of_concretePathDeformation
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
     (hclaw : G.IsClawFree)
+    (hside : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
+      u ∈ D.dependentAt s → O.PairingSideSeparated u)
     (degree : Nat → V → Nat)
     (hdegreeFour : ∀ ⦃s : Nat⦄ ⦃u : V⦄,
       u ∈ D.dependentAt s →
@@ -213,7 +204,7 @@ theorem lemma11b_of_concretePathDeformation
         D.dependentAt D.path.AnticommutesWith s u :=
   O.lemma11b D.path D.dependentAt degree
     (M.toLemma11BNeighborhoodData
-      hclaw degree hdegreeFour hpred)
+      hclaw hside degree hdegreeFour hpred)
     hu hcomm
 
 end ConcretePathDeformation

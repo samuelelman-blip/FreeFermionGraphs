@@ -20,6 +20,31 @@ variable {V : Type u}
 
 namespace SimpleGraph
 
+namespace IndexedInducedPath
+
+variable {G : SimpleGraph V}
+
+/-- Transport a path index across equality of indexed paths. -/
+def castIndex {P Q : IndexedInducedPath G}
+    (h : P = Q) (i : Fin P.card) : Fin Q.card :=
+  Fin.cast
+    (congrArg (fun R : IndexedInducedPath G => R.card) h) i
+
+@[simp]
+theorem castIndex_val {P Q : IndexedInducedPath G}
+    (h : P = Q) (i : Fin P.card) :
+    (P.castIndex h i).val = i.val :=
+  rfl
+
+@[simp]
+theorem vertex_castIndex {P Q : IndexedInducedPath G}
+    (h : P = Q) (i : Fin P.card) :
+    Q.vertex (P.castIndex h i) = P.vertex i := by
+  subst Q
+  rfl
+
+end IndexedInducedPath
+
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -59,6 +84,67 @@ structure Definition19GlobalOverlapPathOrder
         (D.path.vertex q) →
       D.path.vertex q ∈ Cprime →
       q.val + 1 = (introducedPathIndex i).val
+
+/-- The normalized common-path order subsumes the duplicate local index
+arithmetic stored in `Definition19PathOrder`.  This is the integration
+bridge from the overlap-aware Definition 19 labels to the older local
+lemmas. -/
+theorem definition19PathOrder_of_globalOverlapPathOrder
+    (D : ConcretePathDeformation O Cprime)
+    (M : D.MechanicalData)
+    (L : Definition19GlobalOverlapPathOrder D) :
+    Definition19PathOrder M := by
+  constructor
+  · intro i
+    have hlocal := (M.stepLabeling i).introduced_eq
+    let q : Fin D.path.card :=
+      (D.deformation.step i).activePath.castIndex
+        (D.activePath_eq i)
+        (M.stepLabeling i).introducedPathIndex
+    have hvertices :
+        D.path.vertex q =
+          D.path.vertex (L.introducedPathIndex i) := by
+      calc
+        D.path.vertex q =
+            (D.deformation.step i).activePath.vertex
+              (M.stepLabeling i).introducedPathIndex := by
+                simp [q]
+        _ = (D.deformation.step i).introduced := hlocal
+        _ = D.path.vertex (L.introducedPathIndex i) :=
+          (L.introduced_eq i).symm
+    have hindices := D.path.injective hvertices
+    calc
+      (M.stepLabeling i).introducedPathIndex.val = q.val := by
+        simp [q]
+      _ =
+          (L.introducedPathIndex i).val := congrArg Fin.val hindices
+      _ = 2 * i.val := L.introduced_index_val i
+  · intro i
+    have hlocal := (M.stepLabeling i).removed_eq
+    let q : Fin D.path.card :=
+      (D.deformation.step i).activePath.castIndex
+        (D.activePath_eq i)
+        (M.stepLabeling i).removedPathIndex
+    have hvertices :
+        D.path.vertex q =
+          D.path.vertex (L.removedPathIndex i) := by
+      calc
+        D.path.vertex q =
+            (D.deformation.step i).activePath.vertex
+              (M.stepLabeling i).removedPathIndex := by
+                simp [q]
+        _ =
+            (D.deformation.step i).before.vertex
+              (D.deformation.step i).removedIndex := hlocal
+        _ = D.path.vertex (L.removedPathIndex i) :=
+          (L.removed_eq i).symm
+    have hindices := D.path.injective hvertices
+    calc
+      (M.stepLabeling i).removedPathIndex.val = q.val := by
+        simp [q]
+      _ =
+          (L.removedPathIndex i).val := congrArg Fin.val hindices
+      _ = 2 * i.val + 1 := L.removed_index_val i
 
 /-- Common-path form of the in-path index theorem. -/
 theorem dependent_mem_path_global_index

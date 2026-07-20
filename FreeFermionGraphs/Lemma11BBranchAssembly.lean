@@ -96,7 +96,12 @@ theorem lemma11b_of_inPathAdditional_outsidePathIndices_and_strictDescent
       O.EarlierAnticommutingWitnessInUniquePath
         D.dependentAt D.path.AnticommutesWith s u := by
   exact D.lemma11b_of_concretePathDeformation
-    M hclaw D.finalDegree
+    M hclaw
+    (by
+      intro t v hv
+      exact O.pairingSideSeparated_of_exactlyOne
+        (M.dependent_exactlyOne hcolors hv))
+    D.finalDegree
     (D.finalDegreeFourRule_of_inPathAdditional_and_outsidePathIndices
       M L hclaw hInitialEven hcolors hinPath houtsidePath)
     (D.commonBPredecessorRule_of_strictDefinition20CommonNeighbors

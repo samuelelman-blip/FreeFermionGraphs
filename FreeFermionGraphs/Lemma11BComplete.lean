@@ -37,7 +37,7 @@ theorem finalDegreeFourRule_of_alternating
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
     (hInitialEven : Even D.initialHole.card)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (horder : Definition19PathOrder M)
     (hopposite : D.BaseOppositeEndpointNonadjacency) :
     ∀ ⦃s : Nat⦄ ⦃u : V⦄,
@@ -76,9 +76,15 @@ theorem lemma11b_of_alternatingLabelingSequence_and_definition20
         D.dependentAt D.path.AnticommutesWith s u := by
   exact
     D.lemma11b_of_concretePathDeformation
-      M hclaw D.finalDegree
+      M hclaw
+      (by
+        intro t v hv
+        exact O.pairingSideSeparated_of_exactlyOne
+          (M.dependent_exactlyOne hcolors hv))
+      D.finalDegree
       (D.finalDegreeFourRule_of_alternating
-        M A hcycle L hclaw hInitialEven hcolors horder hopposite)
+        M A hcycle L hclaw hInitialEven hcolors.toOverlapColored
+          horder hopposite)
       (D.commonBPredecessorRule_of_strictDefinition20CommonNeighbors
         M
         (D.strictDefinition20CommonNeighborRule_of_baseParity_and_oneOrTwoStep

@@ -9,13 +9,17 @@ import FreeFermionGraphs.Lemma11BOrdinaryPathDescent
 
 The last recursive case in the paper does not always give a single common
 `C_b` neighbor of the current vertex and its predecessor.  In the deepest
-ordinary case it gives the displayed alternating chain instead.  The exact
-invariant needed by the well-founded proof is therefore `SharesPath`.
+ordinary case it gives the displayed alternating chain instead.  Every
+edge of that chain lies on the `C_b ∪ C'_d` side, so the exact invariant
+needed by the well-founded proof is `SharesBDPath`.  This typed relation is
+transitive even at vertices belonging to an overlap of the two holes.
 
 This module combines the in-path prime-hole predecessor, the ordinary
 outside branch, and the exceptional six-cycle branch into strict path
 descent.  It then supplies the abstract local data and proves Lemma 11(b)
-without a residual graph-theoretic assumption.
+without a residual recursive-case assumption.  The base application of
+Lemma 7 still receives its opposite-endpoint nonedge explicitly at the
+Definition 19 integration boundary.
 -/
 
 universe u
@@ -33,7 +37,7 @@ namespace ConcretePathDeformation
 
 /-- Every commuting dependent vertex has a strictly earlier Definition 20
 vertex in the same fixed-pairing path component. -/
-def StrictDefinition20SharesPathRule
+def StrictDefinition20SharesBDPathRule
     (D : ConcretePathDeformation O Cprime) : Prop :=
   ∀ ⦃s : Nat⦄ ⦃u : V⦄,
     u ∈ D.dependentAt s →
@@ -41,11 +45,11 @@ def StrictDefinition20SharesPathRule
     ∃ s' : Nat, ∃ u' : V,
       s' < s ∧
       D.Definition20DependentAt s' u' ∧
-      O.SharesPath u' u
+      O.SharesBDPath u' u
 
 /-- The alternating Definition 19 data and the unchanged prime hole prove
 strict path descent in all in-path and outside-path cases. -/
-theorem strictDefinition20SharesPathRule_of_alternating_primeHole
+theorem strictDefinition20SharesBDPathRule_of_alternating_primeHole
     {k kPrime : Nat}
     (D : ConcretePathDeformation O Cprime)
     (M : D.MechanicalData)
@@ -54,10 +58,11 @@ theorem strictDefinition20SharesPathRule_of_alternating_primeHole
     (hcycle : A.HasFullCyclicOrder)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
-    (horder : Definition19PathOrder M)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (hopposite : D.BaseOppositeEndpointNonadjacency) :
-    D.StrictDefinition20SharesPathRule := by
+    D.StrictDefinition20SharesBDPathRule := by
+  let horder : Definition19PathOrder M :=
+    D.definition19PathOrder_of_globalOverlapPathOrder M L
   intro s u hu hnotAnti
   by_cases huPath : u ∈ Set.range D.path.vertex
   · obtain ⟨t, _ht, hts, _huRemoved⟩ :=
@@ -68,7 +73,7 @@ theorem strictDefinition20SharesPathRule_of_alternating_primeHole
     have hu'Mem : u' ∈ D.dependentAt (s - 1) :=
       (D.mem_dependentAt_iff_definition20).2 hu'Definition20
     exact ⟨s - 1, u', by omega, hu'Definition20,
-      M.sharesPath_of_common_cb
+      M.sharesBDPath_of_common_cb
         (M.dependent_mem_cd hu'Mem) (M.dependent_mem_cd hu)
         hwCb hu'w huw⟩
   · cases s with
@@ -85,9 +90,9 @@ theorem strictDefinition20SharesPathRule_of_alternating_primeHole
             ∃ s' : Nat, ∃ u' : V,
               s' < Nat.succ t ∧
               D.Definition20DependentAt s' u' ∧
-              O.SharesPath u' u := by
+              O.SharesBDPath u' u := by
           obtain hone | htwo :=
-            D.ordinary_oneOrTwoStepDefinition20_sharesPath
+            D.ordinary_oneOrTwoStepDefinition20_sharesBDPath
               M A P L hclaw hcolors horder hopposite
               hu huPath hnotAnti previous.isLt
               (by omega) huPreviousIntroduced
@@ -120,7 +125,7 @@ theorem strictDefinition20SharesPathRule_of_alternating_primeHole
             · exact ordinaryDescent previous hprevious
                 huPreviousIntroduced
             · obtain ⟨v, hvDefinition20, hvShares⟩ :=
-                D.exceptional_previousDefinition20_sharesPath
+                D.exceptional_previousDefinition20_sharesBDPath
                   M A P L hclaw hcolors horder hopposite
                   hu huPath hnotAnti previous hprevious
                   huPreviousIntroduced
@@ -137,11 +142,11 @@ theorem strictDefinition20SharesPathRule_of_alternating_primeHole
 
 /-- The path-descent rule supplies the abstract predecessor field used by
 the well-founded Lemma 11(b) argument. -/
-theorem dependentDescentRule_of_strictDefinition20SharesPath
+theorem dependentDescentRule_of_strictDefinition20SharesBDPath
     (D : ConcretePathDeformation O Cprime)
-    (hdesc : D.StrictDefinition20SharesPathRule) :
+    (hdesc : D.StrictDefinition20SharesBDPathRule) :
     DependentDescentRule
-      D.dependentAt D.path.AnticommutesWith O.SharesPath := by
+      D.dependentAt D.path.AnticommutesWith O.SharesBDPath := by
   intro s u hu hnotAnti
   obtain ⟨s', u', hs', hu'Definition20, hu'Shares⟩ :=
     hdesc hu hnotAnti
@@ -160,38 +165,33 @@ theorem lemma11b_of_alternatingLabelingSequence_and_primeHole
     (hcycle : A.HasFullCyclicOrder)
     (L : Definition19GlobalOverlapPathOrder D)
     (hclaw : G.IsClawFree)
-    (hInitialEven : Even D.initialHole.card)
-    (hcolors : O.PrimeCarrierExactlyColored Cprime)
-    (horder : Definition19PathOrder M)
+    (hcolors : O.PrimeCarrierOverlapColored Cprime)
     (hopposite : D.BaseOppositeEndpointNonadjacency)
     {s : Nat} {u : V}
     (hu : u ∈ D.dependentAt s)
     (hcomm : ¬D.path.AnticommutesWith u) :
     D.finalDegree s u = 4 ∧
-      O.EarlierAnticommutingWitnessInUniquePath
+      O.EarlierAnticommutingWitnessInUniqueBDPath
         D.dependentAt D.path.AnticommutesWith s u := by
-  let hlocal :
-      O.Lemma11BLocalData
-        D.dependentAt D.path.AnticommutesWith D.finalDegree :=
-    { unique := by
-        intro t v hv
-        exact O.atMostOneContainingPath_of_pairingSideSeparated
-          (M.sideSeparated hv)
-      degree_four :=
-        D.finalDegreeFourRule_of_alternating
-          M A hcycle L hclaw hInitialEven hcolors horder hopposite
-      descend :=
-        D.dependentDescentRule_of_strictDefinition20SharesPath
-          (D.strictDefinition20SharesPathRule_of_alternating_primeHole
-            M A P hcycle L hclaw hcolors horder hopposite) }
-  apply O.lemma11b_with_uniquePath
-    D.dependentAt D.path.AnticommutesWith D.finalDegree
-      hlocal hu hcomm
-  intro t v _hts hv _hanti
-  obtain ⟨Q, hQ, hvQ⟩ := M.contained hclaw hv
-  exact ⟨Q,
-    O.isUniqueContainingPath_of_pairingSideSeparated
-      hQ hvQ (M.sideSeparated hv)⟩
+  let horder : Definition19PathOrder M :=
+    D.definition19PathOrder_of_globalOverlapPathOrder M L
+  have hInitialEven : Even D.initialHole.card := A.initialHole_even
+  refine ⟨D.finalDegreeFourRule_of_alternating
+    M A hcycle L hclaw hInitialEven hcolors horder hopposite hu hcomm, ?_⟩
+  have hdesc :
+      DependentDescentRule D.dependentAt D.path.AnticommutesWith
+        O.SharesBDPath :=
+    D.dependentDescentRule_of_strictDefinition20SharesBDPath
+      (D.strictDefinition20SharesBDPathRule_of_alternating_primeHole
+        M A P hcycle L hclaw hcolors hopposite)
+  obtain ⟨s', u', hs', hu', hanti', hsharesBD⟩ :=
+    earlierAnticommutingWitness_of_descent hdesc
+      (fun {_t} {_x} {_y} {_z} _hy hxy hyz =>
+        O.sharesBDPath_trans hxy hyz)
+      hu hcomm
+  rcases hsharesBD with ⟨Q, hQ, hu'Q, huQ⟩
+  exact ⟨s', u', Q, hs', hu', hanti',
+    O.isUniqueContainingBDPath hQ hu'Q, huQ⟩
 
 end ConcretePathDeformation
 

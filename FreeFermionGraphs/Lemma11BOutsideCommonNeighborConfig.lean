@@ -29,40 +29,48 @@ namespace ConcretePathDeformation
 
 variable {O : FixedPairingPathFamily G} {Cprime : Set V}
 
-/-- The complete local configuration at an outside-path commuting step. -/
+/-- The complete local configuration at an outside-path commuting step.
+
+Besides the consecutive-step geometry, the package retains the three source
+hypotheses used to construct it.  These are needed by the existing ordinary
+and exceptional predecessor theorems when the local recursion is discharged.
+-/
 def OutsideConsecutiveConfiguration
     (D : ConcretePathDeformation O Cprime)
     (s : Nat) (u : V) : Prop :=
-  ∃ hs : s < D.deformation.stepCount,
-    ∃ previous : Fin D.deformation.stepCount,
-      previous.val + 1 = s ∧
-      ∃ common : V,
-        common ∈
-            Set.range (D.deformation.step previous).before.vertex ∧
-        common ∈
-            Set.range
-              (D.deformation.step ⟨s, hs⟩).before.vertex ∧
-        G.Adj (D.deformation.step previous).introduced common ∧
-        G.Adj
-            ((D.deformation.step previous).before.vertex
-              (D.deformation.step previous).removedIndex)
-            common ∧
-        G.Adj
-            (D.deformation.step ⟨s, hs⟩).introduced
-            common ∧
-        G.Adj
-            ((D.deformation.step ⟨s, hs⟩).before.vertex
-              (D.deformation.step ⟨s, hs⟩).removedIndex)
-            common ∧
-        common ∈ O.Cb ∧
-        G.Adj u
-            ((D.deformation.step previous).before.vertex
-              (D.deformation.step previous).removedIndex) ∧
-        G.Adj u
-            (D.deformation.step ⟨s, hs⟩).introduced ∧
-        ¬G.Adj u
-            ((D.deformation.step ⟨s, hs⟩).before.vertex
-              (D.deformation.step ⟨s, hs⟩).removedIndex)
+  u ∈ D.dependentAt s ∧
+    u ∉ Set.range D.path.vertex ∧
+    ¬D.path.AnticommutesWith u ∧
+    ∃ hs : s < D.deformation.stepCount,
+      ∃ previous : Fin D.deformation.stepCount,
+        previous.val + 1 = s ∧
+        ∃ common : V,
+          common ∈
+              Set.range (D.deformation.step previous).before.vertex ∧
+          common ∈
+              Set.range
+                (D.deformation.step ⟨s, hs⟩).before.vertex ∧
+          G.Adj (D.deformation.step previous).introduced common ∧
+          G.Adj
+              ((D.deformation.step previous).before.vertex
+                (D.deformation.step previous).removedIndex)
+              common ∧
+          G.Adj
+              (D.deformation.step ⟨s, hs⟩).introduced
+              common ∧
+          G.Adj
+              ((D.deformation.step ⟨s, hs⟩).before.vertex
+                (D.deformation.step ⟨s, hs⟩).removedIndex)
+              common ∧
+          common ∈ O.Cb ∧
+          G.Adj u
+              ((D.deformation.step previous).before.vertex
+                (D.deformation.step previous).removedIndex) ∧
+          G.Adj u
+              (D.deformation.step ⟨s, hs⟩).introduced ∧
+          ¬G.Adj u
+              ((D.deformation.step ⟨s, hs⟩).before.vertex
+                (D.deformation.step ⟨s, hs⟩).removedIndex)
 
 /-- Mechanical Definition 19/20 data and the transported alternating
 labeling construct the outside consecutive-step configuration. -/
@@ -102,7 +110,7 @@ theorem outsideConsecutiveConfiguration
   have hmem :=
     (ConcreteDeformationStep.mem_dependentSet
       (D.deformation.step current)).1 huStep
-  refine ⟨hs, previous, ?_, w,
+  refine ⟨hu, huOutside, hnotAnti, hs, previous, ?_, w,
     hwPrevious, ?_,
     hwPreviousIntroduced, hwPreviousRemoved,
     ?_, ?_, hwCb, ?_, ?_, ?_⟩

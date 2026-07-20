@@ -116,3 +116,4 @@ import FreeFermionGraphs.Lemma11BAlternatingBPersistence
 import FreeFermionGraphs.Lemma11BOrdinaryPersistentNeighbors
 import FreeFermionGraphs.Lemma11BExceptionalLaterAgreement
 import FreeFermionGraphs.Lemma11BComplete
+import FreeFermionGraphs.Lemma11BPrimeHoleInPathDescent

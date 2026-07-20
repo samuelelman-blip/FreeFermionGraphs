@@ -63,6 +63,7 @@ theorem outsidePathOneOrTwoStepCommonNeighborRule_of_consecutiveConfiguration
   exact hlocal
     (D.outsideConsecutiveConfiguration
       M A L hclaw horder hopposite
+      (s := Nat.succ s) (u := u)
       hu huOutside hnotAnti)
 
 end ConcretePathDeformation

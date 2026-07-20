@@ -142,7 +142,11 @@ theorem laterReplacementAdjacencyAgreement_of_adj_previous_introduced
         · exact hknownSubset hz
       have hinsertCard :
           (Set.insert y known).ncard = 5 := by
-        rw [Set.ncard_insert_of_notMem hyKnown, hknownCard]
+        calc
+          (Set.insert y known).ncard = known.ncard + 1 :=
+            Set.ncard_insert_of_notMem hyKnown
+          _ = 4 + 1 := by rw [hknownCard]
+          _ = 5 := by omega
       have hle := Set.ncard_le_ncard hinsertSubset
       rw [hinsertCard, hfour] at hle
       omega

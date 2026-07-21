@@ -140,12 +140,18 @@ theorem noSharedDependentAnticommutingWitness
     exact hEq
   have hcommonA :
       O.BaseCommonNeighborOn A.block originalHole := by
-    rw [← A.originalHole_eq]
-    exact A.context.baseCommonNeighborOn_originalHole hclaw
+    exact (congrArg
+      (fun H : IndexedInducedHole G =>
+        O.BaseCommonNeighborOn A.block H)
+      A.originalHole_eq).mp
+      (A.context.baseCommonNeighborOn_originalHole hclaw)
   have hcommonB :
       O.BaseCommonNeighborOn B.block originalHole := by
-    rw [← B.originalHole_eq]
-    exact B.context.baseCommonNeighborOn_originalHole hclaw
+    exact (congrArg
+      (fun H : IndexedInducedHole G =>
+        O.BaseCommonNeighborOn B.block H)
+      B.originalHole_eq).mp
+      (B.context.baseCommonNeighborOn_originalHole hclaw)
   exact noSharedDependentAnticommutingWitness_of_concreteBlocks
     A.block B.block A.context.currentData B.context.currentData
     originalHole hclaw hEven hcarrier hpathNe hcommonA hcommonB

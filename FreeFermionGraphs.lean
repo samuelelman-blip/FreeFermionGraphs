@@ -137,5 +137,6 @@ import FreeFermionGraphs.Lemma11AGlobalDegree
 import FreeFermionGraphs.Lemma11AEarlierAnti
 import FreeFermionGraphs.Lemma11AEliminateEarlierAnti
 import FreeFermionGraphs.Lemma11AThreeNeighborClone
+import FreeFermionGraphs.Lemma11AEndpointPersistence
 import FreeFermionGraphs.Lemma11AFullDefinition19History
 import FreeFermionGraphs.Lemma11AConcretePairing

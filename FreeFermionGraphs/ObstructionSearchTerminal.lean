@@ -1,4 +1,4 @@
-import FreeFermionGraphs.Lemma14Core
+import FreeFermionGraphs.ObstructionSearchNearest
 
 /-!
 # Terminal-path certificates for obstruction-search initialization
@@ -22,43 +22,6 @@ variable {V : Type u}
 
 namespace SimpleGraph
 
-namespace IndexedInducedPath
-
-variable {G : SimpleGraph V}
-
-/-- The endpoint index selected by an obstruction-search orientation. -/
-def obstructionEndpointIndex
-    (P : IndexedInducedPath G) : ObstructionSlot → Fin P.card
-  | .first => ⟨0, P.nonempty⟩
-  | .last => ⟨P.card - 1, by
-      have hpositive := P.nonempty
-      omega⟩
-
-/-- The endpoint vertex selected by an obstruction-search orientation. -/
-def obstructionEndpoint
-    (P : IndexedInducedPath G) (e : ObstructionSlot) : V :=
-  P.vertex (P.obstructionEndpointIndex e)
-
-/-- A path with at least two vertices has distinct endpoint orientations. -/
-theorem obstructionEndpoint_injective
-    (P : IndexedInducedPath G) (htwo : 2 ≤ P.card) :
-    Function.Injective P.obstructionEndpoint := by
-  intro e f hef
-  apply P.injective at hef
-  cases e <;> cases f
-  · rfl
-  · exfalso
-    have hval := congrArg Fin.val hef
-    simp [obstructionEndpointIndex] at hval
-    omega
-  · exfalso
-    have hval := congrArg Fin.val hef
-    simp [obstructionEndpointIndex] at hval
-    omega
-  · rfl
-
-end IndexedInducedPath
-
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -79,8 +42,6 @@ this core separate prevents the final endpoint alternative from being hidden
 among the primitive obstruction-search data. -/
 structure InitializationTerminalCoreData
     (I : ObstructionSearchInitialization families Cprime) where
-  noSelfLoop : ∀ source : I.Node,
-    I.obstruction source ≠ some source
   obstructionOpposite : ∀ ⦃source target : I.Node⦄,
     I.graph.Arc source target →
       I.pairing target = (I.pairing source).opposite
@@ -89,9 +50,9 @@ structure InitializationTerminalCoreData
     P ∈ (I.output source).paths →
       pathOwner (I.pairing source) P = some source
   terminalPath : I.Node → IndexedInducedPath G
-  terminalPath_nontrivial : ∀ target : I.Node,
-    2 ≤ (terminalPath target).card
   currentSlot : I.Node → I.Node → ObstructionSlot
+  nearestTarget :
+    I.InitializationNearestTargetData terminalPath currentSlot
   dependent_is_current_endpoint :
     ∀ ⦃source target : I.Node⦄,
       I.graph.Arc source target →
@@ -129,7 +90,7 @@ used for Lemma 14(i)--(iii) and the indegree bound. -/
 def toInitializationGeometry
     (T : I.InitializationTerminalData) :
     I.InitializationGeometry where
-  noSelfLoop := T.noSelfLoop
+  noSelfLoop := T.nearestTarget.noSelfLoop
   obstructionOpposite := T.obstructionOpposite
   pathOwner := T.pathOwner
   path_owner_eq := T.path_owner_eq
@@ -151,7 +112,8 @@ theorem target_onlyDependent_of_twoIncoming
         I.dependentSet source' = {(target : V)})) := by
   let P := T.terminalPath target
   have hinjective : Function.Injective P.obstructionEndpoint :=
-    P.obstructionEndpoint_injective (T.terminalPath_nontrivial target)
+    P.obstructionEndpoint_injective
+      (T.nearestTarget.terminalPath_nontrivial h)
   have hslots :
       T.currentSlot source target ≠
         T.currentSlot source' target := by

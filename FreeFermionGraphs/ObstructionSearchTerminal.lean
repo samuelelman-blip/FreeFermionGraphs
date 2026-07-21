@@ -1,5 +1,5 @@
 import FreeFermionGraphs.ObstructionSearchNearest
-import FreeFermionGraphs.ObstructionSearchOrderedTrace
+import FreeFermionGraphs.ObstructionSearchExecutionTrace
 
 /-!
 # Terminal-path certificates for obstruction-search initialization
@@ -46,7 +46,7 @@ structure InitializationTerminalCoreData
   obstructionOpposite : ∀ ⦃source target : I.Node⦄,
     I.graph.Arc source target →
       I.pairing target = (I.pairing source).opposite
-  orderedTrace : I.InitializationOrderedTraceData
+  executionTrace : I.InitializationOSExecutionData
   terminalPath : I.Node → IndexedInducedPath G
   currentSlot : I.Node → I.Node → ObstructionSlot
   nearestTarget :
@@ -89,7 +89,8 @@ noncomputable def toInitializationGeometry
     (T : I.InitializationTerminalData)
     (hclaw : G.IsClawFree) :
     I.InitializationGeometry :=
-  (T.orderedTrace.toInitializationFirstCommonPathData).toInitializationGeometry
+  ((InitializationOSExecutionData.toInitializationOrderedTraceData
+      T.executionTrace).toInitializationFirstCommonPathData).toInitializationGeometry
     hclaw
     T.nearestTarget.noSelfLoop T.obstructionOpposite
     T.currentSlot T.currentSlot_source_injective

@@ -156,3 +156,5 @@ import FreeFermionGraphs.Lemma12Palindromic
 import FreeFermionGraphs.ObstructionSearch
 import FreeFermionGraphs.Lemma14Core
 import FreeFermionGraphs.ObstructionSearchTerminal
+import FreeFermionGraphs.ObstructionSearchTerminalSameClone
+import FreeFermionGraphs.ObstructionSearchTerminalDistinctClone

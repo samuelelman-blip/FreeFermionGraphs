@@ -36,12 +36,6 @@ theorem three_eq (x y z : ObstructionSlot) :
     x = y ∨ x = z ∨ y = z := by
   cases x <;> cases y <;> cases z <;> simp
 
-/-- Two distinct slots put any fixed slot on exactly one side. -/
-theorem exactly_one_eq_of_ne
-    {x y : ObstructionSlot} (hxy : x ≠ y) (z : ObstructionSlot) :
-    (x = z ∧ y ≠ z) ∨ (x ≠ z ∧ y = z) := by
-  cases x <;> cases y <;> cases z <;> simp_all
-
 end ObstructionSlot
 
 namespace ArcGraph
@@ -198,15 +192,15 @@ theorem dependentSet_eq_singleton_iff
       have hvu := Set.mem_singleton_iff.mp hv
       simpa [hvu] using h
 
-/-- The local geometric facts extracted from initialization of `OS`.
+/-- The generic local facts extracted from initialization of `OS`.
 
-`pathOwner` encodes the uniqueness of the closest source vertex for paths
-traversed by searches of a fixed pairing type.  `incomingSlot` records the
-one of the two endpoint orientations by which an obstruction target is met,
-while `targetSlot` records which endpoint is the target itself.
-Corollaries 9--11 are used in the concrete construction to prove slot
-injectivity and the final dependent-slot equivalence; the generic Lemma 14
-argument only consumes those consequences. -/
+`pathOwner` encodes uniqueness of the source that traverses a path at a
+fixed pairing type.  `incomingSlot` records the endpoint orientation from
+which an obstruction target is approached.  Slot injectivity gives the
+indegree-two part of Lemma 14(iv).  The pair-specific statement that a
+target hit by two distinct searches equals exactly one current endpoint is
+kept in `InitializationTerminalData`; it is not true for an arbitrary
+single incoming arc. -/
 structure InitializationGeometry
     (I : ObstructionSearchInitialization families Cprime) where
   noSelfLoop : ∀ source : I.Node,
@@ -219,16 +213,11 @@ structure InitializationGeometry
     P ∈ (I.output source).paths →
       pathOwner (I.pairing source) P = some source
   incomingSlot : I.Node → I.Node → ObstructionSlot
-  targetSlot : I.Node → ObstructionSlot
   incomingSlot_injective : ∀ ⦃source source' target : I.Node⦄,
     I.graph.Arc source target →
     I.graph.Arc source' target →
     incomingSlot source target = incomingSlot source' target →
       source = source'
-  dependent_target_iff_slot : ∀ ⦃source target : I.Node⦄,
-    I.graph.Arc source target →
-      (I.dependent source = some (target : V) ↔
-        incomingSlot source target = targetSlot target)
 
 namespace InitializationGeometry
 
@@ -287,46 +276,6 @@ theorem atMostTwoIncoming
       (X.incomingSlot_injective h h'' hslot))
   · exact Or.inr (Or.inr
       (X.incomingSlot_injective h' h'' hslot))
-
-/-- If two distinct sources obstruct the same target, that target is the
-unique dependent vertex returned by exactly one of the two searches. -/
-theorem target_onlyDependent_of_twoIncoming
-    (X : I.InitializationGeometry)
-    {source source' target : I.Node}
-    (hne : source ≠ source')
-    (h : I.graph.Arc source target)
-    (h' : I.graph.Arc source' target) :
-    ((I.dependentSet source = {(target : V)} ∧
-        I.dependentSet source' ≠ {(target : V)}) ∨
-      (I.dependentSet source ≠ {(target : V)} ∧
-        I.dependentSet source' = {(target : V)})) := by
-  have hslots :
-      X.incomingSlot source target ≠
-        X.incomingSlot source' target := by
-    intro hEq
-    exact hne (X.incomingSlot_injective h h' hEq)
-  rcases ObstructionSlot.exactly_one_eq_of_ne hslots
-      (X.targetSlot target) with hleft | hright
-  · left
-    constructor
-    · apply (I.dependentSet_eq_singleton_iff source (target : V)).2
-      exact (X.dependent_target_iff_slot
-        (source := source) (target := target) h).2 hleft.1
-    · intro hset
-      have hdep :=
-        (I.dependentSet_eq_singleton_iff source' (target : V)).1 hset
-      exact hleft.2 ((X.dependent_target_iff_slot
-        (source := source') (target := target) h').1 hdep)
-  · right
-    constructor
-    · intro hset
-      have hdep :=
-        (I.dependentSet_eq_singleton_iff source (target : V)).1 hset
-      exact hright.1 ((X.dependent_target_iff_slot
-        (source := source) (target := target) h).1 hdep)
-    · apply (I.dependentSet_eq_singleton_iff source' (target : V)).2
-      exact (X.dependent_target_iff_slot
-        (source := source') (target := target) h').2 hright.2
 
 end InitializationGeometry
 

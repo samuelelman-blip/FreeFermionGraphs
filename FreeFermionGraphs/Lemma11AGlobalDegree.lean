@@ -48,9 +48,6 @@ theorem finalDegree_four_iff_originalDegree_three_of_noEarlierAnticommutation
         Set.range D.initialHole.vertex)
     (hnoEarlierAnticommutation : ∀ r : Nat,
       ¬(H.block r).path.AnticommutesWith u)
-    (horiginalOutside :
-      u ∉ Set.range (H.block 0).initialHole.vertex)
-    (hcurrentInitialOutside : u ∉ Set.range D.initialHole.vertex)
     (horiginalEven : Even (H.block 0).initialHole.card)
     (hcurrentInitialEven : Even D.initialHole.card) :
     D.finalHole.externalDegree u = 4 ↔
@@ -84,14 +81,14 @@ theorem finalDegree_four_iff_originalDegree_three_of_noEarlierAnticommutation
         (H.block 0).initialHole.externalDegree u % 2 = 1 := by
       rw [← hhistory']
       omega
-    exact (H.block 0).initialHole.externalDegree_eq_three_of_even_and_odd
-      hclaw horiginalOutside horiginalEven horiginalOdd
+    exact (H.block 0).initialHole.externalDegree_eq_three_of_even_and_odd_any
+      hclaw horiginalEven horiginalOdd
   · intro horiginalThree
     have hcurrentOdd : D.initialHole.externalDegree u % 2 = 1 := by
       rw [← hlink, hhistory', horiginalThree]
     have hcurrentThree : D.initialHole.externalDegree u = 3 :=
-      D.initialHole.externalDegree_eq_three_of_even_and_odd
-        hclaw hcurrentInitialOutside hcurrentInitialEven hcurrentOdd
+      D.initialHole.externalDegree_eq_three_of_even_and_odd_any
+        hclaw hcurrentInitialEven hcurrentOdd
     omega
 
 /-- Bounded-history form of the degree-four/original-degree-three
@@ -113,9 +110,6 @@ theorem finalDegree_four_iff_originalDegree_three_of_noEarlierAnticommutation_th
         Set.range D.initialHole.vertex)
     (hnoEarlierAnticommutation : ∀ r : Nat, r ≤ n →
       ¬(H.block r).path.AnticommutesWith u)
-    (horiginalOutside :
-      u ∉ Set.range (H.block 0).initialHole.vertex)
-    (hcurrentInitialOutside : u ∉ Set.range D.initialHole.vertex)
     (horiginalEven : Even (H.block 0).initialHole.card)
     (hcurrentInitialEven : Even D.initialHole.card) :
     D.finalHole.externalDegree u = 4 ↔
@@ -145,14 +139,14 @@ theorem finalDegree_four_iff_originalDegree_three_of_noEarlierAnticommutation_th
     have horiginalOdd :
         (H.block 0).initialHole.externalDegree u % 2 = 1 := by
       rw [← hhistory, hlink, hcurrentThree]
-    exact (H.block 0).initialHole.externalDegree_eq_three_of_even_and_odd
-      hclaw horiginalOutside horiginalEven horiginalOdd
+    exact (H.block 0).initialHole.externalDegree_eq_three_of_even_and_odd_any
+      hclaw horiginalEven horiginalOdd
   · intro horiginalThree
     have hcurrentOdd : D.initialHole.externalDegree u % 2 = 1 := by
       rw [← hlink, hhistory, horiginalThree]
     have hcurrentThree : D.initialHole.externalDegree u = 3 :=
-      D.initialHole.externalDegree_eq_three_of_even_and_odd
-        hclaw hcurrentInitialOutside hcurrentInitialEven hcurrentOdd
+      D.initialHole.externalDegree_eq_three_of_even_and_odd_any
+        hclaw hcurrentInitialEven hcurrentOdd
     omega
 
 end ConcretePathDeformation

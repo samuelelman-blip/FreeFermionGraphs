@@ -1,4 +1,4 @@
-import FreeFermionGraphs.ObstructionSearchTerminal
+import FreeFermionGraphs.ObstructionSearch
 import FreeFermionGraphs.Lemma11ACorollary11History
 
 /-!

@@ -1,4 +1,5 @@
 import FreeFermionGraphs.ObstructionSearchNearest
+import FreeFermionGraphs.ObstructionSearchFirstCommon
 
 /-!
 # Terminal-path certificates for obstruction-search initialization
@@ -45,10 +46,7 @@ structure InitializationTerminalCoreData
   obstructionOpposite : ∀ ⦃source target : I.Node⦄,
     I.graph.Arc source target →
       I.pairing target = (I.pairing source).opposite
-  pathOwner : PairingType → Set V → Option I.Node
-  path_owner_eq : ∀ (source : I.Node) ⦃P : Set V⦄,
-    P ∈ (I.output source).paths →
-      pathOwner (I.pairing source) P = some source
+  firstCommonPath : I.InitializationFirstCommonPathData
   terminalPath : I.Node → IndexedInducedPath G
   currentSlot : I.Node → I.Node → ObstructionSlot
   nearestTarget :
@@ -87,15 +85,13 @@ namespace InitializationTerminalData
 
 /-- The terminal-path certificate constructs the generic two-slot geometry
 used for Lemma 14(i)--(iii) and the indegree bound. -/
-def toInitializationGeometry
-    (T : I.InitializationTerminalData) :
-    I.InitializationGeometry where
-  noSelfLoop := T.nearestTarget.noSelfLoop
-  obstructionOpposite := T.obstructionOpposite
-  pathOwner := T.pathOwner
-  path_owner_eq := T.path_owner_eq
-  incomingSlot := T.currentSlot
-  incomingSlot_injective := T.currentSlot_source_injective
+noncomputable def toInitializationGeometry
+    (T : I.InitializationTerminalData)
+    (hclaw : G.IsClawFree) :
+    I.InitializationGeometry :=
+  T.firstCommonPath.toInitializationGeometry hclaw
+    T.nearestTarget.noSelfLoop T.obstructionOpposite
+    T.currentSlot T.currentSlot_source_injective
 
 /-- If two distinct sources obstruct one target, the pair-specific terminal
 theorem and distinct endpoint orientations make the target the unique
@@ -176,7 +172,8 @@ theorem target_onlyDependent_of_twoIncoming
 /-- Lemma 14 from faithful terminal-path output of the initialized
 obstruction searches. -/
 theorem lemma14_of_initializationTerminalData
-    (T : I.InitializationTerminalData) :
+    (T : I.InitializationTerminalData)
+    (hclaw : G.IsClawFree) :
     (∀ source : I.Node,
       (I.output source).run = none ∨
         ∃ F : FullDefinition19Deformation
@@ -198,7 +195,8 @@ theorem lemma14_of_initializationTerminalData
             (I.dependentSet source ≠ {(target : V)} ∧
               I.dependentSet source' = {(target : V)}))) := by
   obtain ⟨hi, hii, hiii, hindegree⟩ :=
-    I.lemma14_core_of_initializationGeometry T.toInitializationGeometry
+    I.lemma14_core_of_initializationGeometry
+      (T.toInitializationGeometry hclaw)
   refine ⟨hi, hii, hiii, hindegree, ?_⟩
   intro source source' target hne h h'
   exact T.target_onlyDependent_of_twoIncoming hne h h'

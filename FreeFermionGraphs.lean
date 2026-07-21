@@ -159,3 +159,4 @@ import FreeFermionGraphs.ObstructionSearchNearest
 import FreeFermionGraphs.ObstructionSearchTerminal
 import FreeFermionGraphs.ObstructionSearchTerminalSameClone
 import FreeFermionGraphs.ObstructionSearchTerminalDistinctClone
+import FreeFermionGraphs.ObstructionSearchHistory

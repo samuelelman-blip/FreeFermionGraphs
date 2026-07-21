@@ -12,8 +12,8 @@ from ``not the first vertex'' to Definition 20 membership.  This module
 combines that conversion with the no-shared-dependent-witness statement of
 Corollary 11.
 
-The geometric proof of Corollary 11 itself remains a separate global
-deformation task.  Nothing here assumes the endpoint conclusion.
+The geometric proof of Corollary 11 is supplied by the concrete history
+modules.  Nothing here assumes the endpoint conclusion.
 -/
 
 universe u

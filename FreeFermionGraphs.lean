@@ -150,3 +150,6 @@ import FreeFermionGraphs.Lemma11AExact
 import FreeFermionGraphs.Lemma11AComplete
 import FreeFermionGraphs.Lemma11Complete
 import FreeFermionGraphs.Lemma13
+import FreeFermionGraphs.Lemma12ReverseStep
+import FreeFermionGraphs.Lemma12ReverseClone
+import FreeFermionGraphs.Lemma12Palindromic

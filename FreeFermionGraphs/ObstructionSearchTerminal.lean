@@ -69,15 +69,15 @@ namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
 
-/-- Concrete terminal-path data produced by initialization of `OS`.
+/-- The terminal-path data produced by initialization of `OS` before the
+long two-search claw case is discharged.
 
 For an arc `source → target`, `currentSlot source target` selects the
 endpoint returned as the singleton dependent set.  The source-injectivity
-field is the no-shared-terminal-state consequence of Corollary 11.  The
-last field is exactly the long terminal case in Lemma 14(iv): it applies
-only to two distinct incoming searches and says that their common target is
-one of the two current endpoints. -/
-structure InitializationTerminalData
+field is the no-shared-terminal-state consequence of Corollary 11.  Keeping
+this core separate prevents the final endpoint alternative from being hidden
+among the primitive obstruction-search data. -/
+structure InitializationTerminalCoreData
     (I : ObstructionSearchInitialization families Cprime) where
   noSelfLoop : ∀ source : I.Node,
     I.obstruction source ≠ some source
@@ -104,6 +104,14 @@ structure InitializationTerminalData
       I.graph.Arc source' target →
       currentSlot source target = currentSlot source' target →
         source = source'
+
+/-- Complete terminal-path data after the long two-search case of
+Lemma 14(iv) has been proved.  The added field has the exact pairwise
+quantifier from the manuscript: no endpoint claim is made for a single
+incoming arc. -/
+structure InitializationTerminalData
+    (I : ObstructionSearchInitialization families Cprime)
+    extends InitializationTerminalCoreData I where
   target_is_current_endpoint_of_twoIncoming :
     ∀ ⦃source source' target : I.Node⦄,
       source ≠ source' →

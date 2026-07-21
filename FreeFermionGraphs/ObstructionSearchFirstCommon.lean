@@ -103,8 +103,7 @@ theorem samePairing_paths_disjoint
   obtain ⟨Q, R, hQ, hR, hQR, hshared⟩ :=
     X.firstCommonWitness hne hpair hP hP'
   exact
-    (SearchPathHistoryWitness.
-      noSharedDependentAnticommutingWitness_of_pairing_eq
+    (SearchPathHistoryWitness.noSharedDependentAnticommutingWitness_of_pairing_eq
         ((X.history source).witness hQ)
         ((X.history source').witness hR)
         hpair hclaw hQR) hshared

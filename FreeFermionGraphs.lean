@@ -155,6 +155,7 @@ import FreeFermionGraphs.Lemma12ReverseClone
 import FreeFermionGraphs.Lemma12Palindromic
 import FreeFermionGraphs.ObstructionSearch
 import FreeFermionGraphs.Lemma14Core
+import FreeFermionGraphs.ObstructionSearchNearest
 import FreeFermionGraphs.ObstructionSearchTerminal
 import FreeFermionGraphs.ObstructionSearchTerminalSameClone
 import FreeFermionGraphs.ObstructionSearchTerminalDistinctClone

@@ -140,3 +140,4 @@ import FreeFermionGraphs.Lemma11AThreeNeighborClone
 import FreeFermionGraphs.Lemma11AEndpointPersistence
 import FreeFermionGraphs.Lemma11AFullDefinition19History
 import FreeFermionGraphs.Lemma11AConcretePairing
+import FreeFermionGraphs.Lemma11AComplete

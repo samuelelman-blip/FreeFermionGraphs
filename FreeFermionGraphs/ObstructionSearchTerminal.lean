@@ -1,5 +1,5 @@
 import FreeFermionGraphs.ObstructionSearchNearest
-import FreeFermionGraphs.ObstructionSearchExecutionTrace
+import FreeFermionGraphs.ObstructionSearchPairing
 
 /-!
 # Terminal-path certificates for obstruction-search initialization
@@ -44,10 +44,9 @@ prevents the final endpoint alternative from being hidden among the primitive
 obstruction-search data. -/
 structure InitializationTerminalCoreData
     (I : ObstructionSearchInitialization families Cprime) where
-  obstructionOpposite : ∀ ⦃source target : I.Node⦄,
-    I.graph.Arc source target →
-      I.pairing target = (I.pairing source).opposite
   executionTrace : I.InitializationOSExecutionData
+  pairingLabels : I.InitializationPairingLabelData executionTrace
+  stoppingPairing : I.InitializationStoppingPairingData executionTrace
   terminalPath : I.Node → IndexedInducedPath G
   currentSlot : I.Node → I.Node → ObstructionSlot
   nearestTarget :
@@ -78,6 +77,16 @@ structure InitializationTerminalData
 
 namespace InitializationTerminalCoreData
 
+/-- Obstruction arcs cross pairing types by the faithful initializer labels
+and the concrete initial-tether/later-Definition-20 stopping branches. -/
+theorem obstructionOpposite
+    (T : I.InitializationTerminalCoreData)
+    (hclaw : G.IsClawFree)
+    ⦃source target : I.Node⦄
+    (h : I.graph.Arc source target) :
+    I.pairing target = (I.pairing source).opposite :=
+  T.pairingLabels.obstructionOpposite T.stoppingPairing hclaw h
+
 /-- Two incoming searches cannot occupy the same terminal orientation.
 Both sources have the same pairing type because they obstruct the same
 target.  Equality of their slots would therefore make their singleton final
@@ -96,7 +105,8 @@ theorem currentSlot_source_injective
   have hopposite :
       (I.pairing source).opposite =
         (I.pairing source').opposite := by
-    exact (T.obstructionOpposite h).symm.trans (T.obstructionOpposite h')
+    exact (T.obstructionOpposite hclaw h).symm.trans
+      (T.obstructionOpposite hclaw h')
   have hpair : I.pairing source = I.pairing source' := by
     have hopposite' := congrArg PairingType.opposite hopposite
     simpa using hopposite'
@@ -130,7 +140,7 @@ noncomputable def toInitializationGeometry
   ((InitializationOSExecutionData.toInitializationOrderedTraceData
       T.executionTrace).toInitializationFirstCommonPathData).toInitializationGeometry
     hclaw
-    T.nearestTarget.noSelfLoop T.obstructionOpposite
+    T.nearestTarget.noSelfLoop (T.obstructionOpposite hclaw)
     T.currentSlot (T.currentSlot_source_injective hclaw)
 
 /-- If two distinct sources obstruct one target, the pair-specific terminal

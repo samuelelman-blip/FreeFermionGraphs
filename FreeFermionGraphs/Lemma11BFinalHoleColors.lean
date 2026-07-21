@@ -76,6 +76,21 @@ theorem PrimeCarrierOverlapColored.not_mem_cb_cc_of_mem_cd
   · exact ⟨hacd.2.1, hacd.2.2.1⟩
   · exact (hbcc.2.2.2 huCd).elim
 
+/-- A prime `C'_c` vertex may also be in `C_b`, but never in `C_a` or
+`C'_d`. -/
+theorem PrimeCarrierOverlapColored.not_mem_ca_cd_of_mem_cc
+    (h : O.PrimeCarrierOverlapColored Cprime)
+    {u : V} (huPrime : u ∈ Cprime) (huCc : u ∈ O.Cc) :
+    u ∉ O.Ca ∧ u ∉ O.Cd := by
+  rcases h huPrime with hexact | hacd | hbcc
+  · rcases hexact with hA | hB | hC | hD
+    · exact (hA.2.2.1 huCc).elim
+    · exact (hB.2.2.1 huCc).elim
+    · exact ⟨hC.2.1, hC.2.2.2⟩
+    · exact (hD.2.2.2 huCc).elim
+  · exact (hacd.2.2.1 huCc).elim
+  · exact ⟨hbcc.2.1, hbcc.2.2.2⟩
+
 /-- Pairing-side separation rules out the permitted `C_a ∩ C'_d`
 overlap, recovering exact fourth-class membership when it is actually
 needed. -/

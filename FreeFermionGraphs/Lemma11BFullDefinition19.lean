@@ -1,4 +1,5 @@
 import FreeFermionGraphs.Lemma11BDefinition19PathDescent
+import FreeFermionGraphs.Lemma11Pairing
 
 /-!
 # Lemma 11(b): integrated Definition 19 neighbourhood data
@@ -38,6 +39,7 @@ structure FullDefinition19NeighborhoodData
   primeHalfLength : Nat
   primeHole : D.PrimeAlternatingHoleData primeHalfLength
   overlapColoring : O.PrimeCarrierOverlapColored Cprime
+  colorClassesIndependent : O.ColorClassesIndependent
   baseOppositeEndpoint : D.BaseOppositeEndpointNonadjacency
 
 namespace FullDefinition19NeighborhoodData

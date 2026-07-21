@@ -167,7 +167,7 @@ theorem lemma14_of_terminalClawAnalysis
             (I.dependentSet source ≠ {(target : V)} ∧
               I.dependentSet source' = {(target : V)}))) := by
   exact InitializationTerminalData.lemma14_of_initializationTerminalData
-    (T.toInitializationTerminalData_of_clawAnalysis A hclaw)
+    (T.toInitializationTerminalData_of_clawAnalysis A hclaw) hclaw
 
 end InitializationTerminalCoreData
 

@@ -1,6 +1,7 @@
 import FreeFermionGraphs.Lemma11AEliminateEarlierAnti
 import FreeFermionGraphs.Lemma11AThreeNeighborClone
 import FreeFermionGraphs.Lemma11OppositePairing
+import FreeFermionGraphs.Lemma11AEndpointPersistence
 
 /-!
 # Lemma 11(a.ii): full Definition 19 history
@@ -57,10 +58,61 @@ structure FullDefinition19Lemma11AHistoryData
     (fun _ => D.dependentAt)
   priorPath_ne_current : ∀ r : Nat, r < priorCount →
     Set.range (history.block r).path.vertex ≠ Set.range D.path.vertex
-  earlierFirstIntroduced_persists : ∀ r : Nat, r < priorCount →
-    ((history.block r).deformation.step
-      (history.block r).firstIndex).introduced ∈
-      Set.range D.initialHole.vertex
+  priorPath_pairwise : ∀ r q : Nat,
+    r < priorCount → q < priorCount → r ≠ q →
+      Set.range (history.block r).path.vertex ≠
+        Set.range (history.block q).path.vertex
+  earlierFirstIntroduced_uniquePath : ∀ r : Nat, r < priorCount →
+    O.IsUniqueContainingPath
+      ((history.block r).deformation.step
+        (history.block r).firstIndex).introduced
+      (Set.range (history.block r).path.vertex)
+
+/-- Corollary 10 makes the first introduced vertex of an earlier path unique
+to that path.  Since all later paths in the finite Definition 19 history are
+distinct, it is never removed by them; carrier transport then puts it on the
+initial hole of the current block. -/
+theorem earlierFirstIntroduced_mem_currentInitial
+    (D : ConcretePathDeformation O Cprime)
+    (X : D.FullDefinition19Lemma11AHistoryData)
+    {r : Nat} (hr : r < X.priorCount) :
+    ((X.history.block r).deformation.step
+      (X.history.block r).firstIndex).introduced ∈
+      Set.range D.initialHole.vertex := by
+  let A := X.history.block r
+  let v : V := (A.deformation.step A.firstIndex).introduced
+  let last : Nat := X.priorCount - 1
+  have hlastLt : last < X.priorCount := by
+    dsimp [last]
+    have hpos := X.priorCount_pos
+    omega
+  have hrLast : r ≤ last := by
+    dsimp [last]
+    have hpos := X.priorCount_pos
+    omega
+  have hvPath : v ∈ Set.range A.path.vertex := by
+    rw [← A.activePath_eq A.firstIndex]
+    exact (A.deformation.step A.firstIndex).introduced_mem_activePath
+  have hvFinal : v ∈ Set.range A.finalHole.vertex := by
+    exact A.introduced_mem_finalHole
+      (X.prior r).neighborhood.pathOrder A.firstIndex
+  have hnotLater : ∀ q : Nat, r < q → q ≤ last →
+      v ∉ Set.range (X.history.block q).path.vertex := by
+    intro q hrq hqLast hvq
+    have hEq :
+        Set.range (X.history.block q).path.vertex =
+          Set.range A.path.vertex :=
+      (X.earlierFirstIntroduced_uniquePath r hr).2.2
+        ((X.history.block q).path_range_mem) hvq
+    exact (X.priorPath_pairwise r q hr
+      (by omega) (by omega)) hEq.symm
+  have hvLast : v ∈ Set.range (X.history.block last).finalHole.vertex :=
+    X.history.mem_finalHole_of_mem_finalHole_through
+      hrLast (by simpa [A] using hvFinal) (by
+        intro q hrq hqLast
+        simpa [A, v] using hnotLater q hrq hqLast)
+  rw [X.final_before_current] at hvLast
+  simpa [A, v] using hvLast
 
 /-- Corollary 11 supplies the no-shared-dependent premise for each earlier
 path, and the completed local path-block equivalence turns it into the
@@ -113,7 +165,7 @@ theorem no_earlierAnticommutation_of_fullDefinition19History
   rcases hendpoint r hr hantiEarlier with hprevious | hcurrent
   · apply huOutsideCurrentInitial
     rw [hprevious]
-    exact X.earlierFirstIntroduced_persists r hr
+    exact D.earlierFirstIntroduced_mem_currentInitial X hr
   · exact (hlocal.1 hcurrent).elim
 
 /-- The degree equivalence in Lemma 11(a.ii), now with the earlier-path

@@ -265,6 +265,77 @@ theorem exists_later_removed_of_introduced_not_mem_terminal
   simpa [terminalHole, lastIndex] using
     hpresent (F.deformation.stepCount - 1) hlast hiLast
 
+/-- A terminal-hole vertex which is outside the deformation boundary was
+already present immediately after every earlier step.  This is the carrier
+transport used in Lemma 12: away from `∂O`, no later replacement can be
+the first one to introduce the vertex. -/
+theorem mem_after_of_mem_terminal_of_not_mem_boundary
+    (F : FullDefinition19Deformation O Cprime)
+    (i : Fin F.deformation.stepCount)
+    {x : V}
+    (hxTerminal : x ∈ Set.range F.terminalHole.vertex)
+    (hxBoundary : x ∉ F.boundary) :
+    x ∈ Set.range (F.deformation.step i).after.vertex := by
+  have hxNeIntroduced : ∀ j : Fin F.deformation.stepCount,
+      x ≠ (F.deformation.step j).introduced := by
+    intro j hEq
+    apply hxBoundary
+    exact F.mem_boundary_iff.mpr ⟨j, Or.inl hEq⟩
+  have hbackward : ∀ (n : Nat) (hn : n < F.deformation.stepCount),
+      i.val ≤ n →
+      x ∈ Set.range
+        (F.deformation.step ⟨n, hn⟩).after.vertex →
+      x ∈ Set.range (F.deformation.step i).after.vertex := by
+    intro n hn hin
+    induction n, hin using Nat.le_induction with
+    | base =>
+        intro hx
+        simpa using hx
+    | succ n hin ih =>
+        intro hxCurrentAfter
+        have hnPrevious : n < F.deformation.stepCount := by omega
+        let previous : Fin F.deformation.stepCount := ⟨n, hnPrevious⟩
+        let current : Fin F.deformation.stepCount := ⟨n + 1, hn⟩
+        have hxCurrentBefore :
+            x ∈ Set.range
+              (F.deformation.step current).before.vertex :=
+          (F.deformation.step current).mem_before_of_mem_after_of_ne_introduced
+            (by simpa [current] using hxCurrentAfter)
+            (hxNeIntroduced current)
+        have hchain :
+            Set.range (F.deformation.step previous).after.vertex =
+              Set.range (F.deformation.step current).before.vertex :=
+          F.deformation.carrier_chain (i := previous) (j := current) (by
+            simp [previous, current])
+        have hxPreviousAfter :
+            x ∈ Set.range
+              (F.deformation.step previous).after.vertex := by
+          rw [hchain]
+          exact hxCurrentBefore
+        exact ih hnPrevious (by simpa [previous] using hxPreviousAfter)
+  have hlast :
+      F.deformation.stepCount - 1 < F.deformation.stepCount := by
+    have hpos := F.nonempty
+    omega
+  have hiLast : i.val ≤ F.deformation.stepCount - 1 := by
+    have hi := i.isLt
+    omega
+  apply hbackward (F.deformation.stepCount - 1) hlast hiLast
+  simpa [terminalHole, lastIndex] using hxTerminal
+
+/-- Contrapositive form of terminal-to-earlier carrier transport. -/
+theorem not_mem_terminal_of_not_mem_after_of_not_mem_boundary
+    (F : FullDefinition19Deformation O Cprime)
+    (i : Fin F.deformation.stepCount)
+    {x : V}
+    (hxAfter : x ∉ Set.range (F.deformation.step i).after.vertex)
+    (hxBoundary : x ∉ F.boundary) :
+    x ∉ Set.range F.terminalHole.vertex := by
+  intro hxTerminal
+  exact hxAfter
+    (F.mem_after_of_mem_terminal_of_not_mem_boundary
+      i hxTerminal hxBoundary)
+
 /-- Lemma 13.  Under the Lemma 12 criterion `U ⊆ C^(m)`, every vertex
 in exactly one of the prime hole `C'` and terminal hole `C^(m)` is absent
 from the deformation boundary. -/

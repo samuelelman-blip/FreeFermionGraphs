@@ -15,7 +15,7 @@ blocks and three local invariants:
 
 This module packages exactly those local execution facts and derives the
 ordered trace.  The equality of entries on a common same-pairing path is
-also derived from a per-path canonical orientation, rather than stored as a
+derived from the Definition 19 endpoint colors, rather than stored as a
 pairwise conclusion.
 -/
 
@@ -30,6 +30,118 @@ namespace FixedPairingPathFamily
 variable {G : SimpleGraph V}
   {families : PairingType → FixedPairingPathFamily G}
   {Cprime : Set V}
+
+namespace ConcretePathDeformation
+
+variable {O : FixedPairingPathFamily G}
+
+/-- The first introduced vertex is an endpoint of the complete alternating
+path block, so it anticommutes with that path. -/
+theorem firstIntroduced_anticommutesWith
+    (D : ConcretePathDeformation O Cprime)
+    (F : D.FullDefinition19Lemma11AData) :
+    D.path.AnticommutesWith
+      (D.deformation.step D.firstIndex).introduced := by
+  let L := F.neighborhood.pathOrder
+  let first := L.introducedPathIndex D.firstIndex
+  let next := L.removedPathIndex D.firstIndex
+  have hfirst : first.val = 0 := by
+    simpa [first, ConcretePathDeformation.firstIndex] using
+      L.introduced_index_val D.firstIndex
+  have hnext : next.val = 1 := by
+    simpa [next, ConcretePathDeformation.firstIndex] using
+      L.removed_index_val D.firstIndex
+  have hadj :
+      G.Adj (D.path.vertex first) (D.path.vertex next) := by
+    apply (D.path.adj_iff first next).2
+    left
+    omega
+  have hanti : D.path.AnticommutesWith (D.path.vertex first) :=
+    D.path.anticommutesWith_of_unique_neighbor hadj (by
+      intro q hq
+      have hindices := (D.path.adj_iff first q).1 hq
+      apply Fin.ext
+      rcases hindices with hforward | hbackward <;> omega)
+  simpa only [first, L.introduced_eq] using hanti
+
+/-- Equal carriers of two complete Definition 19 path blocks have the same
+oriented first introduced endpoint.  The only other possible endpoint is
+the terminal removed vertex in `C_a`; the first introduced vertex lies in
+the prime `C'_c` class and therefore cannot be that endpoint. -/
+theorem firstIntroduced_eq_of_path_range_eq
+    (D E : ConcretePathDeformation O Cprime)
+    (F : D.FullDefinition19Lemma11AData)
+    (H : E.FullDefinition19Lemma11AData)
+    (hpath : Set.range D.path.vertex = Set.range E.path.vertex) :
+    (D.deformation.step D.firstIndex).introduced =
+      (E.deformation.step E.firstIndex).introduced := by
+  let LD := F.neighborhood.pathOrder
+  let LE := H.neighborhood.pathOrder
+  let dFirst := LD.introducedPathIndex D.firstIndex
+  have hdFirst :
+      D.path.vertex dFirst =
+        (D.deformation.step D.firstIndex).introduced := by
+    exact LD.introduced_eq D.firstIndex
+  have hmemE :
+      (D.deformation.step D.firstIndex).introduced ∈
+        Set.range E.path.vertex := by
+    rw [← hpath]
+    exact ⟨dFirst, hdFirst⟩
+  have hantiD := D.firstIntroduced_anticommutesWith F
+  have hantiE :
+      E.path.AnticommutesWith
+        (D.deformation.step D.firstIndex).introduced := by
+    simpa only [IndexedInducedPath.AnticommutesWith, hpath] using hantiD
+  obtain ⟨q, hq, hendpoint⟩ :=
+    E.path.endpoint_of_mem_range_of_anticommutesWith hmemE hantiE
+  rcases hendpoint with hfirst | hlast
+  · have hqFirst : q = LE.introducedPathIndex E.firstIndex := by
+      apply Fin.ext
+      rw [LE.introduced_index_val]
+      simpa [ConcretePathDeformation.firstIndex] using hfirst
+    calc
+      (D.deformation.step D.firstIndex).introduced =
+          E.path.vertex q := hq.symm
+      _ = E.path.vertex (LE.introducedPathIndex E.firstIndex) := by
+        rw [hqFirst]
+      _ = (E.deformation.step E.firstIndex).introduced :=
+        LE.introduced_eq E.firstIndex
+  · exfalso
+    have hdPrime :
+        (D.deformation.step D.firstIndex).introduced ∈ Cprime := by
+      exact F.neighborhood.primeHole.introduced_mem D.firstIndex
+    have hdCc :
+        (D.deformation.step D.firstIndex).introduced ∈ O.Cc := by
+      exact
+        (F.neighborhood.mechanical.stepGeometry D.firstIndex).base.introduced_cc
+    have hdNotCa :
+        (D.deformation.step D.firstIndex).introduced ∉ O.Ca :=
+      (F.neighborhood.overlapColoring.not_mem_ca_cd_of_mem_cc
+        hdPrime hdCc).1
+    have heLastCa :
+        (E.deformation.step E.lastIndex).before.vertex
+            (E.deformation.step E.lastIndex).removedIndex ∈ O.Ca :=
+      (H.neighborhood.mechanical.stepGeometry E.lastIndex).removed_ca
+    have hlastVertex := H.lastPathVertex_eq_terminalRemoved q hlast
+    apply hdNotCa
+    rw [← hq, hlastVertex]
+    exact heLastCa
+
+/-- Pairing-indexed form of oriented path equality. -/
+theorem firstIntroduced_eq_of_pairing_eq
+    {p q : PairingType}
+    (D : ConcretePathDeformation (families p) Cprime)
+    (E : ConcretePathDeformation (families q) Cprime)
+    (F : D.FullDefinition19Lemma11AData)
+    (H : E.FullDefinition19Lemma11AData)
+    (hpq : p = q)
+    (hpath : Set.range D.path.vertex = Set.range E.path.vertex) :
+    (D.deformation.step D.firstIndex).introduced =
+      (E.deformation.step E.firstIndex).introduced := by
+  subst q
+  exact D.firstIntroduced_eq_of_path_range_eq E F H hpath
+
+end ConcretePathDeformation
 
 namespace ObstructionSearchInitialization
 
@@ -132,27 +244,18 @@ noncomputable def toOrderedSearchTrace
 
 end OrderedOSExecution
 
-/-- Concrete initialized executions for every source.
-
-The orientation datum is local to one pairing type and one path carrier.
-Thus two searches of the same pairing type that traverse the same path have
-equal entries by rewriting, with no pairwise entry-equality certificate.
--/
+/-- Concrete initialized executions for every source.  No common-path
+orientation certificate is stored: Definition 19 forces the first introduced
+endpoint of a path carrier to be unique. -/
 structure InitializationOSExecutionData
     (I : ObstructionSearchInitialization families Cprime) where
   originalHole : IndexedInducedHole G
   execution : ∀ source : I.Node,
     OrderedOSExecution I source originalHole
-  canonicalEntry : PairingType → Set V → V
-  entry_eq_canonical :
-    ∀ (source : I.Node)
-      (i : Fin (execution source).blockCount),
-      (execution source).entry i =
-        canonicalEntry (I.pairing source) ((execution source).path i)
 
 namespace InitializationOSExecutionData
 
-/-- The local executions and canonical path orientations construct all
+/-- The local executions and the derived endpoint orientation construct all
 ordered trace data required by Lemma 14(iii). -/
 noncomputable def toInitializationOrderedTraceData
     (X : I.InitializationOSExecutionData) :
@@ -161,20 +264,27 @@ noncomputable def toInitializationOrderedTraceData
   trace source := (X.execution source).toOrderedSearchTrace
   commonPath_entry_eq := by
     intro source source' i j hpair hpath
-    change (X.execution source).entry i =
-      (X.execution source').entry j
-    change (X.execution source).path i =
-      (X.execution source').path j at hpath
-    calc
+    let A :=
+      (X.execution source).history.witness
+        ((X.execution source).path_mem i)
+    let B :=
+      (X.execution source').history.witness
+        ((X.execution source').path_mem j)
+    have hblockPath :
+        Set.range A.block.path.vertex =
+          Set.range B.block.path.vertex := by
+      calc
+        Set.range A.block.path.vertex =
+            (X.execution source).path i := A.path_eq
+        _ = (X.execution source').path j := hpath
+        _ = Set.range B.block.path.vertex := B.path_eq.symm
+    have hfirst :=
+      A.block.firstIntroduced_eq_of_pairing_eq B.block
+        A.context.currentData B.context.currentData hpair hblockPath
+    change
       (X.execution source).entry i =
-          X.canonicalEntry (I.pairing source)
-            ((X.execution source).path i) :=
-        X.entry_eq_canonical source i
-      _ = X.canonicalEntry (I.pairing source')
-            ((X.execution source').path j) := by
-        rw [hpair, hpath]
-      _ = (X.execution source').entry j :=
-        (X.entry_eq_canonical source' j).symm
+        (X.execution source').entry j
+    simpa only [OrderedOSExecution.entry, A, B] using hfirst
 
 end InitializationOSExecutionData
 

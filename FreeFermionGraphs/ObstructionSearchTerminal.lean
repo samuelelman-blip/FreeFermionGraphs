@@ -3,16 +3,17 @@ import FreeFermionGraphs.Lemma14Core
 /-!
 # Terminal-path certificates for obstruction-search initialization
 
-When an initialized obstruction search terminates at a vertex of `W`, its
-current dependent vertex is an endpoint of the terminal path component.  Two
-searches entering the same obstruction from the same endpoint coincide; a
-path has only two endpoint orientations.  This is the finite mechanism behind
-the indegree bound in Lemma 14(iv).
+For an initialized obstruction-search arc, the current dependent vertex is
+an endpoint of the terminal path component.  Two distinct searches entering
+one target cannot use the same endpoint orientation.  The difficult final
+case of Lemma 14(iv) proves the pair-specific statement that, when two such
+arcs have the same target, the target equals one of their two current
+endpoints.
 
-The manuscript's long claw-free argument proves the remaining local fact that
-the obstruction target itself is one of those two endpoints.  Once that fact
-is supplied by the concrete `OS` traversal, the statement that the target is
-the dependent vertex of exactly one of two incoming searches follows here.
+That quantifier is important: the target of an arbitrary single arc may lie
+strictly inside its terminal path.  This module therefore assumes no
+per-arc target endpoint.  It derives the exact-one-dependent-set conclusion
+only from the manuscript's two-incoming terminal theorem.
 -/
 
 universe u
@@ -70,12 +71,12 @@ variable {I : ObstructionSearchInitialization families Cprime}
 
 /-- Concrete terminal-path data produced by initialization of `OS`.
 
-For an arc `source → target`, `currentSlot source target` selects the endpoint
-which is returned as the singleton dependent set.  `targetSlot target`
-selects the endpoint occupied by the obstruction target.  The source
-injectivity field is the no-shared-terminal-state consequence of Corollary 11;
-`target_at_endpoint` is the specific claw-free terminal-path fact proved in
-the final part of Lemma 14(iv). -/
+For an arc `source → target`, `currentSlot source target` selects the
+endpoint returned as the singleton dependent set.  The source-injectivity
+field is the no-shared-terminal-state consequence of Corollary 11.  The
+last field is exactly the long terminal case in Lemma 14(iv): it applies
+only to two distinct incoming searches and says that their common target is
+one of the two current endpoints. -/
 structure InitializationTerminalData
     (I : ObstructionSearchInitialization families Cprime) where
   noSelfLoop : ∀ source : I.Node,
@@ -91,28 +92,32 @@ structure InitializationTerminalData
   terminalPath_nontrivial : ∀ target : I.Node,
     2 ≤ (terminalPath target).card
   currentSlot : I.Node → I.Node → ObstructionSlot
-  targetSlot : I.Node → ObstructionSlot
   dependent_is_current_endpoint :
     ∀ ⦃source target : I.Node⦄,
       I.graph.Arc source target →
         I.dependent source = some
           ((terminalPath target).obstructionEndpoint
             (currentSlot source target))
-  target_at_endpoint : ∀ ⦃source target : I.Node⦄,
-    I.graph.Arc source target →
-      (target : V) =
-        (terminalPath target).obstructionEndpoint (targetSlot target)
   currentSlot_source_injective :
     ∀ ⦃source source' target : I.Node⦄,
       I.graph.Arc source target →
       I.graph.Arc source' target →
       currentSlot source target = currentSlot source' target →
         source = source'
+  target_is_current_endpoint_of_twoIncoming :
+    ∀ ⦃source source' target : I.Node⦄,
+      source ≠ source' →
+      I.graph.Arc source target →
+      I.graph.Arc source' target →
+        ((terminalPath target).obstructionEndpoint
+            (currentSlot source target) = (target : V) ∨
+          (terminalPath target).obstructionEndpoint
+            (currentSlot source' target) = (target : V))
 
 namespace InitializationTerminalData
 
 /-- The terminal-path certificate constructs the generic two-slot geometry
-used by the finite Lemma 14 argument. -/
+used for Lemma 14(i)--(iii) and the indegree bound. -/
 def toInitializationGeometry
     (T : I.InitializationTerminalData) :
     I.InitializationGeometry where
@@ -121,37 +126,84 @@ def toInitializationGeometry
   pathOwner := T.pathOwner
   path_owner_eq := T.path_owner_eq
   incomingSlot := T.currentSlot
-  targetSlot := T.targetSlot
   incomingSlot_injective := T.currentSlot_source_injective
-  dependent_target_iff_slot := by
-    intro source target h
-    let P := T.terminalPath target
-    have hinjective : Function.Injective P.obstructionEndpoint :=
-      P.obstructionEndpoint_injective (T.terminalPath_nontrivial target)
+
+/-- If two distinct sources obstruct one target, the pair-specific terminal
+theorem and distinct endpoint orientations make the target the unique
+dependent vertex of exactly one search. -/
+theorem target_onlyDependent_of_twoIncoming
+    (T : I.InitializationTerminalData)
+    {source source' target : I.Node}
+    (hne : source ≠ source')
+    (h : I.graph.Arc source target)
+    (h' : I.graph.Arc source' target) :
+    ((I.dependentSet source = {(target : V)} ∧
+        I.dependentSet source' ≠ {(target : V)}) ∨
+      (I.dependentSet source ≠ {(target : V)} ∧
+        I.dependentSet source' = {(target : V)})) := by
+  let P := T.terminalPath target
+  have hinjective : Function.Injective P.obstructionEndpoint :=
+    P.obstructionEndpoint_injective (T.terminalPath_nontrivial target)
+  have hslots :
+      T.currentSlot source target ≠
+        T.currentSlot source' target := by
+    intro hEq
+    exact hne (T.currentSlot_source_injective h h' hEq)
+  have hendpointNe :
+      P.obstructionEndpoint (T.currentSlot source target) ≠
+        P.obstructionEndpoint (T.currentSlot source' target) := by
+    intro hEq
+    exact hslots (hinjective hEq)
+  rcases T.target_is_current_endpoint_of_twoIncoming hne h h' with
+      hleft | hright
+  · left
     constructor
-    · intro hdependent
-      have hvertices :
-          P.obstructionEndpoint (T.currentSlot source target) =
-            P.obstructionEndpoint (T.targetSlot target) := by
-        apply Option.some.inj
-        calc
-          some (P.obstructionEndpoint (T.currentSlot source target)) =
-              I.dependent source := (T.dependent_is_current_endpoint h).symm
-          _ = some (target : V) := hdependent
-          _ = some (P.obstructionEndpoint (T.targetSlot target)) := by
-            rw [T.target_at_endpoint h]
-      exact hinjective hvertices
-    · intro hslot
+    · apply (I.dependentSet_eq_singleton_iff source (target : V)).2
       calc
         I.dependent source =
-            some (P.obstructionEndpoint (T.currentSlot source target)) :=
+            some (P.obstructionEndpoint
+              (T.currentSlot source target)) :=
           T.dependent_is_current_endpoint h
-        _ = some (P.obstructionEndpoint (T.targetSlot target)) := by
-          rw [hslot]
-        _ = some (target : V) := by
-          rw [T.target_at_endpoint h]
+        _ = some (target : V) := by rw [hleft]
+    · intro hset
+      have hdep :=
+        (I.dependentSet_eq_singleton_iff source' (target : V)).1 hset
+      have hrightEq :
+          P.obstructionEndpoint (T.currentSlot source' target) =
+            (target : V) := by
+        apply Option.some.inj
+        calc
+          some (P.obstructionEndpoint
+              (T.currentSlot source' target)) =
+              I.dependent source' :=
+            (T.dependent_is_current_endpoint h').symm
+          _ = some (target : V) := hdep
+      exact hendpointNe (hleft.trans hrightEq.symm)
+  · right
+    constructor
+    · intro hset
+      have hdep :=
+        (I.dependentSet_eq_singleton_iff source (target : V)).1 hset
+      have hleftEq :
+          P.obstructionEndpoint (T.currentSlot source target) =
+            (target : V) := by
+        apply Option.some.inj
+        calc
+          some (P.obstructionEndpoint
+              (T.currentSlot source target)) =
+              I.dependent source :=
+            (T.dependent_is_current_endpoint h).symm
+          _ = some (target : V) := hdep
+      exact hendpointNe (hleftEq.trans hright.symm)
+    · apply (I.dependentSet_eq_singleton_iff source' (target : V)).2
+      calc
+        I.dependent source' =
+            some (P.obstructionEndpoint
+              (T.currentSlot source' target)) :=
+          T.dependent_is_current_endpoint h'
+        _ = some (target : V) := by rw [hright]
 
-/-- Lemma 14 from the faithful terminal-path output of the initialized
+/-- Lemma 14 from faithful terminal-path output of the initialized
 obstruction searches. -/
 theorem lemma14_of_initializationTerminalData
     (T : I.InitializationTerminalData) :
@@ -175,7 +227,10 @@ theorem lemma14_of_initializationTerminalData
               I.dependentSet source' ≠ {(target : V)}) ∨
             (I.dependentSet source ≠ {(target : V)} ∧
               I.dependentSet source' = {(target : V)}))) := by
-  exact I.lemma14_of_initializationGeometry T.toInitializationGeometry
+  obtain ⟨hi, hii, hiii, hindegree⟩ :=
+    I.lemma14_core_of_initializationGeometry T.toInitializationGeometry
+  exact ⟨hi, hii, hiii, hindegree,
+    fun hne h h' => T.target_onlyDependent_of_twoIncoming hne h h'⟩
 
 end InitializationTerminalData
 

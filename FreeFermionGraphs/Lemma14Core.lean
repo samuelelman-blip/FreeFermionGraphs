@@ -3,16 +3,15 @@ import FreeFermionGraphs.ObstructionSearch
 /-!
 # Lemma 14: generic initialization argument
 
-This module assembles the four conclusions of Lemma 14 from the concrete
-initialization geometry of the obstruction search.  The nontrivial finite
-directed-graph reasoning is proved here; a later module constructs the
-`InitializationGeometry` certificate from the `OS` traversal and the
-graph-theoretic results in Corollaries 9--11.
+This module assembles Lemma 14(i)--(iii) and the indegree bound in (iv)
+from the generic initialization geometry.  The remaining pair-specific
+claim in (iv), that a common obstruction target is the dependent vertex of
+exactly one incoming search, is proved from terminal-path data in
+`ObstructionSearchTerminal`.
 
-The theorem is therefore intentionally named
-`lemma14_of_initializationGeometry` rather than `lemma14`: the paper name is
-reserved for the theorem in which that final translation layer has been
-discharged.
+The theorem is intentionally named `lemma14_core_of_initializationGeometry`:
+the paper name is reserved for the theorem in which the terminal case has
+also been discharged.
 -/
 
 universe u
@@ -29,18 +28,9 @@ variable {G : SimpleGraph V}
 
 namespace ObstructionSearchInitialization
 
-/-- Lemma 14 from the local initialization geometry.
-
-The four conjuncts are, in manuscript order:
-
-1. every output is empty or a complete fixed-pairing Definition 19
-   deformation;
-2. the obstruction graph is bipartite with pairing-type coloring;
-3. same-pairing outputs from distinct sources are path-disjoint;
-4. every target has indegree at most two, and two distinct incoming arcs
-   make the target the unique dependent vertex of exactly one source.
--/
-theorem lemma14_of_initializationGeometry
+/-- Lemma 14(i)--(iii) and the indegree-two half of (iv) from generic
+initialization geometry. -/
+theorem lemma14_core_of_initializationGeometry
     (I : ObstructionSearchInitialization families Cprime)
     (X : I.InitializationGeometry) :
     (∀ source : I.Node,
@@ -54,25 +44,14 @@ theorem lemma14_of_initializationGeometry
       I.pairing source = I.pairing source' →
         Disjoint (I.output source).paths
           (I.output source').paths) ∧
-    ((∀ target : I.Node, I.graph.AtMostTwoIncoming target) ∧
-      ∀ ⦃source source' target : I.Node⦄,
-        source ≠ source' →
-        I.graph.Arc source target →
-        I.graph.Arc source' target →
-          ((I.dependentSet source = {(target : V)} ∧
-              I.dependentSet source' ≠ {(target : V)}) ∨
-            (I.dependentSet source ≠ {(target : V)} ∧
-              I.dependentSet source' = {(target : V)}))) := by
+    (∀ target : I.Node, I.graph.AtMostTwoIncoming target) := by
   refine ⟨?_, X.graph_isBipartiteByPairing, ?_, ?_⟩
   · intro source
     exact (I.output source).empty_or_complete
   · intro source source' hne hpair
     exact X.samePairing_paths_disjoint hne hpair
-  · constructor
-    · intro target
-      exact X.atMostTwoIncoming target
-    · intro source source' target hne h h'
-      exact X.target_onlyDependent_of_twoIncoming hne h h'
+  · intro target
+    exact X.atMostTwoIncoming target
 
 end ObstructionSearchInitialization
 

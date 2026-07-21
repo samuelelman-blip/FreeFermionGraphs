@@ -229,8 +229,9 @@ theorem lemma14_of_initializationTerminalData
               I.dependentSet source' = {(target : V)}))) := by
   obtain ⟨hi, hii, hiii, hindegree⟩ :=
     I.lemma14_core_of_initializationGeometry T.toInitializationGeometry
-  exact ⟨hi, hii, hiii, hindegree,
-    fun hne h h' => T.target_onlyDependent_of_twoIncoming hne h h'⟩
+  refine ⟨hi, hii, hiii, hindegree, ?_⟩
+  intro source source' target hne h h'
+  exact T.target_onlyDependent_of_twoIncoming hne h h'
 
 end InitializationTerminalData
 

@@ -37,10 +37,11 @@ variable {I : ObstructionSearchInitialization families Cprime}
 long two-search claw case is discharged.
 
 For an arc `source → target`, `currentSlot source target` selects the
-endpoint returned as the singleton dependent set.  The source-injectivity
-field is the no-shared-terminal-state consequence of Corollary 11.  Keeping
-this core separate prevents the final endpoint alternative from being hidden
-among the primitive obstruction-search data. -/
+endpoint returned as the singleton dependent set.  Equal-slot source
+injectivity is derived below from the final-selection invariant and
+Corollary 11, rather than stored as input.  Keeping this core separate
+prevents the final endpoint alternative from being hidden among the primitive
+obstruction-search data. -/
 structure InitializationTerminalCoreData
     (I : ObstructionSearchInitialization families Cprime) where
   obstructionOpposite : ∀ ⦃source target : I.Node⦄,
@@ -57,12 +58,6 @@ structure InitializationTerminalCoreData
         I.dependent source = some
           ((terminalPath target).obstructionEndpoint
             (currentSlot source target))
-  currentSlot_source_injective :
-    ∀ ⦃source source' target : I.Node⦄,
-      I.graph.Arc source target →
-      I.graph.Arc source' target →
-      currentSlot source target = currentSlot source' target →
-        source = source'
 
 /-- Complete terminal-path data after the long two-search case of
 Lemma 14(iv) has been proved.  The added field has the exact pairwise
@@ -81,6 +76,49 @@ structure InitializationTerminalData
           (terminalPath target).obstructionEndpoint
             (currentSlot source' target) = (target : V))
 
+namespace InitializationTerminalCoreData
+
+/-- Two incoming searches cannot occupy the same terminal orientation.
+Both sources have the same pairing type because they obstruct the same
+target.  Equality of their slots would therefore make their singleton final
+dependent vertices equal, contradicting the Corollary 11 disjointness theorem
+derived from their concrete execution traces. -/
+theorem currentSlot_source_injective
+    (T : I.InitializationTerminalCoreData)
+    (hclaw : G.IsClawFree)
+    ⦃source source' target : I.Node⦄
+    (h : I.graph.Arc source target)
+    (h' : I.graph.Arc source' target)
+    (hslot : T.currentSlot source target =
+      T.currentSlot source' target) :
+    source = source' := by
+  by_contra hne
+  have hopposite :
+      (I.pairing source).opposite =
+        (I.pairing source').opposite := by
+    exact (T.obstructionOpposite h).symm.trans (T.obstructionOpposite h')
+  have hpair : I.pairing source = I.pairing source' := by
+    have hopposite' := congrArg PairingType.opposite hopposite
+    simpa using hopposite'
+  have hdisjoint :=
+    T.executionTrace.samePairing_dependentSets_disjoint
+      hclaw hne hpair
+  let u := (T.terminalPath target).obstructionEndpoint
+    (T.currentSlot source target)
+  have hu : u ∈ I.dependentSet source := by
+    exact T.dependent_is_current_endpoint h
+  have hu' : u ∈ I.dependentSet source' := by
+    change I.dependent source' = some u
+    calc
+      I.dependent source' =
+          some ((T.terminalPath target).obstructionEndpoint
+            (T.currentSlot source' target)) :=
+        T.dependent_is_current_endpoint h'
+      _ = some u := by rw [← hslot]
+  exact (Set.disjoint_left.mp hdisjoint) hu hu'
+
+end InitializationTerminalCoreData
+
 namespace InitializationTerminalData
 
 /-- The terminal-path certificate constructs the generic two-slot geometry
@@ -93,13 +131,14 @@ noncomputable def toInitializationGeometry
       T.executionTrace).toInitializationFirstCommonPathData).toInitializationGeometry
     hclaw
     T.nearestTarget.noSelfLoop T.obstructionOpposite
-    T.currentSlot T.currentSlot_source_injective
+    T.currentSlot (T.currentSlot_source_injective hclaw)
 
 /-- If two distinct sources obstruct one target, the pair-specific terminal
 theorem and distinct endpoint orientations make the target the unique
 dependent vertex of exactly one search. -/
 theorem target_onlyDependent_of_twoIncoming
     (T : I.InitializationTerminalData)
+    (hclaw : G.IsClawFree)
     {source source' target : I.Node}
     (hne : source ≠ source')
     (h : I.graph.Arc source target)
@@ -116,7 +155,7 @@ theorem target_onlyDependent_of_twoIncoming
       T.currentSlot source target ≠
         T.currentSlot source' target := by
     intro hEq
-    exact hne (T.currentSlot_source_injective h h' hEq)
+    exact hne (T.currentSlot_source_injective hclaw h h' hEq)
   have hendpointNe :
       P.obstructionEndpoint (T.currentSlot source target) ≠
         P.obstructionEndpoint (T.currentSlot source' target) := by
@@ -201,7 +240,7 @@ theorem lemma14_of_initializationTerminalData
       (T.toInitializationGeometry hclaw)
   refine ⟨hi, hii, hiii, hindegree, ?_⟩
   intro source source' target hne h h'
-  exact T.target_onlyDependent_of_twoIncoming hne h h'
+  exact T.target_onlyDependent_of_twoIncoming hclaw hne h h'
 
 end InitializationTerminalData
 

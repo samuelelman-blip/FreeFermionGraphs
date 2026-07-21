@@ -11,7 +11,9 @@ blocks and three local invariants:
 * the search stops before appending a path meeting `W \ {source}`;
 * Corollary 10 makes the source belong only to the first block;
 * the entry of every later block is selected from a dependent set of a
-  strictly earlier block and anticommutes with that earlier path.
+  strictly earlier block and anticommutes with that earlier path; and
+* a returned final dependent vertex is selected from a dependent set of an
+  output block and anticommutes with that block.
 
 This module packages exactly those local execution facts and derives the
 ordered trace.  The equality of entries on a common same-pairing path is
@@ -153,7 +155,9 @@ variable {I : ObstructionSearchInitialization families Cprime}
 appended.  `source_block_zero` is the Corollary 10 uniqueness statement for
 the initializing vertex.  `earlierSelection` is the update rule based on the
 eligible pair with maximal global step value `L_{r,s}`; only strict block
-precedence is needed by Lemma 14(iii).
+precedence is needed by Lemma 14(iii).  `finalSelection` is the corresponding
+certificate for the singleton `U_j` returned when the initialized search
+terminates at an obstruction.
 -/
 structure OrderedOSExecution
     (I : ObstructionSearchInitialization families Cprime)
@@ -183,6 +187,11 @@ structure OrderedOSExecution
           ((history.witness (path_mem q)).block.path).AnticommutesWith
             (((history.witness (path_mem i)).block.deformation.step
               (history.witness (path_mem i)).block.firstIndex).introduced)
+  finalSelection :
+    ∀ ⦃u : V⦄, I.dependent source = some u →
+      ∃ (q : Fin blockCount) (s : Nat),
+        u ∈ ((history.witness (path_mem q)).block.dependentAt s) ∧
+          ((history.witness (path_mem q)).block.path).AnticommutesWith u
 
 namespace OrderedOSExecution
 
@@ -285,6 +294,46 @@ noncomputable def toInitializationOrderedTraceData
       (X.execution source).entry i =
         (X.execution source').entry j
     simpa only [OrderedOSExecution.entry, A, B] using hfirst
+
+/-- Distinct initialized searches of one pairing type have disjoint final
+dependent sets.  A common returned vertex would be a shared dependent
+anticommuting witness for two output blocks.  The ordered-trace theorem makes
+those blocks distinct, and the history form of Corollary 11 excludes the
+resulting configuration. -/
+theorem samePairing_dependentSets_disjoint
+    (X : I.InitializationOSExecutionData)
+    (hclaw : G.IsClawFree)
+    {source source' : I.Node}
+    (hne : source ≠ source')
+    (hpair : I.pairing source = I.pairing source') :
+    Disjoint (I.dependentSet source) (I.dependentSet source') := by
+  apply Set.disjoint_left.mpr
+  intro u hu hu'
+  obtain ⟨q, s, huDep, huAnti⟩ :=
+    (X.execution source).finalSelection hu
+  obtain ⟨r, t, huDep', huAnti'⟩ :=
+    (X.execution source').finalSelection hu'
+  let Q := (X.execution source).path q
+  let R := (X.execution source').path r
+  have hQ : Q ∈ (I.output source).paths :=
+    (X.execution source).path_mem q
+  have hR : R ∈ (I.output source').paths :=
+    (X.execution source').path_mem r
+  let Y :=
+    (X.toInitializationOrderedTraceData).toInitializationFirstCommonPathData
+  have hpaths :
+      Disjoint (I.output source).paths (I.output source').paths :=
+    Y.samePairing_paths_disjoint hclaw hne hpair
+  have hQR : Q ≠ R := by
+    intro hEq
+    exact (Set.disjoint_left.mp hpaths) hQ (hEq ▸ hR)
+  let A := (X.execution source).history.witness hQ
+  let B := (X.execution source').history.witness hR
+  have hforbidden :=
+    SearchPathHistoryWitness.noSharedDependentAnticommutingWitness_of_pairing_eq
+      A B hpair hclaw hQR
+  apply hforbidden
+  exact ⟨u, s, t, huDep, huDep', huAnti, huAnti'⟩
 
 end InitializationOSExecutionData
 

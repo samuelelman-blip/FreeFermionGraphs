@@ -61,23 +61,76 @@ theorem false_of_clawFree
 
 end DistinctCloneInteriorGeometry
 
+/-- Two distinct known neighbours exhaust the neighbours of a vertex on an
+indexed hole when its external degree is two.  This is the set-cardinality
+step used twice in the final distinct-clone argument. -/
+theorem IndexedInducedHole.neighbor_eq_of_externalDegree_two
+    (C : IndexedInducedHole G) {u x y : V}
+    (hdegree : C.externalDegree u = 2)
+    (hxMem : x ∈ Set.range C.vertex)
+    (hyMem : y ∈ Set.range C.vertex)
+    (hxy : x ≠ y)
+    (hux : G.Adj u x)
+    (huy : G.Adj u y)
+    {z : V}
+    (hzMem : z ∈ Set.range C.vertex)
+    (huz : G.Adj u z) :
+    z = x ∨ z = y := by
+  obtain ⟨ix, rfl⟩ := hxMem
+  obtain ⟨iy, rfl⟩ := hyMem
+  obtain ⟨iz, rfl⟩ := hzMem
+  have hixiy : ix ≠ iy := by
+    intro hEq
+    exact hxy (congrArg C.vertex hEq)
+  have hpairSubset :
+      ({ix, iy} : Set (Fin C.card)) ⊆ C.neighborIndexSet u := by
+    intro q hq
+    rcases Set.mem_insert_iff.mp hq with rfl | hq
+    · exact hux
+    · have hqiy : q = iy := Set.mem_singleton_iff.mp hq
+      subst q
+      exact huy
+  have hpairCard :
+      ({ix, iy} : Set (Fin C.card)).ncard = 2 := by
+    simp [hixiy]
+  have hneighborCard : (C.neighborIndexSet u).ncard = 2 := by
+    simpa [IndexedInducedHole.externalDegree] using hdegree
+  have hpairEq :
+      ({ix, iy} : Set (Fin C.card)) = C.neighborIndexSet u :=
+    Set.eq_of_subset_of_ncard_le hpairSubset (by
+      rw [hpairCard, hneighborCard])
+  have hiz : iz ∈ ({ix, iy} : Set (Fin C.card)) := by
+    rw [hpairEq]
+    exact huz
+  rcases Set.mem_insert_iff.mp hiz with hiz | hiz
+  · left
+    exact congrArg C.vertex hiz
+  · right
+    exact congrArg C.vertex (Set.mem_singleton_iff.mp hiz)
+
 /-- The final neighbourhood information obtained at the end of the
 distinct-clone propagation in Lemma 14(iv).
 
 In the manuscript, `center`, `previous`, `propagatedNeighbor`, and
 `otherClone` are respectively `u'`, `j_{p-2}`, `w'` (printed as `w''` in the
 last displayed claw), and `v''`.  The vertices `b0` and `b1` are the two
-original-hole neighbours of `v''`.
+original-hole neighbours of `v''`.  The separately named
+`previousNeighbor0` and `previousNeighbor1` are the two already established
+original-hole neighbours of `j_{p-2}`; the paper does not identify that pair
+with `b0,b1`.
 
 Unlike `DistinctCloneInteriorGeometry`, this structure does not contain any
-of the three nonedges required by a claw.  They follow from the two exact
-original-hole neighbourhood bounds in the final paragraph of the paper. -/
+of the three nonedges required by a claw, or either exact-neighbourhood
+function.  Those conclusions follow from the two degree-two facts and the
+displayed neighbours obtained by the preceding propagation. -/
 structure DistinctCloneFinalNeighborhood (G : SimpleGraph V) where
   originalHole : IndexedInducedHole G
   center : V
   previous : V
   propagatedNeighbor : V
   otherClone : V
+  previousNeighbor0 : V
+  previousNeighbor1 : V
   b0 : V
   b1 : V
   adj_previous : G.Adj center previous
@@ -86,38 +139,81 @@ structure DistinctCloneFinalNeighborhood (G : SimpleGraph V) where
   previous_ne_propagatedNeighbor : previous ≠ propagatedNeighbor
   previous_ne_otherClone : previous ≠ otherClone
   propagatedNeighbor_ne_otherClone : propagatedNeighbor ≠ otherClone
+  previousNeighbor0_mem_originalHole :
+    previousNeighbor0 ∈ Set.range originalHole.vertex
+  previousNeighbor1_mem_originalHole :
+    previousNeighbor1 ∈ Set.range originalHole.vertex
+  previousNeighbor0_ne_previousNeighbor1 :
+    previousNeighbor0 ≠ previousNeighbor1
+  adj_previousNeighbor0 : G.Adj previous previousNeighbor0
+  adj_previousNeighbor1 : G.Adj previous previousNeighbor1
+  previous_externalDegree_two : originalHole.externalDegree previous = 2
+  propagatedNeighbor_ne_previousNeighbor0 :
+    propagatedNeighbor ≠ previousNeighbor0
+  propagatedNeighbor_ne_previousNeighbor1 :
+    propagatedNeighbor ≠ previousNeighbor1
+  otherClone_ne_previousNeighbor0 : otherClone ≠ previousNeighbor0
+  otherClone_ne_previousNeighbor1 : otherClone ≠ previousNeighbor1
   propagatedNeighbor_mem_originalHole :
     propagatedNeighbor ∈ Set.range originalHole.vertex
   otherClone_mem_originalHole :
     otherClone ∈ Set.range originalHole.vertex
+  b0_mem_originalHole : b0 ∈ Set.range originalHole.vertex
+  b1_mem_originalHole : b1 ∈ Set.range originalHole.vertex
+  b0_ne_b1 : b0 ≠ b1
+  adj_otherClone_b0 : G.Adj otherClone b0
+  adj_otherClone_b1 : G.Adj otherClone b1
   propagatedNeighbor_ne_b0 : propagatedNeighbor ≠ b0
   propagatedNeighbor_ne_b1 : propagatedNeighbor ≠ b1
-  otherClone_ne_b0 : otherClone ≠ b0
-  otherClone_ne_b1 : otherClone ≠ b1
-  previous_originalHole_neighbors :
-    ∀ ⦃x : V⦄,
-      x ∈ Set.range originalHole.vertex →
-      G.Adj previous x →
-        x = b0 ∨ x = b1
-  otherClone_originalHole_neighbors :
-    ∀ ⦃x : V⦄,
-      x ∈ Set.range originalHole.vertex →
-      G.Adj otherClone x →
-        x = b0 ∨ x = b1
 
 namespace DistinctCloneFinalNeighborhood
 
+/-- The two named neighbours of the preceding terminal vertex exhaust its
+original-hole neighbourhood. -/
+theorem previous_originalHole_neighbors
+    (X : DistinctCloneFinalNeighborhood G) {x : V}
+    (hxMem : x ∈ Set.range X.originalHole.vertex)
+    (hxAdj : G.Adj X.previous x) :
+    x = X.previousNeighbor0 ∨ x = X.previousNeighbor1 :=
+  X.originalHole.neighbor_eq_of_externalDegree_two
+    X.previous_externalDegree_two
+    X.previousNeighbor0_mem_originalHole
+    X.previousNeighbor1_mem_originalHole
+    X.previousNeighbor0_ne_previousNeighbor1
+    X.adj_previousNeighbor0 X.adj_previousNeighbor1 hxMem hxAdj
+
+/-- Since `otherClone` is itself an original-hole vertex, its external degree
+on that hole is two. -/
+theorem otherClone_externalDegree_two
+    (X : DistinctCloneFinalNeighborhood G) :
+    X.originalHole.externalDegree X.otherClone = 2 := by
+  obtain ⟨i, hi⟩ := X.otherClone_mem_originalHole
+  rw [← hi]
+  exact X.originalHole.externalDegree_vertex_eq_two i
+
+/-- The displayed vertices `b0,b1` exhaust the original-hole neighbours of
+the alternative clone. -/
+theorem otherClone_originalHole_neighbors
+    (X : DistinctCloneFinalNeighborhood G) {x : V}
+    (hxMem : x ∈ Set.range X.originalHole.vertex)
+    (hxAdj : G.Adj X.otherClone x) :
+    x = X.b0 ∨ x = X.b1 :=
+  X.originalHole.neighbor_eq_of_externalDegree_two
+    X.otherClone_externalDegree_two X.b0_mem_originalHole
+    X.b1_mem_originalHole X.b0_ne_b1 X.adj_otherClone_b0
+    X.adj_otherClone_b1 hxMem hxAdj
+
 /-- The propagated original-hole neighbour is not adjacent to the preceding
 terminal vertex, because that vertex has no original-hole neighbours beyond
-`b0` and `b1`. -/
+its two separately named neighbours. -/
 theorem previous_not_adj_propagatedNeighbor
     (X : DistinctCloneFinalNeighborhood G) :
     ¬G.Adj X.previous X.propagatedNeighbor := by
   intro h
   rcases X.previous_originalHole_neighbors
       X.propagatedNeighbor_mem_originalHole h with h0 | h1
-  · exact X.propagatedNeighbor_ne_b0 h0
-  · exact X.propagatedNeighbor_ne_b1 h1
+  · exact X.propagatedNeighbor_ne_previousNeighbor0 h0
+  · exact X.propagatedNeighbor_ne_previousNeighbor1 h1
 
 /-- The preceding terminal vertex is not adjacent to the alternative clone
 for the same reason. -/
@@ -127,8 +223,8 @@ theorem previous_not_adj_otherClone
   intro h
   rcases X.previous_originalHole_neighbors
       X.otherClone_mem_originalHole h with h0 | h1
-  · exact X.otherClone_ne_b0 h0
-  · exact X.otherClone_ne_b1 h1
+  · exact X.otherClone_ne_previousNeighbor0 h0
+  · exact X.otherClone_ne_previousNeighbor1 h1
 
 /-- The propagated neighbour is not adjacent to the alternative clone,
 whose only neighbours in the original hole are `b0` and `b1`. -/

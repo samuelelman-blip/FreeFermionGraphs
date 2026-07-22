@@ -9,13 +9,14 @@ four explicitly identified vertices forming a claw.  This module isolates
 that final graph-theoretic contradiction and combines it with the common-clone
 case.
 
-The resulting pairwise theorem assumes the final neighbourhood facts produced
-by the corresponding branch of the obstruction-search analysis.  In
-particular, the three leaf nonedges of the eventual claw are derived from the
-manuscript's two statements that one terminal vertex has no additional
-neighbours in the original hole and that the alternative clone has precisely
-its two displayed neighbours there.  It does not assume that the target is an
-endpoint.
+The resulting pairwise theorem keeps the remaining vertex identifications and
+inequalities produced by the long obstruction-search propagation explicit.
+It now ties the preceding terminal vertex to a concrete first block of one of
+the two incoming executions, and ties the alternative clone centre to the
+manuscript relation `j'' ≺_C v''`.  Lemma 11(a), the clone relation, and the
+indexed-hole cycle then derive both exact neighbourhood bounds and all three
+leaf nonedges of the eventual claw.  The theorem does not assume that the
+target is an endpoint.
 -/
 
 universe u
@@ -275,22 +276,245 @@ namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
 
+namespace OrderedOSExecution
+
+/-- A concrete first-block `Definition 20` witness with final degree three
+has degree two on the initialized original hole.
+
+This is the exact numerical implication used near the end of the
+distinct-clone branch of Lemma 14(iv): membership in `U^{(r,1)}` increases
+the degree by one, while the fact that this is the sole block identifies its
+initial hole with the original hole of the initialized search. -/
+theorem originalDegree_two_of_firstBlock_dependent
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : OrderedOSExecution I source originalHole)
+    (hclaw : G.IsClawFree)
+    (q : Fin X.blockCount)
+    (hfirst :
+      ∃ F : (X.concreteBlock q).FullDefinition19Lemma11AData,
+        X.blockContext q =
+          ConcretePathDeformation.Lemma11AHistoryContext.first F)
+    {s : Nat} {u : V}
+    (hu : u ∈ (X.concreteBlock q).dependentAt s)
+    (huPrime : u ∈ Cprime)
+    (hanti : (X.concreteBlock q).path.AnticommutesWith u)
+    (hthree : (X.concreteBlock q).finalHole.externalDegree u = 3) :
+    originalHole.externalDegree u = 2 := by
+  have hlocal :=
+    ((X.concreteBlock q).lemma11a_complete
+      (X.blockContext q) hclaw huPrime hanti).1
+  have hdegree := hlocal.mp ⟨s, hu⟩
+  have hinitial :
+      (X.concreteBlock q).initialHole.externalDegree u = 2 := by
+    omega
+  obtain ⟨F, hF⟩ := hfirst
+  have hroot := X.blockContext_originalHole q
+  rw [hF] at hroot
+  have hinitialHole :
+      (X.concreteBlock q).initialHole = originalHole := by
+    simpa [ConcretePathDeformation.Lemma11AHistoryContext.originalHole]
+      using hroot
+  rw [← hinitialHole]
+  exact hinitial
+
+end OrderedOSExecution
+
+/-- Paper-level inputs remaining after the final distinct-clone propagation.
+
+Unlike `DistinctCloneFinalNeighborhood`, this structure does not store either
+degree-two conclusion, any hole-membership field for the named neighbours,
+or any of the three eventual claw nonedges.  The preceding terminal vertex is
+tied to a concrete first block of one initialized `OS` execution.  The other
+clone is the actual centre of a single-vertex deformation of the common
+target on the same initialized original hole. -/
+structure DistinctClonePropagationData
+    (T : I.InitializationTerminalCoreData)
+    (source target : I.Node) where
+  incoming : I.graph.Arc source target
+  dependentBlockIndex :
+    Fin (T.executionTrace.execution source).blockCount
+  dependentBlock_is_first :
+    ∃ F :
+        ((T.executionTrace.execution source).concreteBlock
+          dependentBlockIndex).FullDefinition19Lemma11AData,
+      (T.executionTrace.execution source).blockContext
+          dependentBlockIndex =
+        ConcretePathDeformation.Lemma11AHistoryContext.first F
+  dependentStep : Nat
+  previous : V
+  previous_mem_dependent :
+    previous ∈
+      ((T.executionTrace.execution source).concreteBlock
+        dependentBlockIndex).dependentAt dependentStep
+  previous_mem_prime : previous ∈ Cprime
+  previous_anticommutes :
+    ((T.executionTrace.execution source).concreteBlock
+      dependentBlockIndex).path.AnticommutesWith previous
+  previous_finalDegree_three :
+    ((T.executionTrace.execution source).concreteBlock
+      dependentBlockIndex).finalHole.externalDegree previous = 3
+  center : V
+  propagatedNeighbor : V
+  cloneIndex : Fin T.executionTrace.originalHole.card
+  target_clone :
+    T.executionTrace.originalHole.SingleVertexDeformation
+      (target : V) cloneIndex
+  previousNeighbor0Index : Fin T.executionTrace.originalHole.card
+  previousNeighbor1Index : Fin T.executionTrace.originalHole.card
+  previousNeighbor0_ne_previousNeighbor1 :
+    previousNeighbor0Index ≠ previousNeighbor1Index
+  adj_previousNeighbor0 :
+    G.Adj previous
+      (T.executionTrace.originalHole.vertex previousNeighbor0Index)
+  adj_previousNeighbor1 :
+    G.Adj previous
+      (T.executionTrace.originalHole.vertex previousNeighbor1Index)
+  cloneNeighbor0Index : Fin T.executionTrace.originalHole.card
+  cloneNeighbor1Index : Fin T.executionTrace.originalHole.card
+  cloneNeighbor0_ne_cloneNeighbor1 :
+    cloneNeighbor0Index ≠ cloneNeighbor1Index
+  cloneNeighbor0_cyclic :
+    CyclicAdjacent cloneIndex cloneNeighbor0Index
+  cloneNeighbor1_cyclic :
+    CyclicAdjacent cloneIndex cloneNeighbor1Index
+  adj_previous : G.Adj center previous
+  adj_propagatedNeighbor : G.Adj center propagatedNeighbor
+  adj_cloneCenter :
+    G.Adj center (T.executionTrace.originalHole.vertex cloneIndex)
+  previous_ne_propagatedNeighbor : previous ≠ propagatedNeighbor
+  previous_ne_cloneCenter :
+    previous ≠ T.executionTrace.originalHole.vertex cloneIndex
+  propagatedNeighbor_ne_cloneCenter :
+    propagatedNeighbor ≠ T.executionTrace.originalHole.vertex cloneIndex
+  propagatedNeighbor_ne_previousNeighbor0 :
+    propagatedNeighbor ≠
+      T.executionTrace.originalHole.vertex previousNeighbor0Index
+  propagatedNeighbor_ne_previousNeighbor1 :
+    propagatedNeighbor ≠
+      T.executionTrace.originalHole.vertex previousNeighbor1Index
+  cloneCenter_ne_previousNeighbor0 :
+    T.executionTrace.originalHole.vertex cloneIndex ≠
+      T.executionTrace.originalHole.vertex previousNeighbor0Index
+  cloneCenter_ne_previousNeighbor1 :
+    T.executionTrace.originalHole.vertex cloneIndex ≠
+      T.executionTrace.originalHole.vertex previousNeighbor1Index
+  propagatedNeighbor_mem_originalHole :
+    propagatedNeighbor ∈ Set.range T.executionTrace.originalHole.vertex
+  propagatedNeighbor_ne_cloneNeighbor0 :
+    propagatedNeighbor ≠
+      T.executionTrace.originalHole.vertex cloneNeighbor0Index
+  propagatedNeighbor_ne_cloneNeighbor1 :
+    propagatedNeighbor ≠
+      T.executionTrace.originalHole.vertex cloneNeighbor1Index
+
+namespace DistinctClonePropagationData
+
+variable {T : I.InitializationTerminalCoreData}
+  {source target : I.Node}
+
+/-- The common obstruction target is adjacent to its displayed alternative
+clone centre, directly from the manuscript relation `j'' ≺_C v''`. -/
+theorem target_adj_cloneCenter
+    (X : DistinctClonePropagationData T source target) :
+    G.Adj (target : V)
+      (T.executionTrace.originalHole.vertex X.cloneIndex) :=
+  X.target_clone.adj_clone
+
+/-- The predecessor's original-hole degree is a consequence of the literal
+first-block dependent-set witness, rather than a terminal certificate. -/
+theorem previous_originalDegree_two
+    (X : DistinctClonePropagationData T source target)
+    (hclaw : G.IsClawFree) :
+    T.executionTrace.originalHole.externalDegree X.previous = 2 :=
+  OrderedOSExecution.originalDegree_two_of_firstBlock_dependent
+    (T.executionTrace.execution source)
+    hclaw X.dependentBlockIndex X.dependentBlock_is_first
+    X.previous_mem_dependent X.previous_mem_prime
+    X.previous_anticommutes X.previous_finalDegree_three
+
+/-- Construct the final neighborhood object from the execution witness and
+the indexed clone geometry. -/
+def toFinalNeighborhood
+    (X : DistinctClonePropagationData T source target)
+    (hclaw : G.IsClawFree) :
+    DistinctCloneFinalNeighborhood G where
+  originalHole := T.executionTrace.originalHole
+  center := X.center
+  previous := X.previous
+  propagatedNeighbor := X.propagatedNeighbor
+  otherClone := T.executionTrace.originalHole.vertex X.cloneIndex
+  previousNeighbor0 :=
+    T.executionTrace.originalHole.vertex X.previousNeighbor0Index
+  previousNeighbor1 :=
+    T.executionTrace.originalHole.vertex X.previousNeighbor1Index
+  b0 := T.executionTrace.originalHole.vertex X.cloneNeighbor0Index
+  b1 := T.executionTrace.originalHole.vertex X.cloneNeighbor1Index
+  adj_previous := X.adj_previous
+  adj_propagatedNeighbor := X.adj_propagatedNeighbor
+  adj_otherClone := X.adj_cloneCenter
+  previous_ne_propagatedNeighbor := X.previous_ne_propagatedNeighbor
+  previous_ne_otherClone := X.previous_ne_cloneCenter
+  propagatedNeighbor_ne_otherClone := X.propagatedNeighbor_ne_cloneCenter
+  previousNeighbor0_mem_originalHole :=
+    ⟨X.previousNeighbor0Index, rfl⟩
+  previousNeighbor1_mem_originalHole :=
+    ⟨X.previousNeighbor1Index, rfl⟩
+  previousNeighbor0_ne_previousNeighbor1 := by
+    intro h
+    exact X.previousNeighbor0_ne_previousNeighbor1
+      (T.executionTrace.originalHole.injective h)
+  adj_previousNeighbor0 := X.adj_previousNeighbor0
+  adj_previousNeighbor1 := X.adj_previousNeighbor1
+  previous_externalDegree_two := X.previous_originalDegree_two hclaw
+  propagatedNeighbor_ne_previousNeighbor0 :=
+    X.propagatedNeighbor_ne_previousNeighbor0
+  propagatedNeighbor_ne_previousNeighbor1 :=
+    X.propagatedNeighbor_ne_previousNeighbor1
+  otherClone_ne_previousNeighbor0 := X.cloneCenter_ne_previousNeighbor0
+  otherClone_ne_previousNeighbor1 := X.cloneCenter_ne_previousNeighbor1
+  propagatedNeighbor_mem_originalHole :=
+    X.propagatedNeighbor_mem_originalHole
+  otherClone_mem_originalHole := ⟨X.cloneIndex, rfl⟩
+  b0_mem_originalHole := ⟨X.cloneNeighbor0Index, rfl⟩
+  b1_mem_originalHole := ⟨X.cloneNeighbor1Index, rfl⟩
+  b0_ne_b1 := by
+    intro h
+    exact X.cloneNeighbor0_ne_cloneNeighbor1
+      (T.executionTrace.originalHole.injective h)
+  adj_otherClone_b0 :=
+    (T.executionTrace.originalHole.adj_iff _ _).2 X.cloneNeighbor0_cyclic
+  adj_otherClone_b1 :=
+    (T.executionTrace.originalHole.adj_iff _ _).2 X.cloneNeighbor1_cyclic
+  propagatedNeighbor_ne_b0 := X.propagatedNeighbor_ne_cloneNeighbor0
+  propagatedNeighbor_ne_b1 := X.propagatedNeighbor_ne_cloneNeighbor1
+
+/-- The execution-level distinct-clone propagation contradicts
+claw-freeness after all neighborhood and nonedge facts are derived. -/
+theorem false_of_clawFree
+    (X : DistinctClonePropagationData T source target)
+    (hclaw : G.IsClawFree) : False :=
+  (X.toFinalNeighborhood hclaw).false_of_clawFree hclaw
+
+end DistinctClonePropagationData
+
 /-- The two local alternatives obtained by the manuscript's comparison of
 the clone centres in the terminal holes. -/
 inductive TwoIncomingInteriorGeometry
     (T : I.InitializationTerminalCoreData)
-    (target : I.Node) : Prop where
+    (source source' target : I.Node) : Prop where
   | sameClone :
       Nonempty
         ((T.terminalPath target).SameCloneTerminalNeighborhood (target : V)) →
-      TwoIncomingInteriorGeometry T target
+      TwoIncomingInteriorGeometry T source source' target
   | distinctClone :
-      Nonempty (DistinctCloneFinalNeighborhood G) →
-      TwoIncomingInteriorGeometry T target
+      (Nonempty (DistinctClonePropagationData T source target) ∨
+        Nonempty (DistinctClonePropagationData T source' target)) →
+      TwoIncomingInteriorGeometry T source source' target
 
 /-- Pairwise terminal analysis from the concrete `OS` trace.  The field is
-only requested under the negation of both endpoint alternatives, and it
-returns one of the two explicit claw configurations. -/
+only requested under the negation of both endpoint alternatives.  It returns
+either the same-clone neighborhood or the remaining distinct-clone propagation
+data tied to one of the two incoming executions. -/
 structure TwoIncomingTerminalClawAnalysis
     (T : I.InitializationTerminalCoreData) : Prop where
   interiorGeometry :
@@ -302,7 +526,7 @@ structure TwoIncomingTerminalClawAnalysis
           (T.currentSlot source target) ≠ (target : V) →
       (T.terminalPath target).obstructionEndpoint
           (T.currentSlot source' target) ≠ (target : V) →
-        TwoIncomingInteriorGeometry T target
+        TwoIncomingInteriorGeometry T source source' target
 
 namespace InitializationTerminalCoreData
 
@@ -351,8 +575,9 @@ theorem target_is_current_endpoint_of_twoIncoming_of_clawAnalysis
       · exact (hslots (hslot.trans hslot'.symm)).elim
     obtain ⟨Y⟩ := hgeometry
     exact (Y.false_of_clawFree hclaw).elim
-  · obtain ⟨X⟩ := hdistinct
-    exact (X.false_of_clawFree hclaw).elim
+  · rcases hdistinct with ⟨⟨X⟩⟩ | ⟨⟨X⟩⟩
+    · exact (X.false_of_clawFree hclaw).elim
+    · exact (X.false_of_clawFree hclaw).elim
 
 /-- Promote the terminal core to the complete certificate after proving the
 two concrete interior-claw alternatives. -/

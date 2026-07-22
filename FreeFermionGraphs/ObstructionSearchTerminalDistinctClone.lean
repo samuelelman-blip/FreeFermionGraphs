@@ -283,7 +283,7 @@ has degree two on the initialized original hole.
 
 This is the exact numerical implication used near the end of the
 distinct-clone branch of Lemma 14(iv): membership in `U^{(r,1)}` increases
-the degree by one, while the fact that this is the sole block identifies its
+the degree by one, while the fact that this is the first block identifies its
 initial hole with the original hole of the initialized search. -/
 theorem originalDegree_two_of_firstBlock_dependent
     {source : I.Node} {originalHole : IndexedInducedHole G}

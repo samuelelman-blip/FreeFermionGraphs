@@ -25,6 +25,30 @@ namespace IndexedInducedPath
 
 variable {G : SimpleGraph V}
 
+/-- Paper-faithful data for the equal-clone-centre branch of Lemma 14(iv).
+
+The obstruction target lies on the same alternating side as both endpoints,
+so its path index is even and the path has odd cardinality.  The common clone
+centre is adjacent to the target and to the two same-side vertices two path
+steps away.  The two flanking indices and their separation are derived below;
+they are not certificate fields. -/
+structure SameCloneTerminalNeighborhood
+    (P : IndexedInducedPath G) (target : V) where
+  targetIndex : Fin P.card
+  target_eq : P.vertex targetIndex = target
+  targetIndex_even : Even targetIndex.val
+  pathCard_odd : Odd P.card
+  cloneCenter : V
+  clone_adj_target : G.Adj cloneCenter (P.vertex targetIndex)
+  clone_adj_previous :
+    ∀ previousIndex : Fin P.card,
+      previousIndex.val + 2 = targetIndex.val →
+        G.Adj cloneCenter (P.vertex previousIndex)
+  clone_adj_next :
+    ∀ nextIndex : Fin P.card,
+      targetIndex.val + 2 = nextIndex.val →
+        G.Adj cloneCenter (P.vertex nextIndex)
+
 /-- The local geometry of the same-clone interior case in Lemma 14(iv).
 
 The three displayed path vertices are the manuscript's
@@ -131,6 +155,84 @@ theorem false_of_clawFree
 
 end SameCloneInteriorGeometry
 
+namespace SameCloneTerminalNeighborhood
+
+/-- A target distinct from both endpoints has a strictly interior path
+index. -/
+theorem targetIndex_bounds
+    {P : IndexedInducedPath G} {target : V}
+    (X : P.SameCloneTerminalNeighborhood target)
+    (hfirst : P.obstructionEndpoint .first ≠ target)
+    (hlast : P.obstructionEndpoint .last ≠ target) :
+    0 < X.targetIndex.val ∧ X.targetIndex.val + 1 < P.card := by
+  constructor
+  · by_contra hpositive
+    have hzero : X.targetIndex.val = 0 := by omega
+    have hindex :
+        P.obstructionEndpointIndex .first = X.targetIndex := by
+      apply Fin.ext
+      simp [obstructionEndpointIndex, hzero]
+    apply hfirst
+    rw [obstructionEndpoint, hindex, X.target_eq]
+  · by_contra hupper
+    have hlastIndex : X.targetIndex.val = P.card - 1 := by
+      have hisLt := X.targetIndex.isLt
+      omega
+    have hindex :
+        P.obstructionEndpointIndex .last = X.targetIndex := by
+      apply Fin.ext
+      simp [obstructionEndpointIndex, hlastIndex]
+    apply hlast
+    rw [obstructionEndpoint, hindex, X.target_eq]
+
+/-- Alternating-side parity turns strict interiority into the two flanking
+same-side indices used in the manuscript's induced claw. -/
+theorem exists_twoStepFlanks
+    {P : IndexedInducedPath G} {target : V}
+    (X : P.SameCloneTerminalNeighborhood target)
+    (hfirst : P.obstructionEndpoint .first ≠ target)
+    (hlast : P.obstructionEndpoint .last ≠ target) :
+    ∃ previousIndex nextIndex : Fin P.card,
+      previousIndex.val + 2 = X.targetIndex.val ∧
+        X.targetIndex.val + 2 = nextIndex.val := by
+  obtain ⟨hpositive, hupper⟩ := X.targetIndex_bounds hfirst hlast
+  obtain ⟨a, ha⟩ := X.targetIndex_even
+  obtain ⟨b, hb⟩ := X.pathCard_odd
+  have hprevious : X.targetIndex.val - 2 < P.card := by omega
+  have hnext : X.targetIndex.val + 2 < P.card := by omega
+  let previousIndex : Fin P.card :=
+    ⟨X.targetIndex.val - 2, hprevious⟩
+  let nextIndex : Fin P.card :=
+    ⟨X.targetIndex.val + 2, hnext⟩
+  refine ⟨previousIndex, nextIndex, ?_, ?_⟩
+  · dsimp [previousIndex]
+    omega
+  · rfl
+
+/-- The equal-clone terminal neighborhood constructs the local claw
+geometry once the target is assumed not to be either path endpoint. -/
+theorem toInteriorGeometry
+    {P : IndexedInducedPath G} {target : V}
+    (X : P.SameCloneTerminalNeighborhood target)
+    (hfirst : P.obstructionEndpoint .first ≠ target)
+    (hlast : P.obstructionEndpoint .last ≠ target) :
+    Nonempty (P.SameCloneInteriorGeometry target) := by
+  obtain ⟨previousIndex, nextIndex, hprevious, hnext⟩ :=
+    X.exists_twoStepFlanks hfirst hlast
+  exact ⟨
+    { previousIndex := previousIndex
+      targetIndex := X.targetIndex
+      nextIndex := nextIndex
+      previous_gap := hprevious
+      next_gap := hnext
+      target_eq := X.target_eq
+      cloneCenter := X.cloneCenter
+      clone_adj_previous := X.clone_adj_previous previousIndex hprevious
+      clone_adj_target := X.clone_adj_target
+      clone_adj_next := X.clone_adj_next nextIndex hnext }⟩
+
+end SameCloneTerminalNeighborhood
+
 /-- If every non-endpoint occurrence of `target` produces the manuscript's
 same-clone interior geometry, then `target` must be one of the two selected
 endpoints. -/
@@ -164,8 +266,8 @@ namespace ObstructionSearchInitialization
 variable {I : ObstructionSearchInitialization families Cprime}
 
 /-- The concrete same-clone branch for every pair of distinct searches
-entering one target.  Its field is local indexed-path geometry, not the
-desired endpoint conclusion. -/
+entering one target.  Its field is the alternating terminal neighborhood,
+not the already assembled claw or the desired endpoint conclusion. -/
 structure SameCloneTerminalAnalysis
     (T : I.InitializationTerminalCoreData) : Prop where
   interiorGeometry :
@@ -178,7 +280,7 @@ structure SameCloneTerminalAnalysis
       (T.terminalPath target).obstructionEndpoint
           (T.currentSlot source' target) ≠ (target : V) →
         Nonempty
-          ((T.terminalPath target).SameCloneInteriorGeometry
+          ((T.terminalPath target).SameCloneTerminalNeighborhood
             (target : V))
 
 namespace InitializationTerminalCoreData
@@ -197,12 +299,29 @@ theorem target_is_current_endpoint_of_twoIncoming_of_sameClone
           (T.currentSlot source target) = (target : V) ∨
       (T.terminalPath target).obstructionEndpoint
           (T.currentSlot source' target) = (target : V)) := by
+  have hslots :
+      T.currentSlot source target ≠ T.currentSlot source' target := by
+    intro hslot
+    exact hne (T.currentSlot_source_injective hclaw h h' hslot)
   exact
     (T.terminalPath target).target_eq_selectedEndpoint_of_sameClone
       (target : V)
       (T.currentSlot source target)
       (T.currentSlot source' target)
-      (S.interiorGeometry hne h h') hclaw
+      (by
+        intro hfirst hlast
+        obtain ⟨X⟩ := S.interiorGeometry hne h h' hfirst hlast
+        cases hsource : T.currentSlot source target <;>
+            cases hsource' : T.currentSlot source' target
+        · exact (hslots (hsource.trans hsource'.symm)).elim
+        · exact X.toInteriorGeometry
+            (by simpa [hsource] using hfirst)
+            (by simpa [hsource'] using hlast)
+        · exact X.toInteriorGeometry
+            (by simpa [hsource'] using hlast)
+            (by simpa [hsource] using hfirst)
+        · exact (hslots (hsource.trans hsource'.symm)).elim)
+      hclaw
 
 /-- In the all-common-clone special case, the core obstruction-search data
 can be promoted to the complete terminal certificate without assuming the

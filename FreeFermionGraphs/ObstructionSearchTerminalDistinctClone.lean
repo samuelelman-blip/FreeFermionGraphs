@@ -73,7 +73,7 @@ inductive TwoIncomingInteriorGeometry
     (target : I.Node) : Prop where
   | sameClone :
       Nonempty
-        ((T.terminalPath target).SameCloneInteriorGeometry (target : V)) →
+        ((T.terminalPath target).SameCloneTerminalNeighborhood (target : V)) →
       TwoIncomingInteriorGeometry T target
   | distinctClone :
       Nonempty (DistinctCloneInteriorGeometry G) →
@@ -112,6 +112,10 @@ theorem target_is_current_endpoint_of_twoIncoming_of_clawAnalysis
           (T.currentSlot source target) = (target : V) ∨
       (T.terminalPath target).obstructionEndpoint
           (T.currentSlot source' target) = (target : V)) := by
+  have hslots :
+      T.currentSlot source target ≠ T.currentSlot source' target := by
+    intro hslot
+    exact hne (T.currentSlot_source_injective hclaw h h' hslot)
   by_cases hsource :
       (T.terminalPath target).obstructionEndpoint
           (T.currentSlot source target) = (target : V)
@@ -123,7 +127,21 @@ theorem target_is_current_endpoint_of_twoIncoming_of_clawAnalysis
   rcases A.interiorGeometry hne h h' hsource hsource' with
       hsame | hdistinct
   · obtain ⟨X⟩ := hsame
-    exact (X.false_of_clawFree hclaw).elim
+    have hgeometry : Nonempty
+        ((T.terminalPath target).SameCloneInteriorGeometry
+          (target : V)) := by
+      cases hslot : T.currentSlot source target <;>
+          cases hslot' : T.currentSlot source' target
+      · exact (hslots (hslot.trans hslot'.symm)).elim
+      · exact X.toInteriorGeometry
+          (by simpa [hslot] using hsource)
+          (by simpa [hslot'] using hsource')
+      · exact X.toInteriorGeometry
+          (by simpa [hslot'] using hsource')
+          (by simpa [hslot] using hsource)
+      · exact (hslots (hslot.trans hslot'.symm)).elim
+    obtain ⟨Y⟩ := hgeometry
+    exact (Y.false_of_clawFree hclaw).elim
   · obtain ⟨X⟩ := hdistinct
     exact (X.false_of_clawFree hclaw).elim
 

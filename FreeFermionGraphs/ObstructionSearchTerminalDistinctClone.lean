@@ -9,9 +9,13 @@ four explicitly identified vertices forming a claw.  This module isolates
 that final graph-theoretic contradiction and combines it with the common-clone
 case.
 
-The resulting pairwise theorem assumes only the local claw certificate
-produced by the corresponding branch of the obstruction-search analysis.  It
-does not assume that the target is an endpoint.
+The resulting pairwise theorem assumes the final neighbourhood facts produced
+by the corresponding branch of the obstruction-search analysis.  In
+particular, the three leaf nonedges of the eventual claw are derived from the
+manuscript's two statements that one terminal vertex has no additional
+neighbours in the original hole and that the alternative clone has precisely
+its two displayed neighbours there.  It does not assume that the target is an
+endpoint.
 -/
 
 universe u
@@ -57,6 +61,115 @@ theorem false_of_clawFree
 
 end DistinctCloneInteriorGeometry
 
+/-- The final neighbourhood information obtained at the end of the
+distinct-clone propagation in Lemma 14(iv).
+
+In the manuscript, `center`, `previous`, `propagatedNeighbor`, and
+`otherClone` are respectively `u'`, `j_{p-2}`, `w'` (printed as `w''` in the
+last displayed claw), and `v''`.  The vertices `b0` and `b1` are the two
+original-hole neighbours of `v''`.
+
+Unlike `DistinctCloneInteriorGeometry`, this structure does not contain any
+of the three nonedges required by a claw.  They follow from the two exact
+original-hole neighbourhood bounds in the final paragraph of the paper. -/
+structure DistinctCloneFinalNeighborhood (G : SimpleGraph V) where
+  originalHole : IndexedInducedHole G
+  center : V
+  previous : V
+  propagatedNeighbor : V
+  otherClone : V
+  b0 : V
+  b1 : V
+  adj_previous : G.Adj center previous
+  adj_propagatedNeighbor : G.Adj center propagatedNeighbor
+  adj_otherClone : G.Adj center otherClone
+  previous_ne_propagatedNeighbor : previous ≠ propagatedNeighbor
+  previous_ne_otherClone : previous ≠ otherClone
+  propagatedNeighbor_ne_otherClone : propagatedNeighbor ≠ otherClone
+  propagatedNeighbor_mem_originalHole :
+    propagatedNeighbor ∈ Set.range originalHole.vertex
+  otherClone_mem_originalHole :
+    otherClone ∈ Set.range originalHole.vertex
+  propagatedNeighbor_ne_b0 : propagatedNeighbor ≠ b0
+  propagatedNeighbor_ne_b1 : propagatedNeighbor ≠ b1
+  otherClone_ne_b0 : otherClone ≠ b0
+  otherClone_ne_b1 : otherClone ≠ b1
+  previous_originalHole_neighbors :
+    ∀ ⦃x : V⦄,
+      x ∈ Set.range originalHole.vertex →
+      G.Adj previous x →
+        x = b0 ∨ x = b1
+  otherClone_originalHole_neighbors :
+    ∀ ⦃x : V⦄,
+      x ∈ Set.range originalHole.vertex →
+      G.Adj otherClone x →
+        x = b0 ∨ x = b1
+
+namespace DistinctCloneFinalNeighborhood
+
+/-- The propagated original-hole neighbour is not adjacent to the preceding
+terminal vertex, because that vertex has no original-hole neighbours beyond
+`b0` and `b1`. -/
+theorem previous_not_adj_propagatedNeighbor
+    (X : DistinctCloneFinalNeighborhood G) :
+    ¬G.Adj X.previous X.propagatedNeighbor := by
+  intro h
+  rcases X.previous_originalHole_neighbors
+      X.propagatedNeighbor_mem_originalHole h with h0 | h1
+  · exact X.propagatedNeighbor_ne_b0 h0
+  · exact X.propagatedNeighbor_ne_b1 h1
+
+/-- The preceding terminal vertex is not adjacent to the alternative clone
+for the same reason. -/
+theorem previous_not_adj_otherClone
+    (X : DistinctCloneFinalNeighborhood G) :
+    ¬G.Adj X.previous X.otherClone := by
+  intro h
+  rcases X.previous_originalHole_neighbors
+      X.otherClone_mem_originalHole h with h0 | h1
+  · exact X.otherClone_ne_b0 h0
+  · exact X.otherClone_ne_b1 h1
+
+/-- The propagated neighbour is not adjacent to the alternative clone,
+whose only neighbours in the original hole are `b0` and `b1`. -/
+theorem propagatedNeighbor_not_adj_otherClone
+    (X : DistinctCloneFinalNeighborhood G) :
+    ¬G.Adj X.propagatedNeighbor X.otherClone := by
+  intro h
+  rcases X.otherClone_originalHole_neighbors
+      X.propagatedNeighbor_mem_originalHole h.symm with h0 | h1
+  · exact X.propagatedNeighbor_ne_b0 h0
+  · exact X.propagatedNeighbor_ne_b1 h1
+
+/-- The paper's final neighbourhood bounds construct the explicit local claw
+geometry; none of its leaf nonedges is supplied separately. -/
+def toInteriorGeometry
+    (X : DistinctCloneFinalNeighborhood G) :
+    DistinctCloneInteriorGeometry G where
+  center := X.center
+  previous := X.previous
+  originalNeighbor := X.propagatedNeighbor
+  otherClone := X.otherClone
+  adj_previous := X.adj_previous
+  adj_originalNeighbor := X.adj_propagatedNeighbor
+  adj_otherClone := X.adj_otherClone
+  previous_ne_originalNeighbor := X.previous_ne_propagatedNeighbor
+  previous_ne_otherClone := X.previous_ne_otherClone
+  originalNeighbor_ne_otherClone := X.propagatedNeighbor_ne_otherClone
+  previous_not_adj_originalNeighbor :=
+    X.previous_not_adj_propagatedNeighbor
+  previous_not_adj_otherClone := X.previous_not_adj_otherClone
+  originalNeighbor_not_adj_otherClone :=
+    X.propagatedNeighbor_not_adj_otherClone
+
+/-- The final distinct-clone neighbourhood contradicts claw-freeness. -/
+theorem false_of_clawFree
+    (X : DistinctCloneFinalNeighborhood G)
+    (hclaw : G.IsClawFree) : False :=
+  X.toInteriorGeometry.false_of_clawFree hclaw
+
+end DistinctCloneFinalNeighborhood
+
 namespace FixedPairingPathFamily
 
 variable {families : PairingType → FixedPairingPathFamily G}
@@ -76,7 +189,7 @@ inductive TwoIncomingInteriorGeometry
         ((T.terminalPath target).SameCloneTerminalNeighborhood (target : V)) →
       TwoIncomingInteriorGeometry T target
   | distinctClone :
-      Nonempty (DistinctCloneInteriorGeometry G) →
+      Nonempty (DistinctCloneFinalNeighborhood G) →
       TwoIncomingInteriorGeometry T target
 
 /-- Pairwise terminal analysis from the concrete `OS` trace.  The field is

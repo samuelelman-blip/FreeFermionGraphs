@@ -102,6 +102,41 @@ end Lemma11AHistoryContext
 
 end ConcretePathDeformation
 
+namespace SearchPathHistoryWitness
+
+variable {O : FixedPairingPathFamily G} {Cprime : Set V}
+  {S : SearchDeformation O Cprime}
+  {originalHole : IndexedInducedHole G} {P : Set V}
+
+/-- Every component represented by an actual search-history witness is itself
+an output path of that search.  The current path uses `output_mem`; prior paths
+use the literal provenance field `prior_output_mem`. -/
+theorem output_mem_of_context_containsComponent
+    (A : SearchPathHistoryWitness S originalHole P)
+    {Q : Set V}
+    (hQ : A.context.ContainsComponent Q) :
+    Q ∈ S.paths := by
+  generalize hctx : A.context = X at hQ
+  cases X with
+  | first _ =>
+      change Set.range A.block.path.vertex = Q at hQ
+      rw [A.path_eq] at hQ
+      rw [← hQ]
+      exact A.output_mem
+  | later H =>
+      change
+        (∃ r : Nat, r < H.priorCount ∧
+          Set.range (H.history.block r).path.vertex = Q) ∨
+        Set.range A.block.path.vertex = Q at hQ
+      rcases hQ with ⟨r, hr, hEq⟩ | hEq
+      · rw [← hEq]
+        exact A.prior_output_mem H hctx r hr
+      · rw [A.path_eq] at hEq
+        rw [← hEq]
+        exact A.output_mem
+
+end SearchPathHistoryWitness
+
 variable {families : PairingType → FixedPairingPathFamily G}
   {Cprime : Set V}
 
@@ -146,6 +181,17 @@ theorem containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
     ConcretePathDeformation.Lemma11AHistoryContext.containsComponent_of_mem_bdComponent_of_not_mem_currentFinalHole
       (X.blockContext (X.lastBlockIndex hpos))
       hP hxP hxCb hxExact hxContext hxNotLastFinal
+
+/-- A component represented in the history of an indexed execution block is an
+actual output path of that same initialized search. -/
+theorem output_mem_of_blockContext_containsComponent
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : OrderedOSExecution I source originalHole)
+    (i : Fin X.blockCount) {P : Set V}
+    (hP : (X.blockContext i).ContainsComponent P) :
+    P ∈ (I.output source).paths := by
+  exact
+    (X.history.witness (X.path_mem i)).output_mem_of_context_containsComponent hP
 
 end OrderedOSExecution
 
@@ -199,6 +245,54 @@ theorem terminalPath_not_mem_outputPaths
   obtain ⟨i, hi⟩ :=
     (T.executionTrace.execution source).output_path hmem
   exact T.terminalPath_ne_executionPath incoming i hi.symm
+
+/-- The terminal path cannot occur in the finite history context of the last
+positive execution block, because every represented component is an output
+path while the stopping rule proves that the terminal path was not appended. -/
+theorem terminalPath_not_containsComponent_lastBlock
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target)
+    (hpos : 0 < (T.executionTrace.execution source).blockCount) :
+    ¬((T.executionTrace.execution source).blockContext
+        ((T.executionTrace.execution source).lastBlockIndex hpos)).ContainsComponent
+      (Set.range (T.terminalPath target).vertex) := by
+  intro hcontains
+  apply T.terminalPath_not_mem_outputPaths incoming
+  exact OrderedOSExecution.output_mem_of_blockContext_containsComponent
+    (T.executionTrace.execution source)
+    ((T.executionTrace.execution source).lastBlockIndex hpos) hcontains
+
+/-- Conditional form of the manuscript inclusion
+`P ∩ C_b ⊆ C_j^(m)`.  Once the terminal path is identified as the relevant
+`bd` component and the selected `C_b` vertex is placed on the initialized
+original hole, the history/output linkage and stopping rule force it to persist
+to the exact manuscript terminal hole. -/
+theorem terminalCb_mem_manuscriptFinalHole
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target)
+    (hpos : 0 < (T.executionTrace.execution source).blockCount)
+    {x : V}
+    (hcomponent : Set.range (T.terminalPath target).vertex ∈
+      (families (I.pairing source)).bdPaths)
+    (hxPath : x ∈ Set.range (T.terminalPath target).vertex)
+    (hxCb : x ∈ (families (I.pairing source)).Cb)
+    (hxExact : ExactlyOneOfFour x
+      (families (I.pairing source)).Ca
+      (families (I.pairing source)).Cb
+      (families (I.pairing source)).Cc
+      (families (I.pairing source)).Cd)
+    (hxOriginal : x ∈ Set.range T.executionTrace.originalHole.vertex) :
+    x ∈ Set.range
+      (T.executionTrace.execution source).manuscriptFinalHole.vertex := by
+  by_contra hxNotFinal
+  have hcontains :=
+    OrderedOSExecution.containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
+      (T.executionTrace.execution source) hpos hcomponent hxPath hxCb hxExact
+        hxOriginal hxNotFinal
+  exact T.terminalPath_not_containsComponent_lastBlock
+    incoming hpos hcontains
 
 end InitializationTerminalCoreData
 

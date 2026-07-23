@@ -88,7 +88,10 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | a `C_b` vertex of an unexecuted terminal component persists to `C_j^(m)` | E once original-hole membership and component distinctness from the recorded history are supplied | Formalized conditionally |
 | absence of an original-hole `C_b` vertex from the positive terminal hole forces its `bd` component to occur in the recorded history | E by contraposition from component avoidance and carrier persistence | Formalized conditionally |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized |
-| terminal path is the relevant `bd` component, its `C_b` vertices lie on the initialized original hole, and every represented history block is an actual execution path | M/B | Exact remaining search-trace linkage needed for `P ∩ C_b ⊆ C_j^(m)` |
+| prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly; construction from the concrete `OS` loop remains part of the execution-data boundary |
+| every component represented by a block history is an actual output path | E from current `output_mem` and prior `prior_output_mem` | Formalized |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | E once the terminal path is supplied as the relevant `bd` component and the selected vertex has original-hole and exact-colour membership | Formalized conditionally on precisely those remaining geometric facts |
+| terminal path is the relevant `bd` component and its `C_b` vertices lie on the initialized original hole with the required exact colouring | M/B | Exact remaining terminal-path provenance needed to discharge the conditional inclusion |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after carrier persistence |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |

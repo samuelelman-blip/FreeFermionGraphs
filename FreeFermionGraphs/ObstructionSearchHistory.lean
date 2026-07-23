@@ -94,8 +94,11 @@ end ConcretePathDeformation
 concrete Definition 19 block and finite Lemma 11 history that produced it.
 
 `originalHole_eq` says that all such histories are rooted at the same
-initialized hole.  It is carrier-sensitive data from the actual search
-trace, not a path-disjointness or ownership premise. -/
+initialized hole.  `prior_output_mem` records the literal execution provenance
+of the prior blocks in a positive history: they are earlier paths of the same
+search output, not independent auxiliary deformations.  These are
+carrier-sensitive data from the actual search trace, not path-disjointness or
+ownership conclusions. -/
 structure SearchPathHistoryWitness
     (S : SearchDeformation O Cprime)
     (originalHole : IndexedInducedHole G)
@@ -104,6 +107,11 @@ structure SearchPathHistoryWitness
   context : block.Lemma11AHistoryContext
   path_eq : Set.range block.path.vertex = P
   output_mem : P ∈ S.paths
+  prior_output_mem :
+    ∀ (H : block.FullDefinition19Lemma11AHistoryData),
+      context = .later H →
+      ∀ r : Nat, r < H.priorCount →
+        Set.range (H.history.block r).path.vertex ∈ S.paths
   originalHole_eq : context.originalHole = originalHole
 
 namespace SearchPathHistoryWitness

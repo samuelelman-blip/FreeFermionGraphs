@@ -1,3 +1,4 @@
+import FreeFermionGraphs.Lemma11Complete
 import FreeFermionGraphs.ObstructionSearchTerminalPredecessorOccurrence
 
 /-!

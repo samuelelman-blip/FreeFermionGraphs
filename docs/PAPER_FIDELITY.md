@@ -73,6 +73,10 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | obstruction arcs cross pairing types | E | Formalized |
 | same-pairing path disjointness | E | Formalized |
 | source injectivity at a terminal slot | E | Formalized |
+| distinct incoming sources occupy opposite terminal slots | E from slot injectivity and the two-valued slot type | Formalized |
+| target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
+| target has an interior terminal-path index, matching `j_(p-1)` with `1 < p` | E from nearest-target membership and endpoint inequalities | Formalized |
+| terminal path has at least three vertices in the remaining branch | E from the interior index | Formalized |
 | same-clone claw contradiction | E/M | Formalized |
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
 | target clone in `C_j^(m)` when the target differs from the returned endpoint | M/B | Quantified by `InitializationInteriorTerminalCloneData`; not yet derived from the terminal tether history |

@@ -3,18 +3,18 @@ import FreeFermionGraphs.ObstructionSearchTerminalCloneComparison
 /-!
 # Lemma 14(iv): canonical final-hole clone centres
 
-The manuscript first obtains, for each incoming initialized search, a clone of
-the common obstruction target in that search's final hole.  Only after those
-per-search facts are fixed does it compare the two displayed centre vertices.
+The manuscript first obtains a clone of the common obstruction target in each
+incoming search's final hole in the two-incoming interior case.  Only after
+those scoped per-search facts are fixed does it compare the two displayed
+centre vertices.
 
-This module separates those quantifiers.  Existence of a final-hole clone is a
-per-arc property, while the consequences of equal or distinct centres remain
-pairwise properties.  Uniqueness of a clone centre in one induced hole makes
-the selected centre independent of the witness chosen from the per-arc
-existence proof.
-
-The actual construction of the per-arc witnesses and the two branch
-consequences from the terminal search histories remains explicit.
+This module supplies a stronger convenience interface in which final-hole clone
+existence is available for every incoming arc.  Existence and pairwise branch
+consequences are still separated, and uniqueness makes the selected centre
+independent of the chosen witness.  The manuscript-scoped interface, which
+requires witnesses only under the interior-target premise, is provided in
+`ObstructionSearchTerminalInteriorFinalClones` and is the preferred fidelity
+boundary.
 -/
 
 universe u
@@ -57,12 +57,13 @@ theorem center_eq
 
 end IncomingTerminalCloneWitness
 
-/-- Per-arc existence of the target clone in the correctly staged final
-execution hole.
+/-- Unrestricted per-arc existence of the target clone in the final execution
+hole.
 
-This is the direct formal counterpart of the two manuscript statements
-`j'' ≺_(C_j^(m)) v` and `j'' ≺_(C_j'^(m')) v'`.  It is intentionally separate
-from the later pairwise comparison of `v` and `v'`. -/
+This is stronger than the exact Lemma 14(iv) branch, which needs such a witness
+only when the target differs from the returned singleton endpoint.  It remains
+a useful convenience interface, but paper-facing fidelity should use
+`InitializationInteriorTerminalCloneData`. -/
 structure InitializationIncomingTerminalCloneData
     (T : I.InitializationTerminalCoreData) : Prop where
   exists_witness :
@@ -163,9 +164,9 @@ end InitializationIncomingTerminalCloneData
 
 namespace InitializationTerminalCoreData
 
-/-- Conditional paper-facing Lemma 14 bridge with the manuscript quantifier
-order made explicit: first one clone witness per incoming arc, then pairwise
-consequences of comparing the canonical centres. -/
+/-- Conditional Lemma 14 bridge for the stronger unrestricted per-arc clone
+interface.  The manuscript-scoped bridge is supplied by
+`paperLemma14_of_interiorTerminalCloneData_and_consequences`. -/
 theorem paperLemma14_of_incomingTerminalCloneData_and_canonicalConsequences
     (T : I.InitializationTerminalCoreData)
     (hclaw : G.IsClawFree)

@@ -86,6 +86,7 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | original-hole vertices avoiding all recorded prior/current paths persist to the positive terminal hole | E from the finite `Lemma11AHistoryContext` carrier chain | Formalized without terminal-specific data |
 | a `C_b` vertex of a `bd` component avoids every distinct fixed-pairing path | E from exact four-color membership and component uniqueness | Formalized |
 | a `C_b` vertex of an unexecuted terminal component persists to `C_j^(m)` | E once original-hole membership and component distinctness from the recorded history are supplied | Formalized conditionally |
+| absence of an original-hole `C_b` vertex from the positive terminal hole forces its `bd` component to occur in the recorded history | E by contraposition from component avoidance and carrier persistence | Formalized conditionally |
 | terminal path is the unexecuted `bd` component and its `C_b` vertices lie on the initialized original hole | M/B | Exact remaining search-trace provenance needed for `P ∩ C_b ⊆ C_j^(m)` |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after carrier persistence |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |

@@ -50,7 +50,7 @@ theorem avoidsComponent_iff_not_containsComponent
     (X : D.Lemma11AHistoryContext) (P : Set V) :
     X.AvoidsComponent P ↔ ¬X.ContainsComponent P := by
   cases X with
-  | first F =>
+  | first _ =>
       simp [AvoidsComponent, ContainsComponent]
   | later H =>
       change
@@ -143,8 +143,9 @@ theorem containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
     rw [X.manuscriptFinalHole_eq_lastBlockFinalHole hpos]
     exact hxLast
   exact
-    (X.blockContext (X.lastBlockIndex hpos)).
+    ConcretePathDeformation.Lemma11AHistoryContext.
       containsComponent_of_mem_bdComponent_of_not_mem_currentFinalHole
+        (X.blockContext (X.lastBlockIndex hpos))
         hP hxP hxCb hxExact hxContext hxNotLastFinal
 
 end OrderedOSExecution

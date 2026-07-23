@@ -42,9 +42,20 @@ theorem exists_terminalCloneWitness_of_blockCount_eq_zero
     (hzero : (T.executionTrace.execution source).blockCount = 0) :
     Nonempty (IncomingTerminalCloneWitness T source target incoming) := by
   obtain ⟨i, hi⟩ := T.exists_target_clone_of_incoming hclaw incoming
-  refine ⟨{ cloneIndex := ?_, target_clone := ?_ }⟩
-  · simpa [OrderedOSExecution.manuscriptFinalHole, hzero] using i
-  · simpa [OrderedOSExecution.manuscriptFinalHole, hzero] using hi
+  have hfinal :
+      (T.executionTrace.execution source).manuscriptFinalHole =
+        T.executionTrace.originalHole :=
+    (T.executionTrace.execution source).
+      manuscriptFinalHole_eq_original_of_blockCount_eq_zero hzero
+  have hwitness :
+      ∃ j : Fin
+          ((T.executionTrace.execution source).manuscriptFinalHole.card),
+        ((T.executionTrace.execution source).manuscriptFinalHole).
+          SingleVertexDeformation (target : V) j := by
+    rw [hfinal]
+    exact ⟨i, hi⟩
+  obtain ⟨j, hj⟩ := hwitness
+  exact ⟨{ cloneIndex := j, target_clone := hj }⟩
 
 /-- Every incoming arc either already has its final-hole clone witness by the
 empty-execution argument, or its initialized execution is genuinely nonempty.

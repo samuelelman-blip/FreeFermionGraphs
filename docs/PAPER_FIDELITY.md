@@ -87,7 +87,8 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | a `C_b` vertex of a `bd` component avoids every distinct fixed-pairing path | E from exact four-color membership and component uniqueness | Formalized |
 | a `C_b` vertex of an unexecuted terminal component persists to `C_j^(m)` | E once original-hole membership and component distinctness from the recorded history are supplied | Formalized conditionally |
 | absence of an original-hole `C_b` vertex from the positive terminal hole forces its `bd` component to occur in the recorded history | E by contraposition from component avoidance and carrier persistence | Formalized conditionally |
-| terminal path is the unexecuted `bd` component and its `C_b` vertices lie on the initialized original hole | M/B | Exact remaining search-trace provenance needed for `P ∩ C_b ⊆ C_j^(m)` |
+| terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized |
+| terminal path is the relevant `bd` component, its `C_b` vertices lie on the initialized original hole, and every represented history block is an actual execution path | M/B | Exact remaining search-trace linkage needed for `P ∩ C_b ⊆ C_j^(m)` |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after carrier persistence |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |

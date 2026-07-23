@@ -84,7 +84,7 @@ structure IncomingTerminalCloneWitness
   cloneIndex :
     Fin (T.executionTrace.execution source).manuscriptFinalHole.card
   target_clone :
-    (T.executionTrace.execution source).manuscriptFinalHole.
+    ((T.executionTrace.execution source).manuscriptFinalHole).
       SingleVertexDeformation (target : V) cloneIndex
 
 namespace IncomingTerminalCloneWitness
@@ -158,6 +158,7 @@ noncomputable def toTerminalPredecessorDegreeAnalysis
     (A : TwoIncomingTerminalCloneComparisonAnalysis T hclaw) :
     TwoIncomingTerminalPredecessorDegreeAnalysis T hclaw where
   interiorGeometry := by
+    classical
     intro source source' target hne incoming incoming' hsource hsource'
     obtain ⟨left, right, hsame, hdistinct⟩ :=
       A.terminalGeometry hne incoming incoming' hsource hsource'

@@ -12,8 +12,8 @@ components of one fixed-pairing family are disjoint, that executed path must be
 The carrier-persistence and component-avoidance results already formalized give
 this implication directly.  This module packages the conclusion at the finite
 history-context level and then states it on the exact positive manuscript
-terminal hole.  It introduces no terminal-path provenance or stopping
-certificate.
+terminal hole.  It also derives the literal stopping-rule fact that the
+terminal obstruction path is not among the paths appended by the search.
 -/
 
 universe u
@@ -148,6 +148,59 @@ theorem containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
       hP hxP hxCb hxExact hxContext hxNotLastFinal
 
 end OrderedOSExecution
+
+namespace InitializationTerminalCoreData
+
+/-- Nearest-target selection places the obstruction target on the terminal
+path. -/
+theorem target_mem_terminalPath
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target) :
+    (target : V) ∈ Set.range (T.terminalPath target).vertex := by
+  obtain ⟨q, htarget, _hnearest⟩ :=
+    T.nearestTarget.obstruction_nearest incoming
+  exact ⟨q, htarget⟩
+
+/-- The stopping rule excludes the obstruction target from every path actually
+appended by its incoming search. -/
+theorem target_not_mem_executionPath
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target)
+    (i : Fin (T.executionTrace.execution source).blockCount) :
+    (target : V) ∉ (T.executionTrace.execution source).path i := by
+  exact (T.executionTrace.execution source).otherSource_not_mem_path
+    i target (T.nearestTarget.target_ne_source incoming)
+
+/-- The terminal obstruction path cannot equal any path actually appended by
+the initialized search. -/
+theorem terminalPath_ne_executionPath
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target)
+    (i : Fin (T.executionTrace.execution source).blockCount) :
+    Set.range (T.terminalPath target).vertex ≠
+      (T.executionTrace.execution source).path i := by
+  intro hEq
+  apply T.target_not_mem_executionPath incoming i
+  rw [← hEq]
+  exact T.target_mem_terminalPath incoming
+
+/-- The terminal obstruction path is not one of the output paths of the search
+which stopped on it. -/
+theorem terminalPath_not_mem_outputPaths
+    (T : I.InitializationTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target) :
+    Set.range (T.terminalPath target).vertex ∉
+      (I.output source).paths := by
+  intro hmem
+  obtain ⟨i, hi⟩ :=
+    (T.executionTrace.execution source).output_path hmem
+  exact T.terminalPath_ne_executionPath incoming i hi.symm
+
+end InitializationTerminalCoreData
 
 end ObstructionSearchInitialization
 

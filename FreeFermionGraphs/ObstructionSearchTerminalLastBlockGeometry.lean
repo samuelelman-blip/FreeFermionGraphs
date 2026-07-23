@@ -71,8 +71,8 @@ theorem exists_terminalCloneWitness_of_lastBlock_geometry
         (target : V) = 3) :
     Nonempty (IncomingTerminalCloneWitness T source target incoming) := by
   have hfinal :=
-    (T.executionTrace.execution source).
-      manuscriptFinalHole_eq_lastBlockFinalHole hpos
+    OrderedOSExecution.manuscriptFinalHole_eq_lastBlockFinalHole
+      (T.executionTrace.execution source) hpos
   apply T.exists_terminalCloneWitness_of_finalHole_externalDegree_eq_three
     hclaw incoming
   · rw [hfinal]

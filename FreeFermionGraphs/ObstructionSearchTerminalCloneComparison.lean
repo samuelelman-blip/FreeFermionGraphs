@@ -84,8 +84,8 @@ structure IncomingTerminalCloneWitness
   cloneIndex :
     Fin (T.executionTrace.execution source).manuscriptFinalHole.card
   target_clone :
-    ((T.executionTrace.execution source).manuscriptFinalHole).
-      SingleVertexDeformation (target : V) cloneIndex
+    ((T.executionTrace.execution source).manuscriptFinalHole).SingleVertexDeformation
+      (target : V) cloneIndex
 
 namespace IncomingTerminalCloneWitness
 

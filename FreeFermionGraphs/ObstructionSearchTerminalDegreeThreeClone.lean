@@ -49,9 +49,9 @@ theorem exists_terminalCloneWitness_of_finalHole_externalDegree_eq_three
         (target : V) = 3) :
     Nonempty (IncomingTerminalCloneWitness T source target incoming) := by
   obtain ⟨i, hi⟩ :=
-    (T.executionTrace.execution source).manuscriptFinalHole.
-      exists_singleVertexDeformation_of_externalDegree_eq_three
-        hclaw houtside hthree
+    IndexedInducedHole.exists_singleVertexDeformation_of_externalDegree_eq_three
+      (T.executionTrace.execution source).manuscriptFinalHole
+      hclaw houtside hthree
   exact ⟨{ cloneIndex := i, target_clone := hi }⟩
 
 /-- The empty execution is already discharged by the stopping branch.  Hence a

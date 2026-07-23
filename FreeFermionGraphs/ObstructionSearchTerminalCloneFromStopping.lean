@@ -50,6 +50,25 @@ theorem exists_target_clone_of_incoming
     ⟨i, hclone, _hpair⟩
   exact ⟨i, hclone⟩
 
+/-- Choose the clone centre supplied by the concrete stopping branch. -/
+noncomputable def targetCloneIndexOfIncoming
+    (T : I.InitializationTerminalCoreData)
+    (hclaw : G.IsClawFree)
+    {source target : I.Node}
+    (h : I.graph.Arc source target) :
+    Fin T.executionTrace.originalHole.card :=
+  Classical.choose (T.exists_target_clone_of_incoming hclaw h)
+
+/-- The chosen stopping-branch index is a genuine clone centre for the target. -/
+theorem targetCloneIndexOfIncoming_spec
+    (T : I.InitializationTerminalCoreData)
+    (hclaw : G.IsClawFree)
+    {source target : I.Node}
+    (h : I.graph.Arc source target) :
+    T.executionTrace.originalHole.SingleVertexDeformation
+      (target : V) (T.targetCloneIndexOfIncoming hclaw h) :=
+  Classical.choose_spec (T.exists_target_clone_of_incoming hclaw h)
+
 end InitializationTerminalCoreData
 
 /-- Clone-centre facts required by the final distinct-clone contradiction,
@@ -112,7 +131,7 @@ The final field records only how that geometry relates to the clone centre
 which the stopping branch will subsequently provide. -/
 structure DistinctClonePropagationFromStopping
     (T : I.InitializationTerminalCoreData)
-    (source target : I.Node) : Prop where
+    (source target : I.Node) where
   incoming : I.graph.Arc source target
   dependentBlockIndex :
     Fin (T.executionTrace.execution source).blockCount
@@ -174,9 +193,12 @@ noncomputable def toPropagationWithoutChosenNeighbors
     (X : DistinctClonePropagationFromStopping T source target)
     (hclaw : G.IsClawFree) :
     DistinctClonePropagationWithoutChosenNeighbors T source target := by
-  classical
-  obtain ⟨cloneIndex, hclone⟩ :=
-    T.exists_target_clone_of_incoming hclaw X.incoming
+  let cloneIndex := T.targetCloneIndexOfIncoming hclaw X.incoming
+  have hclone :
+      T.executionTrace.originalHole.SingleVertexDeformation
+        (target : V) cloneIndex := by
+    simpa [cloneIndex] using
+      (T.targetCloneIndexOfIncoming_spec hclaw X.incoming)
   exact
     { incoming := X.incoming
       dependentBlockIndex := X.dependentBlockIndex

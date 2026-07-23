@@ -155,7 +155,11 @@ theorem three_le_terminalPath_card_of_twoIncoming
     exact q.isLt
   have hq_succ_lt : q.val + 1 < (T.terminalPath target).card := by
     omega
-  omega
+  have hthree_le_qtwo : 3 ≤ q.val + 2 := by
+    omega
+  have hqtwo_le_card : q.val + 2 ≤ (T.terminalPath target).card := by
+    omega
+  exact hthree_le_qtwo.trans hqtwo_le_card
 
 end InitializationTerminalCoreData
 

@@ -121,7 +121,8 @@ theorem output_mem_of_context_containsComponent
   | first _ =>
       change Set.range A.block.path.vertex = Q at hQ
       rw [A.path_eq] at hQ
-      rwa [← hQ]
+      rw [← hQ]
+      exact A.output_mem
   | later H =>
       change
         (∃ r : Nat, r < H.priorCount ∧
@@ -131,7 +132,8 @@ theorem output_mem_of_context_containsComponent
       · rw [← hEq]
         exact A.prior_output_mem H hctx r hr
       · rw [A.path_eq] at hEq
-        rwa [← hEq]
+        rw [← hEq]
+        exact A.output_mem
 
 end SearchPathHistoryWitness
 

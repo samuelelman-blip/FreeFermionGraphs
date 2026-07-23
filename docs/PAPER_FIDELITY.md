@@ -84,7 +84,9 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | outside-hole plus degree-three geometry implies a final-hole target clone | E from Lemma 7 and the indexed three-neighbor clone theorem | Formalized on the exact `manuscriptFinalHole` stage |
 | positive `manuscriptFinalHole` equals the last concrete block final hole | E from the ordered execution definition | Formalized with `lastBlockIndex` |
 | original-hole vertices avoiding all recorded prior/current paths persist to the positive terminal hole | E from the finite `Lemma11AHistoryContext` carrier chain | Formalized without terminal-specific data |
-| stopping-path `C_b` vertices start on the original hole and avoid all recorded execution paths | M/B | Exact remaining input needed to obtain `P ∩ C_b ⊆ C_j^(m)` |
+| a `C_b` vertex of a `bd` component avoids every distinct fixed-pairing path | E from exact four-color membership and component uniqueness | Formalized |
+| a `C_b` vertex of an unexecuted terminal component persists to `C_j^(m)` | E once original-hole membership and component distinctness from the recorded history are supplied | Formalized conditionally |
+| terminal path is the unexecuted `bd` component and its `C_b` vertices lie on the initialized original hole | M/B | Exact remaining search-trace provenance needed for `P ∩ C_b ⊆ C_j^(m)` |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after carrier persistence |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |

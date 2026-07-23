@@ -143,10 +143,9 @@ theorem containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
     rw [X.manuscriptFinalHole_eq_lastBlockFinalHole hpos]
     exact hxLast
   exact
-    ConcretePathDeformation.Lemma11AHistoryContext.
-      containsComponent_of_mem_bdComponent_of_not_mem_currentFinalHole
-        (X.blockContext (X.lastBlockIndex hpos))
-        hP hxP hxCb hxExact hxContext hxNotLastFinal
+    ConcretePathDeformation.Lemma11AHistoryContext.containsComponent_of_mem_bdComponent_of_not_mem_currentFinalHole
+      (X.blockContext (X.lastBlockIndex hpos))
+      hP hxP hxCb hxExact hxContext hxNotLastFinal
 
 end OrderedOSExecution
 

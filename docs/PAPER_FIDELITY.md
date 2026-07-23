@@ -82,8 +82,9 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
 | final-hole target clone for an empty initialized execution | E because `manuscriptFinalHole` is the original hole | Formalized from the stopping branch |
 | outside-hole plus degree-three geometry implies a final-hole target clone | E from Lemma 7 and the indexed three-neighbor clone theorem | Formalized on the exact `manuscriptFinalHole` stage |
-| outside-hole and degree-three geometry for a positive interior execution | M/B | Still requires the manuscript terminal-tether argument |
-| scoped target clone interface for the full interior case | M/B | Quantified by `InitializationInteriorTerminalCloneData`; reduced to the positive-block terminal geometry |
+| positive `manuscriptFinalHole` equals the last concrete block final hole | E from the ordered execution definition | Formalized with `lastBlockIndex` |
+| outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument |
+| scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |
 | uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
 | canonical centre selected under an interior premise | E once the scoped existence fact is supplied | Formalized, choice-independent, and proof-irrelevant |

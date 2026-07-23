@@ -135,8 +135,9 @@ theorem mem_manuscriptFinalHole_of_mem_bdComponent
   apply X.mem_manuscriptFinalHole_of_mem_originalHole_of_avoidsContext
     hpos hxOriginal
   exact
-    (X.blockContext (X.lastBlockIndex hpos)).
+    ConcretePathDeformation.Lemma11AHistoryContext.
       avoidsAllPaths_of_mem_bdComponent
+        (X.blockContext (X.lastBlockIndex hpos))
         hP hxP hxCb hxExact hdistinct
 
 end OrderedOSExecution

@@ -94,7 +94,7 @@ variable {T : I.InitializationTerminalCoreData}
   {incoming : I.graph.Arc source target}
 
 /-- The displayed centre vertex in the final hole `C_j^(m)`. -/
-def center
+noncomputable def center
     (X : IncomingTerminalCloneWitness T source target incoming) : V :=
   (T.executionTrace.execution source).manuscriptFinalHole.vertex X.cloneIndex
 
@@ -154,21 +154,21 @@ variable {T : I.InitializationTerminalCoreData}
 
 /-- Equality is decidable classically, so the two staged clone witnesses derive
 exactly the same-clone/distinct-clone split used in the manuscript. -/
-noncomputable def toTerminalPredecessorDegreeAnalysis
+theorem toTerminalPredecessorDegreeAnalysis
     (A : TwoIncomingTerminalCloneComparisonAnalysis T hclaw) :
-    TwoIncomingTerminalPredecessorDegreeAnalysis T hclaw where
-  interiorGeometry := by
-    classical
-    intro source source' target hne incoming incoming' hsource hsource'
-    obtain ⟨left, right, hsame, hdistinct⟩ :=
-      A.terminalGeometry hne incoming incoming' hsource hsource'
-    by_cases hcenter : left.center = right.center
-    · exact
-        TwoIncomingInteriorGeometryFromDegreeOccurrences.sameClone
-          (hsame hcenter)
-    · exact
-        TwoIncomingInteriorGeometryFromDegreeOccurrences.distinctClone
-          (hdistinct hcenter)
+    TwoIncomingTerminalPredecessorDegreeAnalysis T hclaw := by
+  classical
+  refine { interiorGeometry := ?_ }
+  intro source source' target hne incoming incoming' hsource hsource'
+  obtain ⟨left, right, hsame, hdistinct⟩ :=
+    A.terminalGeometry hne incoming incoming' hsource hsource'
+  by_cases hcenter : left.center = right.center
+  · exact
+      TwoIncomingInteriorGeometryFromDegreeOccurrences.sameClone
+        (hsame hcenter)
+  · exact
+      TwoIncomingInteriorGeometryFromDegreeOccurrences.distinctClone
+        (hdistinct hcenter)
 
 end TwoIncomingTerminalCloneComparisonAnalysis
 

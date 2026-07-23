@@ -29,16 +29,18 @@ theorem exists_consecutiveTriple_around_interior
         q.val + 1 = qNext.val ∧
           G.IsInducedPathTriple
             (P.vertex qPrev) (P.vertex q) (P.vertex qNext) := by
-  have hqLt := q.isLt
-  have hqPos : 0 < q.val := by
-    exact Nat.pos_of_ne_zero hq.1
-  have hqNextLt : q.val + 1 < P.card := by
-    omega
-  let qPrev : Fin P.card := ⟨q.val - 1, by omega⟩
+  have hqOneLe : 1 ≤ q.val :=
+    Nat.one_le_iff_ne_zero.mpr hq.1
+  have hqNextLe : q.val + 1 ≤ P.card :=
+    q.isLt
+  have hqNextLt : q.val + 1 < P.card :=
+    lt_of_le_of_ne hqNextLe hq.2
+  let qPrev : Fin P.card :=
+    ⟨q.val - 1, lt_of_le_of_lt (Nat.sub_le q.val 1) q.isLt⟩
   let qNext : Fin P.card := ⟨q.val + 1, hqNextLt⟩
   have hprev : qPrev.val + 1 = q.val := by
     dsimp [qPrev]
-    omega
+    exact Nat.sub_add_cancel hqOneLe
   have hnext : q.val + 1 = qNext.val := by
     rfl
   refine ⟨qPrev, qNext, hprev, hnext, ?_⟩

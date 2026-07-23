@@ -50,8 +50,9 @@ theorem exists_terminalCloneWitness_of_blockCount_eq_zero
   have hwitness :
       ∃ j : Fin
           ((T.executionTrace.execution source).manuscriptFinalHole.card),
-        ((T.executionTrace.execution source).manuscriptFinalHole)
-          .SingleVertexDeformation (target : V) j := by
+        IndexedInducedHole.SingleVertexDeformation
+          ((T.executionTrace.execution source).manuscriptFinalHole)
+          (target : V) j := by
     rw [hfinal]
     exact ⟨i, hi⟩
   obtain ⟨j, hj⟩ := hwitness

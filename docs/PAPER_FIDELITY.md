@@ -77,6 +77,7 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
 | target has an interior terminal-path index, matching `j_(p-1)` with `1 < p` | E from nearest-target membership and endpoint inequalities | Formalized |
 | terminal path has at least three vertices in the remaining branch | E from the interior index | Formalized |
+| consecutive path segment `j_(p-2) - j'' - j_p` around the target | E from indexed-path order and inducedness | Formalized |
 | same-clone claw contradiction | E/M | Formalized |
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
 | target clone in `C_j^(m)` when the target differs from the returned endpoint | M/B | Quantified by `InitializationInteriorTerminalCloneData`; not yet derived from the terminal tether history |

@@ -149,8 +149,13 @@ theorem three_le_terminalPath_card_of_twoIncoming
   obtain ⟨q, _htarget, hqInterior⟩ :=
     T.exists_interior_targetIndex_of_twoIncoming hclaw hne
       incoming incoming' hsource hsource'
-  have hqLt := q.isLt
-  exact by omega
+  have hq_pos : 1 ≤ q.val := by
+    exact Nat.one_le_iff_ne_zero.mpr hqInterior.1
+  have hq_succ_le : q.val + 1 ≤ (T.terminalPath target).card := by
+    exact q.isLt
+  have hq_succ_lt : q.val + 1 < (T.terminalPath target).card := by
+    omega
+  omega
 
 end InitializationTerminalCoreData
 

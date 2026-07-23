@@ -153,6 +153,9 @@ theorem three_le_terminalPath_card_of_twoIncoming
     exact Nat.one_le_iff_ne_zero.mpr hqInterior.1
   have hq_succ_le : q.val + 1 ≤ (T.terminalPath target).card := by
     exact q.isLt
+  have hq_not_last :
+      q.val + 1 ≠ (T.terminalPath target).card :=
+    hqInterior.2
   have hq_succ_lt : q.val + 1 < (T.terminalPath target).card := by
     omega
   have hthree_le_qtwo : 3 ≤ q.val + 2 := by

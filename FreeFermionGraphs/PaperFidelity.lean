@@ -1,4 +1,5 @@
 import FreeFermionGraphs.ObstructionSearchTerminalPredecessorAnticommutation
+import FreeFermionGraphs.ObstructionSearchTerminalComponentOccurrence
 
 /-!
 # Paper-facing fidelity gates

@@ -251,15 +251,14 @@ theorem terminalPath_not_containsComponent_lastBlock
     {source target : I.Node}
     (incoming : I.graph.Arc source target)
     (hpos : 0 < (T.executionTrace.execution source).blockCount) :
-    ¬(T.executionTrace.execution source).blockContext
-        ((T.executionTrace.execution source).lastBlockIndex hpos)
-      |>.ContainsComponent (Set.range (T.terminalPath target).vertex) := by
+    ¬((T.executionTrace.execution source).blockContext
+        ((T.executionTrace.execution source).lastBlockIndex hpos)).ContainsComponent
+      (Set.range (T.terminalPath target).vertex) := by
   intro hcontains
   apply T.terminalPath_not_mem_outputPaths incoming
-  exact
-    (T.executionTrace.execution source).
-      output_mem_of_blockContext_containsComponent
-        ((T.executionTrace.execution source).lastBlockIndex hpos) hcontains
+  exact OrderedOSExecution.output_mem_of_blockContext_containsComponent
+    (T.executionTrace.execution source)
+    ((T.executionTrace.execution source).lastBlockIndex hpos) hcontains
 
 /-- Conditional form of the manuscript inclusion
 `P ∩ C_b ⊆ C_j^(m)`.  Once the terminal path is identified as the relevant
@@ -286,9 +285,9 @@ theorem terminalCb_mem_manuscriptFinalHole
       (T.executionTrace.execution source).manuscriptFinalHole.vertex := by
   by_contra hxNotFinal
   have hcontains :=
-    (T.executionTrace.execution source).
-      containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
-        hpos hcomponent hxPath hxCb hxExact hxOriginal hxNotFinal
+    OrderedOSExecution.containsComponent_of_mem_bdComponent_of_not_mem_manuscriptFinalHole
+      (T.executionTrace.execution source) hpos hcomponent hxPath hxCb hxExact
+        hxOriginal hxNotFinal
   exact T.terminalPath_not_containsComponent_lastBlock
     incoming hpos hcontains
 

@@ -80,7 +80,9 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | consecutive path segment `j_(p-2) - j'' - j_p` around the target | E from indexed-path order and inducedness | Formalized |
 | same-clone claw contradiction | E/M | Formalized |
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
-| target clone in `C_j^(m)` when the target differs from the returned endpoint | M/B | Quantified by `InitializationInteriorTerminalCloneData`; not yet derived from the terminal tether history |
+| final-hole target clone for an empty initialized execution | E because `manuscriptFinalHole` is the original hole | Formalized from the stopping branch |
+| final-hole target clone for a nonempty interior execution | M/B | Still requires the manuscript tether and degree-three argument in the terminal execution hole |
+| scoped target clone interface for the full interior case | M/B | Quantified by `InitializationInteriorTerminalCloneData`; now reduced to positive block count |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |
 | uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
 | canonical centre selected under an interior premise | E once the scoped existence fact is supplied | Formalized, choice-independent, and proof-irrelevant |

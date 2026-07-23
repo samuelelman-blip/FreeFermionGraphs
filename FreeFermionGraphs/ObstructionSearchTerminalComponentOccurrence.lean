@@ -116,7 +116,8 @@ theorem output_mem_of_context_containsComponent
     {Q : Set V}
     (hQ : A.context.ContainsComponent Q) :
     Q ∈ S.paths := by
-  cases hctx : A.context with
+  generalize hctx : A.context = X at hQ
+  cases X with
   | first _ =>
       change Set.range A.block.path.vertex = Q at hQ
       rw [A.path_eq] at hQ

@@ -114,9 +114,8 @@ theorem mem_lastBlockFinalHole_of_mem_originalHole_of_avoidsContext
     rw [X.blockContext_originalHole (X.lastBlockIndex hpos)]
     exact hx
   exact
-    ConcretePathDeformation.Lemma11AHistoryContext.
-      mem_currentFinalHole_of_mem_originalHole_of_avoids
-        (X.blockContext (X.lastBlockIndex hpos)) hxContext havoid
+    ConcretePathDeformation.Lemma11AHistoryContext.mem_currentFinalHole_of_mem_originalHole_of_avoids
+      (X.blockContext (X.lastBlockIndex hpos)) hxContext havoid
 
 /-- The same persistence conclusion stated on the exact manuscript terminal
 hole `C_j^(m)`. -/

@@ -82,7 +82,7 @@ structure IncomingTerminalCloneWitness
     (source target : I.Node)
     (_incoming : I.graph.Arc source target) where
   cloneIndex :
-    Fin (T.executionTrace.execution source).manuscriptFinalHole.card
+    Fin ((T.executionTrace.execution source).manuscriptFinalHole.card)
   target_clone :
     ((T.executionTrace.execution source).manuscriptFinalHole).SingleVertexDeformation
       (target : V) cloneIndex

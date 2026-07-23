@@ -75,10 +75,11 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | source injectivity at a terminal slot | E | Formalized |
 | same-clone claw contradiction | E/M | Formalized |
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
-| per-arc target clone in the final hole `C_j^(m)` | M/B | Quantified separately by `InitializationIncomingTerminalCloneData`; not yet derived from execution histories |
+| target clone in `C_j^(m)` when the target differs from the returned endpoint | M/B | Quantified by `InitializationInteriorTerminalCloneData`; not yet derived from the terminal tether history |
+| unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |
 | uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
-| canonical centre selected from each per-arc existence proof | E once per-arc existence is supplied | Formalized and choice-independent |
-| equality-versus-inequality split of the two canonical final-hole clone centres | E once the two per-arc witnesses are supplied | Formalized; no longer an independent branch certificate |
+| canonical centre selected under an interior premise | E once the scoped existence fact is supplied | Formalized, choice-independent, and proof-irrelevant |
+| equality-versus-inequality split of the two scoped final-hole clone centres | E once both interior witnesses are supplied | Formalized; no longer an independent branch certificate |
 | predecessor original-hole degree two | E from Lemma 11(a) | Formalized |
 | predecessor anticommutation from dependent membership and final degree three | E from Lemma 11(b) | Formalized and stage-checked |
 | same-centre terminal-neighborhood consequence | M/B | Isolated as a pairwise consequence; not yet derived from the two terminal holes |
@@ -88,7 +89,7 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 
 Consequently, the repository must not yet expose an unconditional theorem
 named `paperLemma14`. The strongest current bridge is deliberately named
-`paperLemma14_of_incomingTerminalCloneData_and_canonicalConsequences`.
+`paperLemma14_of_interiorTerminalCloneData_and_consequences`.
 
 ## Additional recurring checks
 

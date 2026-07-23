@@ -45,13 +45,13 @@ theorem exists_terminalCloneWitness_of_blockCount_eq_zero
   have hfinal :
       (T.executionTrace.execution source).manuscriptFinalHole =
         T.executionTrace.originalHole :=
-    (T.executionTrace.execution source).
-      manuscriptFinalHole_eq_original_of_blockCount_eq_zero hzero
+    OrderedOSExecution.manuscriptFinalHole_eq_original_of_blockCount_eq_zero
+      (T.executionTrace.execution source) hzero
   have hwitness :
       ∃ j : Fin
           ((T.executionTrace.execution source).manuscriptFinalHole.card),
-        ((T.executionTrace.execution source).manuscriptFinalHole).
-          SingleVertexDeformation (target : V) j := by
+        ((T.executionTrace.execution source).manuscriptFinalHole)
+          .SingleVertexDeformation (target : V) j := by
     rw [hfinal]
     exact ⟨i, hi⟩
   obtain ⟨j, hj⟩ := hwitness

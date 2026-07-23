@@ -215,9 +215,10 @@ noncomputable def toPropagationWithoutChosenNeighbors
         X.cloneGeometry.cloneCenter_ne_previousNeighbor1 cloneIndex hclone
       propagatedNeighbor_mem_originalHole :=
         X.propagatedNeighbor_mem_originalHole
-      propagatedNeighbor_ne_cycleNeighbor :=
-        X.cloneGeometry.propagatedNeighbor_ne_cycleNeighbor
-          cloneIndex · hclone }
+      propagatedNeighbor_ne_cycleNeighbor := by
+        intro q hAdj
+        exact X.cloneGeometry.propagatedNeighbor_ne_cycleNeighbor
+          cloneIndex q hclone hAdj }
 
 /-- The distinct-clone contradiction now obtains both the clone centre and its
 cycle-neighbour pair from previously formalized obstruction-search data. -/

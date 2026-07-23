@@ -75,18 +75,20 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | source injectivity at a terminal slot | E | Formalized |
 | same-clone claw contradiction | E/M | Formalized |
 | stopping-derived clone centre in the initialized original hole | E | Formalized |
-| per-arc target clone in the final hole `C_j^(m)` | M/B | Represented at the correct stage; not yet derived from execution histories |
-| equality-versus-inequality split of the two final-hole clone centres | E once the two per-arc witnesses are supplied | Formalized; no longer an independent branch certificate |
+| per-arc target clone in the final hole `C_j^(m)` | M/B | Quantified separately by `InitializationIncomingTerminalCloneData`; not yet derived from execution histories |
+| uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
+| canonical centre selected from each per-arc existence proof | E once per-arc existence is supplied | Formalized and choice-independent |
+| equality-versus-inequality split of the two canonical final-hole clone centres | E once the two per-arc witnesses are supplied | Formalized; no longer an independent branch certificate |
 | predecessor original-hole degree two | E from Lemma 11(a) | Formalized |
 | predecessor anticommutation from dependent membership and final degree three | E from Lemma 11(b) | Formalized and stage-checked |
-| same-centre terminal-neighborhood consequence | M/B | Not yet derived from the two terminal holes |
+| same-centre terminal-neighborhood consequence | M/B | Isolated as a pairwise consequence; not yet derived from the two terminal holes |
 | existence of the first-block predecessor with final degree three | M/B | Not yet derived from execution histories |
 | propagated centre and original-hole leaf | M/B | Not yet derived from execution histories |
 | required propagated nonedges | M/B | Not yet derived from execution histories |
 
 Consequently, the repository must not yet expose an unconditional theorem
 named `paperLemma14`. The strongest current bridge is deliberately named
-`paperLemma14_of_terminalCloneComparisonAnalysis`.
+`paperLemma14_of_incomingTerminalCloneData_and_canonicalConsequences`.
 
 ## Additional recurring checks
 

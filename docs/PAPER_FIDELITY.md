@@ -65,6 +65,12 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 
 ### Current provenance
 
+Corollary 9 explicitly allows a vertex to belong to one original-hole colour
+class and one prime-hole colour class, and consequently to occur on one `ac`
+path and one `bd` path. Therefore `ExactlyOneOfFour` is not a faithful generic
+hypothesis for a vertex of `P ∩ C_b`, and opposite-family path occurrence cannot
+be excluded merely from component membership.
+
 | Component | Provenance | Status |
 |---|---|---|
 | initialized ordered executions | D | Formalized |
@@ -84,16 +90,16 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 | outside-hole plus degree-three geometry implies a final-hole target clone | E from Lemma 7 and the indexed three-neighbor clone theorem | Formalized on the exact `manuscriptFinalHole` stage |
 | positive `manuscriptFinalHole` equals the last concrete block final hole | E from the ordered execution definition | Formalized with `lastBlockIndex` |
 | original-hole vertices avoiding all recorded prior/current paths persist to the positive terminal hole | E from the finite `Lemma11AHistoryContext` carrier chain | Formalized without terminal-specific data |
-| a `C_b` vertex of a `bd` component avoids every distinct fixed-pairing path | E from exact four-color membership and component uniqueness | Formalized |
-| a `C_b` vertex of an unexecuted terminal component persists to `C_j^(m)` | E once original-hole membership and component distinctness from the recorded history are supplied | Formalized conditionally |
-| absence of an original-hole `C_b` vertex from the positive terminal hole forces its `bd` component to occur in the recorded history | E by contraposition from component avoidance and carrier persistence | Formalized conditionally |
+| distinct `bd` components are disjoint | E from the `bdPaths.Pairwise Disjoint` field | Formalized |
+| a missing original-hole vertex occurs on at least one represented prior/current path | E by contraposition from carrier persistence | Formalized without assigning a component family or introduced/removed role |
+| a represented vertex occurrence yields an actual output path containing the vertex | E from current `output_mem` and prior `prior_output_mem` | Formalized |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized |
+| terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized; its vertices may still occur on opposite-family paths |
 | prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly; construction from the concrete `OS` loop remains part of the execution-data boundary |
-| every component represented by a block history is an actual output path | E from current `output_mem` and prior `prior_output_mem` | Formalized |
 | terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | E once the selected vertex has original-hole and exact four-colour membership | Formalized conditionally; terminal-component membership is no longer a per-vertex premise |
-| terminal-path `C_b` vertices lie on the initialized original hole with the required exact four-colour membership | M/B | Exact remaining terminal-colouring provenance needed to discharge the conditional inclusion |
-| outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after carrier persistence |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized: must prove that a missing `C_b` vertex was removed as a `k`-vertex of an executed `bd` block, not merely introduced on an `ac` block |
+| terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
+| outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
 | unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |
 | uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
@@ -120,6 +126,9 @@ named `paperLemma14`. The strongest current bridge is deliberately named
 - **Orientation check:** statements may use a chosen indexing internally, but
   public conclusions must be invariant under reversing or cyclically shifting
   the indexed hole.
+- **Overlap check:** original-hole and prime-hole colour memberships are not
+  globally exclusive; any exact-colour hypothesis must be justified for the
+  specific vertex class under consideration.
 - **Boundary-case check:** empty deformations, first blocks, the initial-tether
   stopping branch, and later Definition 20 stopping must be covered explicitly.
 - **Dependency check:** a proof of Lemma 14 may use Lemmas 7–13, but it may not

@@ -139,7 +139,11 @@ theorem path_mem_selectedSide
       A.block.firstIndex).base.activePath_ac
   rw [A.block.activePath_eq A.block.firstIndex] at hactive
   rw [A.path_eq] at hactive
-  cases A.side <;> simpa [DeformationSide.family, swapSides] using hactive
+  cases hside : A.side with
+  | ac =>
+      simpa [hside, DeformationSide.family] using hactive
+  | bd =>
+      simpa [hside, DeformationSide.family, swapSides] using hactive
 
 /-- Forgetting the side recovers membership in the full fixed-pairing path
 family. -/

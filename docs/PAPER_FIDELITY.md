@@ -71,6 +71,14 @@ path and one `bd` path. Therefore `ExactlyOneOfFour` is not a faithful generic
 hypothesis for a vertex of `P ∩ C_b`, and opposite-family path occurrence cannot
 be excluded merely from component membership.
 
+The manuscript's fixed-pairing deformation may contain components from both
+`C_a ⊕ C'_c` and `C_b ⊕ C'_d`. The current `SearchPathHistoryWitness` represents
+every output path by a concrete block carrying `ACHoleStepGeometry`; the audit
+theorem `SearchHistoryData.paths_subset_acPaths` therefore shows that this
+interface forces every represented output path into `acPaths`. This is a
+stronger boundary than the manuscript and must be generalized before the
+full two-sided search trace can support an unconditional Lemma 14 proof.
+
 | Component | Provenance | Status |
 |---|---|---|
 | initialized ordered executions | D | Formalized |
@@ -94,11 +102,12 @@ be excluded merely from component membership.
 | a missing original-hole vertex occurs on at least one represented prior/current path | E by contraposition from carrier persistence | Formalized without assigning a component family or introduced/removed role |
 | a represented vertex occurrence yields an actual output path containing the vertex | E from current `output_mem` and prior `prior_output_mem` | Formalized |
 | a missing original-hole vertex equals the removed vertex of a concrete represented step | E from the one-step carrier replacement and finite block/history chains | Formalized without assigning the step to the `ac` or `bd` family |
+| current `SearchHistoryData` forces all represented output paths into `acPaths` | E from the stored `ACHoleStepGeometry` of each witness block | Formalized as an audit guard; this is a stronger-than-manuscript boundary that must be removed |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized |
 | terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized; its vertices may still occur on opposite-family paths |
 | prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly; construction from the concrete `OS` loop remains part of the execution-data boundary |
 | terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized: the concrete removed step for a missing `C_b` vertex must be classified as a `bd` block, so same-family component disjointness identifies it with `P` |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: first generalize search histories to represent both `ac` and `bd` blocks, then derive that a missing `C_b` vertex was removed by a prior `bd` block |
 | terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
@@ -130,6 +139,9 @@ named `paperLemma14`. The strongest current bridge is deliberately named
 - **Overlap check:** original-hole and prime-hole colour memberships are not
   globally exclusive; any exact-colour hypothesis must be justified for the
   specific vertex class under consideration.
+- **Two-sided path check:** a fixed-pairing deformation may contain both
+  `acPaths` and `bdPaths`; a history interface restricted to one side cannot be
+  used as the final construction of the manuscript search trace.
 - **Boundary-case check:** empty deformations, first blocks, the initial-tether
   stopping branch, and later Definition 20 stopping must be covered explicitly.
 - **Dependency check:** a proof of Lemma 14 may use Lemmas 7–13, but it may not

@@ -227,9 +227,8 @@ theorem containsVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
     rw [X.manuscriptFinalHole_eq_lastBlockFinalHole hpos]
     exact hxLast
   exact
-    ConcretePathDeformation.Lemma11AHistoryContext.
-      containsVertex_of_mem_originalHole_of_not_mem_currentFinalHole
-        (X.blockContext (X.lastBlockIndex hpos)) hxContext hxNotLastFinal
+    ConcretePathDeformation.Lemma11AHistoryContext.containsVertex_of_mem_originalHole_of_not_mem_currentFinalHole
+      (X.blockContext (X.lastBlockIndex hpos)) hxContext hxNotLastFinal
 
 /-- A component represented in the history of an indexed execution block is an
 actual output path of that same initialized search. -/
@@ -251,8 +250,7 @@ theorem exists_output_path_of_blockContext_containsVertex
     (hx : (X.blockContext i).ContainsVertex x) :
     ∃ Q : Set V, Q ∈ (I.output source).paths ∧ x ∈ Q := by
   exact
-    (X.history.witness (X.path_mem i)).
-      exists_output_path_of_context_containsVertex hx
+    (X.history.witness (X.path_mem i)).exists_output_path_of_context_containsVertex hx
 
 /-- Consequently a missing initialized carrier vertex lies on some actual
 output path.  No component-family or introduced/removed orientation is inferred. -/

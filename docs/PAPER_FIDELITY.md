@@ -83,11 +83,17 @@ is interpreted through the side-swapped family obtained by exchanging
 
 `TwoSidedOrderedPathExecution` migrates the finite block enumeration, output
 coverage, source uniqueness, and literal `W \ {source}` stopping invariant.
-`TwoSidedOrderedOSExecution` now also records the maximal-`L_{r,s}` update rule:
-the first introduced vertex of every later block lies in a dependent set of a
-strictly earlier block and anticommutes with that block's path. The remaining
-ordered-trace task is the side-aware common-path entry comparison and the
-first-common-path construction itself.
+`TwoSidedOrderedOSExecution` also records the maximal-`L_{r,s}` update rule: the
+first introduced vertex of every later block lies in a dependent set of a
+strictly earlier block and anticommutes with that block's path.
+
+The first reduction in the manuscript proof of Corollary 11 is now explicit on
+the two-sided interface. A dependent vertex of an `ac` block lies in `C'_d`,
+while a dependent vertex of a `bd` block lies in `C'_c`. The overlap-aware prime
+colouring therefore proves that a shared dependent vertex forces both blocks to
+have the same `DeformationSide`. The remaining Corollary 11 task is to apply the
+history-backed no-shared-witness theorem after this side reduction, followed by
+the first-common-path construction.
 
 | Component | Provenance | Status |
 |---|---|---|
@@ -95,7 +101,7 @@ first-common-path construction itself.
 | final execution hole `C_j^(m)` | D from ordered block sequence, `manuscriptFinalHole` | Formalized, including the empty-execution case, on the old interface |
 | fixed-pairing output conclusion | E | Formalized |
 | obstruction arcs cross pairing types | E | Formalized |
-| same-pairing path disjointness | E | Formalized through the old one-sided ordered trace; two-sided first-common-path migration remains open |
+| same-pairing path disjointness | E | Formalized through the old one-sided ordered trace; two-sided Corollary 11 and first-common-path migration remain open |
 | source injectivity at a terminal slot | E | Formalized through the old one-sided execution data |
 | distinct incoming sources occupy opposite terminal slots | E from slot injectivity and the two-valued slot type | Formalized through the old one-sided execution data |
 | target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
@@ -116,11 +122,12 @@ first-common-path construction itself.
 | explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized |
 | side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
 | side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
+| shared dependent vertex forces equal component sides | E from Definition 20 prime membership, oriented `dependent_mem_cd`, and overlap-aware prime colour exclusion | Formalized as the first step of two-sided Corollary 11 |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized through the old execution interface |
 | terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized through the old interface; its vertices may still occur on opposite-family paths |
 | prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly in both history interfaces; construction from the concrete `OS` loop remains part of the execution-data boundary |
 | terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: migrate the first-common-path and terminal-hole machinery to the side-correct execution, then prove that a missing `C_b` vertex was removed by a prior `bd` block |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: complete two-sided Corollary 11 and the first-common-path migration, then prove that a missing `C_b` vertex was removed by a prior `bd` block |
 | terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |

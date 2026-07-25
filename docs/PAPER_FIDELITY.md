@@ -77,24 +77,25 @@ every output path by a concrete block carrying `ACHoleStepGeometry`; the audit
 theorem `SearchHistoryData.paths_subset_acPaths` therefore shows that this
 interface forces every represented output path into `acPaths`.
 
-`TwoSidedSearchPathHistoryWitness` now records an explicit path side. A `bd`
-block is interpreted through the side-swapped family obtained by exchanging
-`C_a ↔ C_b`, `C'_c ↔ C'_d`, and `acPaths ↔ bdPaths`. This removes the one-sided
-restriction at the history-interface level.
+`TwoSidedSearchPathHistoryWitness` records an explicit path side. A `bd` block
+is interpreted through the side-swapped family obtained by exchanging
+`C_a ↔ C_b`, `C'_c ↔ C'_d`, and `acPaths ↔ bdPaths`.
 
-`TwoSidedOrderedPathExecution` now migrates the finite block enumeration, output
-coverage, source uniqueness, and literal `W \ {source}` stopping invariant to
-the side-correct history. The maximal-`L_{r,s}` earlier-selection field has not
-yet been migrated, so this is not yet a replacement for the complete ordered
-execution consumed by the first-common-path argument.
+`TwoSidedOrderedPathExecution` migrates the finite block enumeration, output
+coverage, source uniqueness, and literal `W \ {source}` stopping invariant.
+`TwoSidedOrderedOSExecution` now also records the maximal-`L_{r,s}` update rule:
+the first introduced vertex of every later block lies in a dependent set of a
+strictly earlier block and anticommutes with that block's path. The remaining
+ordered-trace task is the side-aware common-path entry comparison and the
+first-common-path construction itself.
 
 | Component | Provenance | Status |
 |---|---|---|
-| initialized ordered executions | D | Formalized only through the old one-sided execution interface |
+| initialized ordered executions | D | Side-correct local execution interface formalized; construction from the fully formalized `OS` loop remains open |
 | final execution hole `C_j^(m)` | D from ordered block sequence, `manuscriptFinalHole` | Formalized, including the empty-execution case, on the old interface |
 | fixed-pairing output conclusion | E | Formalized |
 | obstruction arcs cross pairing types | E | Formalized |
-| same-pairing path disjointness | E | Formalized through the old one-sided ordered trace; two-sided migration remains open |
+| same-pairing path disjointness | E | Formalized through the old one-sided ordered trace; two-sided first-common-path migration remains open |
 | source injectivity at a terminal slot | E | Formalized through the old one-sided execution data |
 | distinct incoming sources occupy opposite terminal slots | E from slot injectivity and the two-valued slot type | Formalized through the old one-sided execution data |
 | target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
@@ -113,12 +114,13 @@ execution consumed by the first-common-path argument.
 | a missing original-hole vertex equals the removed vertex of a concrete represented step | E from the one-step carrier replacement and finite block/history chains | Formalized without assigning the step to the `ac` or `bd` family |
 | current `SearchHistoryData` forces all represented output paths into `acPaths` | E from the stored `ACHoleStepGeometry` of each witness block | Formalized as an audit guard; this old boundary is stronger than the manuscript |
 | explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized |
-| side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized; maximal-`L_{r,s}` earlier selection and ordered-trace construction remain open |
+| side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
+| side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized through the old execution interface |
 | terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized through the old interface; its vertices may still occur on opposite-family paths |
 | prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly in both history interfaces; construction from the concrete `OS` loop remains part of the execution-data boundary |
 | terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: complete the two-sided ordered execution migration, then prove that a missing `C_b` vertex was removed by a prior `bd` block |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: migrate the first-common-path and terminal-hole machinery to the side-correct execution, then prove that a missing `C_b` vertex was removed by a prior `bd` block |
 | terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |

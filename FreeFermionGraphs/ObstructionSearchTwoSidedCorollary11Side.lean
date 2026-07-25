@@ -92,9 +92,13 @@ theorem side_eq_of_sharedDependentVertex
           have huCc : u ∈ O.Cc := by
             simpa [hB, DeformationSide.family, swapSides] using
               huBOrientedCd
-          have huNotCd : u ∉ O.Cd :=
-            (A.context.currentData.neighborhood.overlapColoring
-              .not_mem_ca_cd_of_mem_cc huAPrime huCc).2
+          have huAOrientedCc : u ∈ (A.side.family O).Cc := by
+            simpa [hA, DeformationSide.family] using huCc
+          have huANotOrientedCd : u ∉ (A.side.family O).Cd :=
+            (A.context.currentData.neighborhood.overlapColoring.not_mem_ca_cd_of_mem_cc
+              huAPrime huAOrientedCc).2
+          have huNotCd : u ∉ O.Cd := by
+            simpa [hA, DeformationSide.family] using huANotOrientedCd
           exact huNotCd huCd
   | bd =>
       cases hB : B.side with
@@ -105,9 +109,13 @@ theorem side_eq_of_sharedDependentVertex
               huAOrientedCd
           have huCd : u ∈ O.Cd := by
             simpa [hB, DeformationSide.family] using huBOrientedCd
-          have huNotCd : u ∉ O.Cd :=
-            (B.context.currentData.neighborhood.overlapColoring
-              .not_mem_ca_cd_of_mem_cc huBPrime huCc).2
+          have huBOrientedCc : u ∈ (B.side.family O).Cc := by
+            simpa [hB, DeformationSide.family] using huCc
+          have huBNotOrientedCd : u ∉ (B.side.family O).Cd :=
+            (B.context.currentData.neighborhood.overlapColoring.not_mem_ca_cd_of_mem_cc
+              huBPrime huBOrientedCc).2
+          have huNotCd : u ∉ O.Cd := by
+            simpa [hB, DeformationSide.family] using huBNotOrientedCd
           exact huNotCd huCd
       | bd =>
           simpa [hA, hB]

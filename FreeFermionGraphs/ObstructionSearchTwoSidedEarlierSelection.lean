@@ -114,11 +114,13 @@ def toTwoSidedOrderedOSExecution
     intro i hi
     obtain ⟨q, s, hqi, hdep, hanti⟩ := X.earlierSelection i hi
     refine ⟨q, s, hqi, ?_, ?_⟩
-    · simpa [TwoSidedOrderedPathExecution.blockWitness,
+    · simpa [OrderedOSExecution.entry,
+        TwoSidedOrderedPathExecution.blockWitness,
         OrderedOSExecution.toTwoSidedOrderedPathExecution,
         SearchHistoryData.toTwoSided,
         SearchPathHistoryWitness.toTwoSided] using hdep
-    · simpa [TwoSidedOrderedPathExecution.blockWitness,
+    · simpa [OrderedOSExecution.entry,
+        TwoSidedOrderedPathExecution.blockWitness,
         OrderedOSExecution.toTwoSidedOrderedPathExecution,
         SearchHistoryData.toTwoSided,
         SearchPathHistoryWitness.toTwoSided] using hanti

@@ -62,9 +62,7 @@ theorem firstVertex_eq_first_or_last_of_range_eq
         dsimp [qPrev]
         omega))
     have hqNextAdj : G.Adj (Q.vertex q) (Q.vertex qNext) :=
-      (Q.adj_iff q qNext).2 (Or.inl (by
-        dsimp [qNext]
-        omega))
+      (Q.adj_iff q qNext).2 (Or.inl rfl)
     have hPrevMemP : Q.vertex qPrev ∈ Set.range P.vertex := by
       rw [hRange]
       exact ⟨qPrev, rfl⟩
@@ -211,6 +209,8 @@ def toInitializationTwoSidedOrderedTraceData
     intro source source' i j _hpair hpath
     let A := (X.trace source).ordered.blockWitness i
     let B := (X.trace source').ordered.blockWitness j
+    change (X.trace source).ordered.path i =
+      (X.trace source').ordered.path j at hpath
     calc
       (X.trace source).entry i =
           (A.block.deformation.step A.block.firstIndex).introduced := by
@@ -222,9 +222,9 @@ def toInitializationTwoSidedOrderedTraceData
           ((X.trace source').entry_is_firstIntroduced j).symm
 
 /-- Hence the side-correct first-common-path data, same-pairing path
-Disjointness, and canonical ownership all follow without a cross-trace
+disjointness, and canonical ownership all follow without a cross-trace
 certificate. -/
-def toInitializationTwoSidedFirstCommonPathData
+noncomputable def toInitializationTwoSidedFirstCommonPathData
     (X : I.InitializationTwoSidedOrderedExecutionData) :
     I.InitializationTwoSidedFirstCommonPathData :=
   X.toInitializationTwoSidedOrderedTraceData

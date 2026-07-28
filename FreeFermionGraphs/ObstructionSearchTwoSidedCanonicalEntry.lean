@@ -217,7 +217,12 @@ def toInitializationTwoSidedOrderedTraceData
           (A.block.deformation.step A.block.firstIndex).introduced := by
         simpa [A] using (X.trace source).entry_is_firstIntroduced i
       _ = (B.block.deformation.step B.block.firstIndex).introduced := by
-        exact A.firstIntroduced_eq_of_path_eq B hpath
+        apply A.context.firstIntroduced_eq_of_path_range_eq B.context
+        calc
+          Set.range A.block.path.vertex =
+              (X.trace source).ordered.path i := A.path_eq
+          _ = (X.trace source').ordered.path j := hpath
+          _ = Set.range B.block.path.vertex := B.path_eq.symm
       _ = (X.trace source').entry j := by
         simpa [B] using
           ((X.trace source').entry_is_firstIntroduced j).symm

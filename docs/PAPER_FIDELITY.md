@@ -99,8 +99,13 @@ alternative is impossible because the first introduced vertex lies in the fixed
 prime carrier, while the terminal removed vertex is outside it.
 `InitializationTwoSidedOrderedExecutionData` therefore constructs the complete
 two-sided ordered-trace and first-common-path interfaces without any cross-trace
-certificate. The remaining statement-(iii) integration task is construction of
-these ordered executions from the concrete `OS` loop.
+certificate.
+
+Carrier-level `reorient` maps a concrete replacement, deformation, or path block
+to the family selected by a `DeformationSide` while preserving all holes,
+vertices, the indexed path, and Definition 20 dependent sets. It does not select
+the correct side or transport `MechanicalData`; the concrete `OS` loop must
+still provide those orientation-sensitive facts.
 
 | Component | Provenance | Status |
 |---|---|---|
@@ -127,6 +132,7 @@ these ordered executions from the concrete `OS` loop.
 | a missing original-hole vertex equals the removed vertex of a concrete represented step | E from the one-step carrier replacement and finite block/history chains | Formalized without assigning the step to the `ac` or `bd` family |
 | current `SearchHistoryData` forces all represented output paths into `acPaths` | E from the stored `ACHoleStepGeometry` of each witness block | Formalized as an audit guard; this old boundary is stronger than the manuscript |
 | explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized |
+| carrier-level reorientation of concrete blocks | E from `swapSides_paths`; all carriers and dependent sets are preserved | Formalized; side classification and oriented mechanical geometry remain open |
 | side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
 | side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
 | shared dependent vertex forces equal component sides | E from Definition 20 prime membership, oriented `dependent_mem_cd`, and overlap-aware prime colour exclusion | Formalized |

@@ -159,14 +159,15 @@ end Lemma11AHistoryContext
 
 end ConcretePathDeformation
 
-variable {O : FixedPairingPathFamily G}
+variable {O O' : FixedPairingPathFamily G}
 
 namespace TwoSidedSearchPathHistoryWitness
 
 /-- The first introduced endpoint is independent of which two-sided history
 witness presents a fixed Definition 19 path carrier. -/
 theorem firstIntroduced_eq_of_path_eq
-    {S T : SearchDeformation O Cprime}
+    {S : SearchDeformation O Cprime}
+    {T : SearchDeformation O' Cprime}
     {originalHole : IndexedInducedHole G}
     {P Q : Set V}
     (A : TwoSidedSearchPathHistoryWitness S originalHole P)

@@ -60,10 +60,14 @@ def reorient
     (S.reorient side).introduced = S.introduced := by
   cases side <;> rfl
 
-@[simp] theorem reorient_removedIndex
+/-- Reorientation preserves the actual removed vertex.  The raw removal indices
+live in definitionally equal but syntactically different `Fin` types, so the
+carrier vertex is the invariant relevant to the manuscript. -/
+@[simp] theorem reorient_removedVertex
     (S : ConcreteDeformationStep O Cprime)
     (side : DeformationSide) :
-    (S.reorient side).removedIndex = S.removedIndex := by
+    (S.reorient side).before.vertex (S.reorient side).removedIndex =
+      S.before.vertex S.removedIndex := by
   cases side <;> rfl
 
 @[simp] theorem reorient_activePath
@@ -97,7 +101,9 @@ def reorient
   step i := (D.step i).reorient side
   carrier_chain := by
     intro i j hij
-    simpa using D.carrier_chain hij
+    cases side with
+    | ac => exact D.carrier_chain hij
+    | bd => exact D.carrier_chain hij
 
 @[simp] theorem reorient_stepCount
     (D : ConcreteDeformation O Cprime)

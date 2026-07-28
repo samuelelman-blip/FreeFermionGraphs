@@ -29,6 +29,25 @@ variable {G : SimpleGraph V}
 
 namespace TwoSidedSearchPathHistoryWitness
 
+/-- Membership in the `acPaths` family of the side-oriented presentation is
+exactly membership in the component family selected by that side in the
+original presentation.
+
+This helper performs the side split before any dependent witness data is in
+scope, avoiding dependent elimination on `A.side`. -/
+private theorem mem_selectedSide_of_mem_oriented_ac
+    (side : DeformationSide)
+    {Q : Set V}
+    (hQ : Q ∈ (side.family O).acPaths) :
+    match side with
+    | .ac => Q ∈ O.acPaths
+    | .bd => Q ∈ O.bdPaths := by
+  cases side with
+  | ac =>
+      simpa [DeformationSide.family] using hQ
+  | bd =>
+      simpa [DeformationSide.family, swapSides] using hQ
+
 /-- Every prior block stored in the current positive history has the same
 selected component side as the witness's current block.
 
@@ -53,11 +72,7 @@ theorem prior_path_mem_selectedSide
     exact
       ((H.prior r).neighborhood.mechanical.stepGeometry
         (H.history.block r).firstIndex).base.activePath_ac
-  cases hside : A.side with
-  | ac =>
-      simpa [hside, DeformationSide.family] using hactive
-  | bd =>
-      simpa [hside, DeformationSide.family, swapSides] using hactive
+  exact mem_selectedSide_of_mem_oriented_ac A.side hactive
 
 /-- The execution-provenance field and the type-level history restriction
 combine to show that every represented prior output path is on the witness's

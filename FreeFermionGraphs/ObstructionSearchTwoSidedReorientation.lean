@@ -149,8 +149,7 @@ theorem reorient_dependentAt
     (side : DeformationSide)
     (s : Nat) :
     (D.reorient side).dependentAt s = D.dependentAt s := by
-  unfold dependentAt
-  rfl
+  cases side <;> rfl
 
 end ConcretePathDeformation
 

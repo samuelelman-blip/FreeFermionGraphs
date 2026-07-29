@@ -29,24 +29,27 @@ variable {G : SimpleGraph V}
 
 namespace TwoSidedSearchPathHistoryWitness
 
-/-- Membership in the `acPaths` family of the side-oriented presentation is
-exactly membership in the component family selected by that side in the
-original presentation.
+/-- Membership in the `acPaths` family of the side-oriented presentation gives
+membership in the correspondingly selected component family of the original
+presentation.
 
-This helper performs the side split before any dependent witness data is in
-scope, avoiding dependent elimination on `A.side`. -/
-private theorem mem_selectedSide_of_mem_oriented_ac
+The result carries the side equality explicitly rather than returning a
+side-dependent `match`.  This avoids dependent elimination on witness data
+whose type itself contains the selected family. -/
+private theorem selectedSide_and_mem_of_mem_oriented_ac
     (side : DeformationSide)
     {Q : Set V}
     (hQ : Q ∈ (side.family O).acPaths) :
-    match side with
-    | .ac => Q ∈ O.acPaths
-    | .bd => Q ∈ O.bdPaths := by
+    (side = .ac ∧ Q ∈ O.acPaths) ∨
+      (side = .bd ∧ Q ∈ O.bdPaths) := by
   cases side with
   | ac =>
-      simpa [DeformationSide.family] using hQ
+      left
+      exact ⟨rfl, by simpa [DeformationSide.family] using hQ⟩
   | bd =>
-      simpa [DeformationSide.family, swapSides] using hQ
+      right
+      exact ⟨rfl, by
+        simpa [DeformationSide.family, swapSides] using hQ⟩
 
 /-- Every prior block stored in the current positive history has the same
 selected component side as the witness's current block.
@@ -61,9 +64,10 @@ theorem prior_path_mem_selectedSide
     (A : TwoSidedSearchPathHistoryWitness S originalHole P)
     (H : A.block.FullDefinition19Lemma11AHistoryData)
     (r : Nat) :
-    match A.side with
-    | .ac => Set.range (H.history.block r).path.vertex ∈ O.acPaths
-    | .bd => Set.range (H.history.block r).path.vertex ∈ O.bdPaths := by
+    (A.side = .ac ∧
+        Set.range (H.history.block r).path.vertex ∈ O.acPaths) ∨
+      (A.side = .bd ∧
+        Set.range (H.history.block r).path.vertex ∈ O.bdPaths) := by
   have hactive :
       Set.range (H.history.block r).path.vertex ∈
         (A.side.family O).acPaths := by
@@ -72,7 +76,7 @@ theorem prior_path_mem_selectedSide
     exact
       ((H.prior r).neighborhood.mechanical.stepGeometry
         (H.history.block r).firstIndex).base.activePath_ac
-  exact mem_selectedSide_of_mem_oriented_ac A.side hactive
+  exact selectedSide_and_mem_of_mem_oriented_ac A.side hactive
 
 /-- The execution-provenance field and the type-level history restriction
 combine to show that every represented prior output path is on the witness's
@@ -86,9 +90,10 @@ theorem prior_output_mem_selectedSide
     (hcontext : A.context = .later H)
     {r : Nat} (hr : r < H.priorCount) :
     Set.range (H.history.block r).path.vertex ∈ S.paths ∧
-      (match A.side with
-      | .ac => Set.range (H.history.block r).path.vertex ∈ O.acPaths
-      | .bd => Set.range (H.history.block r).path.vertex ∈ O.bdPaths) := by
+      ((A.side = .ac ∧
+          Set.range (H.history.block r).path.vertex ∈ O.acPaths) ∨
+        (A.side = .bd ∧
+          Set.range (H.history.block r).path.vertex ∈ O.bdPaths)) := by
   exact ⟨A.prior_output_mem H hcontext r hr,
     A.prior_path_mem_selectedSide H r⟩
 

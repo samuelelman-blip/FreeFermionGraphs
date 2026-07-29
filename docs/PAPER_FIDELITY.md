@@ -103,17 +103,27 @@ certificate.
 
 Carrier-level `reorient` maps a concrete replacement, deformation, or path block
 to the family selected by a `DeformationSide` while preserving all holes,
-vertices, the indexed path, and Definition 20 dependent sets. It does not select
-the correct side or transport `MechanicalData`; the concrete `OS` loop must
-still provide those orientation-sensitive facts.
+vertices, the indexed path, and Definition 20 dependent sets.
+`MechanicalData.reorient` additionally transports the path labeling and
+outside-hole fields; the colour-sensitive `SideMechanicalGeometry` remains an
+explicit local input for the literal `OS` construction.
+
+The positive history stored by `TwoSidedSearchPathHistoryWitness` is still a
+`FullDefinition19Lemma11AHistoryData` in one oriented family. The audit theorem
+`prior_path_mem_selectedSide` shows that every prior block in such a context is
+on the same selected side as the current block. Definition 19 permits the
+ordered deformation to contain both sides, so this homogeneous-side context
+cannot yet be the final history object for an arbitrary literal search trace.
+A mixed-side Lemma 11 history, or a proof that opposite-side blocks can be
+omitted from the relevant history argument, remains necessary.
 
 | Component | Provenance | Status |
 |---|---|---|
-| initialized ordered executions | D | Side-correct local and global execution interfaces formalized; construction from the concrete `OS` loop remains open |
+| initialized ordered executions | D | Side-correct local and global execution interfaces formalized; mixed-side history construction from the concrete `OS` loop remains open |
 | final execution hole `C_j^(m)` | D from ordered block sequence, `manuscriptFinalHole` | Formalized, including the empty-execution case, on the old interface |
 | fixed-pairing output conclusion | E | Formalized |
 | obstruction arcs cross pairing types | E | Formalized |
-| same-pairing path disjointness | E from canonical Definition 19 orientation, the least-common-path proof, and two-sided Corollary 11 | Derived from `InitializationTwoSidedOrderedExecutionData`; only concrete-loop construction remains open |
+| same-pairing path disjointness | E from canonical Definition 19 orientation, the least-common-path proof, and two-sided Corollary 11 | Derived from `InitializationTwoSidedOrderedExecutionData`; concrete mixed-side execution construction remains open |
 | source injectivity at a terminal slot | E | Formalized through the old one-sided execution data |
 | distinct incoming sources occupy opposite terminal slots | E from slot injectivity and the two-valued slot type | Formalized through the old one-sided execution data |
 | target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
@@ -131,19 +141,21 @@ still provide those orientation-sensitive facts.
 | a represented vertex occurrence yields an actual output path containing the vertex | E from current `output_mem` and prior `prior_output_mem` | Formalized |
 | a missing original-hole vertex equals the removed vertex of a concrete represented step | E from the one-step carrier replacement and finite block/history chains | Formalized without assigning the step to the `ac` or `bd` family |
 | current `SearchHistoryData` forces all represented output paths into `acPaths` | E from the stored `ACHoleStepGeometry` of each witness block | Formalized as an audit guard; this old boundary is stronger than the manuscript |
-| explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized |
-| carrier-level reorientation of concrete blocks | E from `swapSides_paths`; all carriers and dependent sets are preserved | Formalized; side classification and oriented mechanical geometry remain open |
+| explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized for the current block; its positive context remains homogeneous-side |
+| carrier-level reorientation of concrete blocks | E from `swapSides_paths`; all carriers and dependent sets are preserved | Formalized |
+| side-correct mechanical reorientation | E from transported path labels and outside-hole facts plus explicit `SideMechanicalGeometry` | Formalized; side classification and local colour geometry still come from the concrete loop |
+| homogeneous-side restriction of the current positive history | E from `FullDefinition19Lemma11AHistoryData` and oriented `ACHoleStepGeometry` | Formalized as an audit guard; a literal mixed-side history is still missing |
 | side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
 | side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
 | shared dependent vertex forces equal component sides | E from Definition 20 prime membership, oriented `dependent_mem_cd`, and overlap-aware prime colour exclusion | Formalized |
-| full two-sided no-shared-dependent-anticommuting-witness theorem | E from side reduction and the concrete finite-history Corollary 11 proof | Formalized |
+| full two-sided no-shared-dependent-anticommuting-witness theorem | E from side reduction and the concrete finite-history Corollary 11 proof | Formalized on the current homogeneous-side history context |
 | canonical common-path first-introduced endpoint equality | E from carrier endpoint invariance, prime membership of the first introduced vertex, and non-prime membership of the terminal removed vertex | Formalized without a cross-trace premise |
-| side-correct first-common-path witness | E from the canonical entry theorem, least common indexed block, and two earlier-selection rules | Derived from `InitializationTwoSidedOrderedExecutionData` |
+| side-correct first-common-path witness | E from the canonical entry theorem, least common indexed block, and two earlier-selection rules | Derived from `InitializationTwoSidedOrderedExecutionData`; literal mixed-side construction remains open |
 | terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized through the old execution interface |
 | terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized through the old interface; its vertices may still occur on opposite-family paths |
-| prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly in both history interfaces; construction from the concrete `OS` loop remains part of the execution-data boundary |
+| prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly in both history interfaces; current two-sided contexts cover only one selected side |
 | terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: construct the two-sided ordered execution from the concrete loop, then classify a missing `C_b` vertex as removed by a prior `bd` block |
+| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: construct the mixed-side ordered execution from the concrete loop, then classify a missing `C_b` vertex as removed by a prior `bd` block |
 | terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
 | outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
 | scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |

@@ -107,8 +107,8 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
           (A0.deformation.step A0.firstIndex).before.vertex := by
       simpa [ConcretePathDeformation.initialHole] using hxOrientedInitial
     have hxSelected :
-        x ∈ (X.history.side 0).family O |>.Ca ∪
-          (X.history.side 0).family O |>.Cb := by
+        x ∈ ((X.history.side 0).family O).Ca ∪
+          ((X.history.side 0).family O).Cb := by
       exact
         ((X.history.localData 0).neighborhood.mechanical.stepGeometry
           A0.firstIndex).before_subset hxBefore

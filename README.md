@@ -43,7 +43,7 @@ obstruction-search argument in Lemma 14.
 | Theorem 1(i), independent-set charges commute | Formalised |
 | Theorem 1(ii), generalized-cycle charges commute with independent-set charges | Formalised |
 | Lemma 11(a), Lemma 11(b), and their concrete history machinery | Formalised |
-| Corollary 11 | Formalised on the concrete same-orientation interface; mixed-side integration is in progress |
+| Corollary 11 | Formalised for mixed-side Definition 19 histories |
 | Lemmas 12-13 | Formalised |
 | Lemma 14(i)-(iii) and most of Lemma 14(iv) | Formalised |
 | Unconditional manuscript-level Lemma 14 | Not yet closed |
@@ -52,16 +52,13 @@ obstruction-search argument in Lemma 14.
 
 The remaining critical path for Lemma 14 is:
 
-1. complete Corollary 11 for a literal history mixing both Definition 19 path
-   sides;
-2. construct that mixed-side history from the concrete obstruction-search
-   loop;
-3. prove the terminal containment statement
+1. construct the mixed-side history from the concrete obstruction-search loop;
+2. prove the terminal containment statement
    `P ∩ C_b ⊆ C_j^(m)` without excluding legitimate opposite-side overlaps;
-4. derive the remaining terminal propagation data from the two initialized
+3. derive the remaining terminal propagation data from the two initialized
    executions;
-5. remove the terminal-analysis certificate boundary and expose the exact
-   four conclusions of manuscript Lemma 14.
+4. remove the terminal-analysis certificate boundary and expose the exact four
+   conclusions of manuscript Lemma 14.
 
 After Lemma 14, the search-update argument, the unobstructed-palindromic step,
 and the final pairwise commutator cancellation remain before Theorem 1(iii) is

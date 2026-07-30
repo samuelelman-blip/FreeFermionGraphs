@@ -40,17 +40,10 @@ theorem earlierFirstIntroduced_mem_currentInitial_of_mixedSideHistory
   let v : V :=
     (A.deformation.step A.firstIndex).introduced
   let last : Nat := X.priorCount - 1
-  have hlastLt : last < X.priorCount := by
-    dsimp [last]
-    have hpos := X.priorCount_pos
-    omega
   have hrLast : r ≤ last := by
     dsimp [last]
     have hpos := X.priorCount_pos
     omega
-  have hvPath : v ∈ Set.range A.path.vertex := by
-    rw [← A.activePath_eq A.firstIndex]
-    exact (A.deformation.step A.firstIndex).introduced_mem_activePath
   have hvFinal : v ∈ Set.range A.finalHole.vertex := by
     exact A.introduced_mem_finalHole
       (X.history.carrier.pathOrder r) A.firstIndex

@@ -81,8 +81,16 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
   have hside : X.history.side r = X.currentSide :=
     X.priorSide_eq_currentSide_of_sharedDependentAnticommutingWitness
       r hshared
-  cases hside
   let C : IndexedInducedHole G := X.originalHole
+  let A : ConcretePathDeformation (X.currentSide.family O) Cprime :=
+    (X.history.carrier.block r).reorient X.currentSide
+  have hPriorData : A.FullDefinition19Lemma11AData := by
+    have hData :
+        ((X.history.carrier.block r).reorient
+          X.currentSide).FullDefinition19Lemma11AData := by
+      rw [← hside]
+      exact X.history.localData r
+    simpa [A] using hData
   have hEvenCarrier :
       Even (X.history.carrier.block 0).initialHole.card := by
     apply even_initialHole_of_reorient
@@ -121,15 +129,15 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
     exact mem_oriented_colors_of_mem_original_colors
       X.currentSide (hcarrierOriginal hx)
   have hpathNe :
-      Set.range (X.history.orientedBlock r).path.vertex ≠
+      Set.range A.path.vertex ≠
         Set.range X.orientedCurrent.path.vertex := by
-    simpa only [X.history.orientedBlock_path r,
+    simpa only [A, ConcretePathDeformation.reorient_path,
       X.orientedCurrent_path] using X.priorPath_ne_current r hr
   have hcommonPrior :
-      (X.currentSide.family O).BaseCommonNeighborOn
-        (X.history.orientedBlock r) C := by
-    simpa [C] using
-      D.priorBaseCommonNeighborOn_of_mixedSideHistory X hclaw r
+      (X.currentSide.family O).BaseCommonNeighborOn A C := by
+    have hRaw := D.priorBaseCommonNeighborOn_of_mixedSideHistory X hclaw r
+    rw [← hside]
+    simpa [A, C, MixedSidePathBlockHistory.orientedBlock] using hRaw
   have hcommonCurrent :
       (X.currentSide.family O).BaseCommonNeighborOn
         X.orientedCurrent C := by
@@ -137,22 +145,20 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
       D.currentBaseCommonNeighborOn_of_mixedSideHistory X hclaw
   have hno :
       ¬SharedDependentAnticommutingWitness
-        (X.history.orientedBlock r).path X.orientedCurrent.path
-        (X.history.orientedBlock r).dependentAt
-        X.orientedCurrent.dependentAt :=
+        A.path X.orientedCurrent.path
+        A.dependentAt X.orientedCurrent.dependentAt :=
     noSharedDependentAnticommutingWitness_of_concreteBlocks
-      (X.history.orientedBlock r) X.orientedCurrent
-      (X.history.localData r) X.current C hclaw hEven hcarrier
+      A X.orientedCurrent hPriorData X.current C hclaw hEven hcarrier
       hpathNe hcommonPrior hcommonCurrent
   apply hno
   rcases hshared with
     ⟨u, s, t, huPrior, huCurrent, hantiPrior, hantiCurrent⟩
   refine ⟨u, s, t, ?_, ?_, ?_, ?_⟩
-  · rw [X.history.orientedBlock_dependentAt r s]
+  · rw [A, ConcretePathDeformation.reorient_dependentAt]
     exact huPrior
   · rw [X.orientedCurrent_dependentAt t]
     exact huCurrent
-  · simpa only [X.history.orientedBlock_path r] using hantiPrior
+  · simpa only [A, ConcretePathDeformation.reorient_path] using hantiPrior
   · simpa only [X.orientedCurrent_path] using hantiCurrent
 
 end MixedSideFullDefinition19Lemma11AHistoryData

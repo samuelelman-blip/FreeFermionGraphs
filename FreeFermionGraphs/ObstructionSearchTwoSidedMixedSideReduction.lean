@@ -110,15 +110,15 @@ theorem priorSide_eq_currentSide_of_sharedDependentVertex
         u ∉ ((X.history.side r).family O).Cd := by
     intro huCc
     exact
-      ((X.history.localData r).neighborhood.overlapColoring
-        .not_mem_ca_cd_of_mem_cc huPriorPrime huCc).2
+      ((X.history.localData r).neighborhood.overlapColoring.not_mem_ca_cd_of_mem_cc
+        huPriorPrime huCc).2
   have hnotCurrent :
       u ∈ (X.currentSide.family O).Cc →
         u ∉ (X.currentSide.family O).Cd := by
     intro huCc
     exact
-      (X.current.neighborhood.overlapColoring
-        .not_mem_ca_cd_of_mem_cc huCurrentPrime huCc).2
+      (X.current.neighborhood.overlapColoring.not_mem_ca_cd_of_mem_cc
+        huCurrentPrime huCc).2
   exact side_eq_of_oriented_cd
     (X.history.side r) X.currentSide
     huPriorCd huCurrentCd hnotPrior hnotCurrent

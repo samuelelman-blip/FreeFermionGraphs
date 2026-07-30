@@ -64,6 +64,19 @@ private theorem mem_oriented_colors_of_mem_original_colors
   | bd =>
       simpa [DeformationSide.family, swapSides, Set.union_comm] using hx
 
+/-- Transport a common-neighbour certificate between equal side tags without
+rewriting through a larger dependent history record. -/
+private theorem baseCommonNeighborOn_reorient_of_side_eq
+    (A : ConcretePathDeformation O Cprime)
+    (C : IndexedInducedHole G)
+    (sideA sideB : DeformationSide)
+    (hside : sideA = sideB)
+    (hcommon : (sideA.family O).BaseCommonNeighborOn
+      (A.reorient sideA) C) :
+    (sideB.family O).BaseCommonNeighborOn (A.reorient sideB) C := by
+  subst sideB
+  exact hcommon
+
 namespace MixedSideFullDefinition19Lemma11AHistoryData
 
 variable {D : ConcretePathDeformation O Cprime}
@@ -136,8 +149,10 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
   have hcommonPrior :
       (X.currentSide.family O).BaseCommonNeighborOn A C := by
     have hRaw := D.priorBaseCommonNeighborOn_of_mixedSideHistory X hclaw r
-    rw [← hside]
-    simpa [A, C, MixedSidePathBlockHistory.orientedBlock] using hRaw
+    have hTransported := baseCommonNeighborOn_reorient_of_side_eq
+      (X.history.carrier.block r) X.originalHole
+      (X.history.side r) X.currentSide hside hRaw
+    simpa [A, C] using hTransported
   have hcommonCurrent :
       (X.currentSide.family O).BaseCommonNeighborOn
         X.orientedCurrent C := by
@@ -154,7 +169,9 @@ theorem noSharedDependentAnticommutingWitness_of_mixedSideHistory
   rcases hshared with
     ⟨u, s, t, huPrior, huCurrent, hantiPrior, hantiCurrent⟩
   refine ⟨u, s, t, ?_, ?_, ?_, ?_⟩
-  · rw [A, ConcretePathDeformation.reorient_dependentAt]
+  · change u ∈
+      ((X.history.carrier.block r).reorient X.currentSide).dependentAt s
+    rw [(X.history.carrier.block r).reorient_dependentAt X.currentSide s]
     exact huPrior
   · rw [X.orientedCurrent_dependentAt t]
     exact huCurrent

@@ -102,9 +102,10 @@ theorem lemma11aii_degree_iff
         D.initialHole.externalDegree u = 3
       omega
   | later H =>
-      simpa [originalHole] using
-        H.lemma11aii_degree_iff_of_mixedSideHistory
-          hclaw hu huPrime hanti
+      change D.finalHole.externalDegree u = 4 ↔
+        (H.history.carrier.block 0).initialHole.externalDegree u = 3
+      exact H.lemma11aii_degree_iff_of_mixedSideHistory
+        hclaw hu huPrime hanti
 
 end MixedSideLemma11AHistoryContext
 

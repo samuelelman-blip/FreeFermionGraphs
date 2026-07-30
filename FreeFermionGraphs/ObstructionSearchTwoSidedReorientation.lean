@@ -156,11 +156,29 @@ def reorient
     (D.reorient side).initialHole = D.initialHole := by
   cases side <;> rfl
 
+/-- Reorientation preserves the initial-hole vertex set without exposing the
+dependent `Fin` index type. -/
+@[simp] theorem reorient_initialHole_range
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide) :
+    Set.range (D.reorient side).initialHole.vertex =
+      Set.range D.initialHole.vertex := by
+  cases side <;> rfl
+
 /-- Reorientation preserves the final hole carrier of a path block. -/
 @[simp] theorem reorient_finalHole
     (D : ConcretePathDeformation O Cprime)
     (side : DeformationSide) :
     (D.reorient side).finalHole = D.finalHole := by
+  cases side <;> rfl
+
+/-- Reorientation preserves the final-hole vertex set without exposing the
+dependent `Fin` index type. -/
+@[simp] theorem reorient_finalHole_range
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide) :
+    Set.range (D.reorient side).finalHole.vertex =
+      Set.range D.finalHole.vertex := by
   cases side <;> rfl
 
 /-- Reorientation preserves the introduced vertex at every concrete step. -/

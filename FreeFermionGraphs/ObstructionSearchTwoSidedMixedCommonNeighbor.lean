@@ -42,12 +42,16 @@ theorem priorBaseCommonNeighborOn_of_mixedSideHistory
   obtain ⟨v, hvInitial, _hvFinal, huv, hjv, hkv, hvCb, hvNotPrime⟩ :=
     A.lemma11ai_commonNeighbor_currentBlock
       (X.history.localData r) hclaw hu
+  have hvCarrierInitial :
+      v ∈ Set.range (X.history.carrier.block r).initialHole.vertex := by
+    rw [← (X.history.carrier.block r).reorient_initialHole_range
+      (X.history.side r)]
+    simpa only [A, MixedSidePathBlockHistory.orientedBlock] using hvInitial
   have hvOriginal : v ∈ Set.range X.originalHole.vertex := by
     by_cases hr : r = 0
     · subst r
-      simpa [A,
-        MixedSideFullDefinition19Lemma11AHistoryData.originalHole,
-        MixedSidePathBlockHistory.orientedBlock] using hvInitial
+      simpa [MixedSideFullDefinition19Lemma11AHistoryData.originalHole] using
+        hvCarrierInitial
     · have hrPos : 0 < r := Nat.pos_of_ne_zero hr
       have hvPreviousFinal :
           v ∈ Set.range
@@ -55,7 +59,7 @@ theorem priorBaseCommonNeighborOn_of_mixedSideHistory
         rw [X.history.carrier.chain (r - 1)]
         have hrEq : r - 1 + 1 = r := by omega
         rw [hrEq]
-        simpa [A, MixedSidePathBlockHistory.orientedBlock] using hvInitial
+        exact hvCarrierInitial
       have hvFirst :
           v ∈ Set.range
             (X.history.carrier.block 0).initialHole.vertex :=
@@ -86,14 +90,18 @@ theorem currentBaseCommonNeighborOn_of_mixedSideHistory
   obtain ⟨v, hvCurrentInitial, _hvFinal, huv, hjv, hkv,
       hvCb, hvNotPrime⟩ :=
     A.lemma11ai_commonNeighbor_currentBlock X.current hclaw hu
+  have hvCarrierCurrentInitial :
+      v ∈ Set.range D.initialHole.vertex := by
+    rw [← D.reorient_initialHole_range X.currentSide]
+    simpa only [A,
+      MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
+      hvCurrentInitial
   let last : Nat := X.priorCount - 1
   have hvLast :
       v ∈ Set.range
         (X.history.carrier.block last).finalHole.vertex := by
     rw [X.final_before_current]
-    simpa [A,
-      MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
-      hvCurrentInitial
+    exact hvCarrierCurrentInitial
   have hvFirst :
       v ∈ Set.range
         (X.history.carrier.block 0).initialHole.vertex :=

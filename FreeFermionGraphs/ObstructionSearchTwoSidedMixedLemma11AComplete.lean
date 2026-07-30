@@ -237,9 +237,9 @@ theorem lemma11aii_degree_iff_of_mixedSideHistory
     have horiginalOdd :
         (X.history.carrier.block 0).initialHole.externalDegree u % 2 = 1 := by
       rw [← hhistory, hlink, hcurrentThree]
-    exact
-      (X.history.carrier.block 0).initialHole.externalDegree_eq_three_of_even_and_odd_any
-        hclaw horiginalEven horiginalOdd
+    let C0 := (X.history.carrier.block 0).initialHole
+    exact C0.externalDegree_eq_three_of_even_and_odd_any
+      hclaw horiginalEven horiginalOdd
   · intro horiginalThree
     have hcurrentOdd : D.initialHole.externalDegree u % 2 = 1 := by
       rw [← hlink, hhistory, horiginalThree]

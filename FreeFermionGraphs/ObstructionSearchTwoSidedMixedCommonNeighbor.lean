@@ -46,8 +46,8 @@ theorem priorBaseCommonNeighborOn_of_mixedSideHistory
     by_cases hr : r = 0
     · subst r
       simpa [A,
-        MixedSideFullDefinition19Lemma11AHistoryData.originalHole] using
-        hvInitial
+        MixedSideFullDefinition19Lemma11AHistoryData.originalHole,
+        MixedSidePathBlockHistory.orientedBlock] using hvInitial
     · have hrPos : 0 < r := Nat.pos_of_ne_zero hr
       have hvPreviousFinal :
           v ∈ Set.range
@@ -64,7 +64,7 @@ theorem priorBaseCommonNeighborOn_of_mixedSideHistory
             intro q _hq j hEq
             apply hvNotPrime
             rw [hEq]
-            exact
+            simpa using
               (X.history.localData q).neighborhood.primeHole.introduced_mem j)
       simpa [MixedSideFullDefinition19Lemma11AHistoryData.originalHole] using
         hvFirst
@@ -101,7 +101,8 @@ theorem currentBaseCommonNeighborOn_of_mixedSideHistory
       intro r _hr j hEq
       apply hvNotPrime
       rw [hEq]
-      exact (X.history.localData r).neighborhood.primeHole.introduced_mem j)
+      simpa using
+        (X.history.localData r).neighborhood.primeHole.introduced_mem j)
   have hvOriginal : v ∈ Set.range X.originalHole.vertex := by
     simpa [MixedSideFullDefinition19Lemma11AHistoryData.originalHole] using
       hvFirst

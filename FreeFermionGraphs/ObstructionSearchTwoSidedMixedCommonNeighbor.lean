@@ -27,6 +27,17 @@ variable {G : SimpleGraph V}
 
 namespace ConcretePathDeformation
 
+/-- Reorientation changes only the family presentation, so membership in the
+initial hole transports back to the literal carrier block.  Splitting on an
+independent side argument avoids dependent `Fin` transports in later proofs. -/
+private theorem mem_initialHole_of_mem_reorient_initialHole
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide)
+    {v : V}
+    (hv : v ∈ Set.range (D.reorient side).initialHole.vertex) :
+    v ∈ Set.range D.initialHole.vertex := by
+  cases side <;> exact hv
+
 /-- The base-step common neighbour of an earlier mixed-side block belongs to
     the first hole of the literal carrier history.  Its colour is stated in
     that block's selected orientation. -/
@@ -42,11 +53,15 @@ theorem priorBaseCommonNeighborOn_of_mixedSideHistory
   obtain ⟨v, hvInitial, _hvFinal, huv, hjv, hkv, hvCb, hvNotPrime⟩ :=
     A.lemma11ai_commonNeighbor_currentBlock
       (X.history.localData r) hclaw hu
-  have hvCarrierInitial :
-      v ∈ Set.range (X.history.carrier.block r).initialHole.vertex := by
-    rw [← (X.history.carrier.block r).reorient_initialHole_range
-      (X.history.side r)]
+  have hvOrientedInitial :
+      v ∈ Set.range
+        ((X.history.carrier.block r).reorient
+          (X.history.side r)).initialHole.vertex := by
     simpa only [A, MixedSidePathBlockHistory.orientedBlock] using hvInitial
+  have hvCarrierInitial :
+      v ∈ Set.range (X.history.carrier.block r).initialHole.vertex :=
+    mem_initialHole_of_mem_reorient_initialHole
+      (X.history.carrier.block r) (X.history.side r) hvOrientedInitial
   have hvOriginal : v ∈ Set.range X.originalHole.vertex := by
     by_cases hr : r = 0
     · subst r
@@ -90,12 +105,14 @@ theorem currentBaseCommonNeighborOn_of_mixedSideHistory
   obtain ⟨v, hvCurrentInitial, _hvFinal, huv, hjv, hkv,
       hvCb, hvNotPrime⟩ :=
     A.lemma11ai_commonNeighbor_currentBlock X.current hclaw hu
-  have hvCarrierCurrentInitial :
-      v ∈ Set.range D.initialHole.vertex := by
-    rw [← D.reorient_initialHole_range X.currentSide]
+  have hvOrientedCurrentInitial :
+      v ∈ Set.range (D.reorient X.currentSide).initialHole.vertex := by
     simpa only [A,
       MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
       hvCurrentInitial
+  have hvCarrierCurrentInitial : v ∈ Set.range D.initialHole.vertex :=
+    mem_initialHole_of_mem_reorient_initialHole
+      D X.currentSide hvOrientedCurrentInitial
   let last : Nat := X.priorCount - 1
   have hvLast :
       v ∈ Set.range

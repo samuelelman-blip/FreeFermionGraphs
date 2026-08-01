@@ -250,9 +250,18 @@ def snoc
   block := X.snocBlock D
   side := X.snocSide newSide
   localData := Fin.lastCases
-    (by simpa [snocBlock, snocSide] using F)
+    (by
+      have hb := X.snocBlock_last D
+      cases hb
+      have hs := X.snocSide_last newSide
+      cases hs
+      exact F)
     (fun old => by
-      simpa [snocBlock, snocSide] using X.localData old)
+      have hb := X.snocBlock_castSucc D old
+      cases hb
+      have hs := X.snocSide_castSucc newSide old
+      cases hs
+      exact X.localData old)
   chain := by
     intro i j hij
     exact Fin.lastCases
@@ -300,9 +309,16 @@ def snoc
         ((X.snocBlock D i).deformation.step s).before.vertex
             ((X.snocBlock D i).deformation.step s).removedIndex ∈
           Set.range originalHole.vertex)
-      (by simpa [snocBlock] using hRemoved)
+      (by
+        intro s
+        have hb := X.snocBlock_last D
+        cases hb
+        exact hRemoved s)
       (fun old => by
-        simpa [snocBlock] using X.removed_mem_original old)
+        intro s
+        have hb := X.snocBlock_castSucc D old
+        cases hb
+        exact X.removed_mem_original old s)
       i
   path_pairwise := by
     intro i j hij
@@ -359,13 +375,16 @@ def snoc
             (X.snocStepIndex D newSide F hchain i s) =
           (X.snocBlock D i).deformation.step s)
       (by
-        simpa [snocBlock, snocStepIndex, snocFlattened] using
-          (fun s : Fin D.deformation.stepCount =>
-            FullDefinition19Deformation.concat_deformation_step_right
-              X.flattened (D.toFullDefinition19Deformation newSide F)
-              (X.snoc_flattened_boundary D newSide F hchain) s))
+        intro s
+        have hb := X.snocBlock_last D
+        cases hb
+        simp [snocStepIndex, snocFlattened,
+          FullDefinition19Deformation.concat_deformation_step_right])
       (fun old => by
-        simpa [snocBlock, snocStepIndex, snocFlattened] using X.step_eq old)
+        intro s
+        have hb := X.snocBlock_castSucc D old
+        cases hb
+        simpa [snocStepIndex, snocFlattened, Fin.cast] using X.step_eq old s)
       i
   stepIndex_surjective := by
     intro k
@@ -377,7 +396,7 @@ def snoc
         simpa [newI] using s
       refine ⟨newI, newS, ?_⟩
       apply Fin.ext
-      simpa [snocStepIndex, snocOldBlockIndex, snocBlock, newI, newS,
+      simpa [snocStepIndex, snocOldBlockIndex, newI, newS, Fin.cast,
         ConcreteDeformation.concatLeftIndex] using congrArg Fin.val his
     · have hkLt := k.isLt
       change k.val < X.flattened.deformation.stepCount +
@@ -389,7 +408,7 @@ def snoc
         simpa using s
       refine ⟨X.snocNewBlockIndex, newS, ?_⟩
       apply Fin.ext
-      simp [snocStepIndex, snocNewBlockIndex, snocBlock, newS,
+      simp [snocStepIndex, snocNewBlockIndex, newS, Fin.cast,
         ConcreteDeformation.concatRightIndex]
       dsimp [s, newS]
       omega

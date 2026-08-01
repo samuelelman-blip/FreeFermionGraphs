@@ -148,6 +148,21 @@ than the named `snocOldBlockIndex` wrapper. -/
     X.snocSide newSide X.snocNewBlockIndex = newSide := by
   simpa [snocNewBlockIndex] using X.snocSide_last newSide
 
+/-- Transporting a local step along equality of path blocks preserves the
+underlying concrete deformation step. -/
+private theorem deformation_step_cast_eq
+    {A B : ConcretePathDeformation O Cprime}
+    (h : A = B)
+    (s : Fin A.deformation.stepCount) :
+    B.deformation.step
+        (Fin.cast
+          (congrArg (fun E : ConcretePathDeformation O Cprime =>
+            E.deformation.stepCount) h)
+          s) =
+      A.deformation.step s := by
+  cases h
+  rfl
+
 /-- The block chain supplies the terminal boundary for flattened
 concatenation. -/
 theorem snoc_flattened_boundary
@@ -367,14 +382,42 @@ def snoc
             (X.snocStepIndex D newSide F hchain i s) =
           (X.snocBlock D i).deformation.step s)
       (by
-        rw [snocBlock_last]
         intro s
-        simp [snocStepIndex, snocFlattened,
-          FullDefinition19Deformation.concat_deformation_step_right])
+        let hLast : X.snocBlock D (Fin.last X.blockCount) = D :=
+          X.snocBlock_last D
+        let sD : Fin D.deformation.stepCount :=
+          Fin.cast
+            (congrArg (fun E : ConcretePathDeformation O Cprime =>
+              E.deformation.stepCount) hLast)
+            s
+        calc
+          (X.snocFlattened D newSide F hchain).deformation.step
+                (X.snocStepIndex D newSide F hchain
+                  (Fin.last X.blockCount) s) =
+              D.deformation.step sD := by
+            simp [snocStepIndex, snocFlattened, sD, Fin.cast,
+              FullDefinition19Deformation.concat_deformation_step_right]
+          _ = (X.snocBlock D (Fin.last X.blockCount)).deformation.step s :=
+            deformation_step_cast_eq hLast s)
       (fun old => by
-        rw [snocBlock_castSucc]
         intro s
-        simpa [snocStepIndex, snocFlattened, Fin.cast] using X.step_eq old s)
+        let hOld : X.snocBlock D (Fin.castSucc old) = X.block old :=
+          X.snocBlock_castSucc D old
+        let sOld : Fin (X.block old).deformation.stepCount :=
+          Fin.cast
+            (congrArg (fun E : ConcretePathDeformation O Cprime =>
+              E.deformation.stepCount) hOld)
+            s
+        calc
+          (X.snocFlattened D newSide F hchain).deformation.step
+                (X.snocStepIndex D newSide F hchain
+                  (Fin.castSucc old) s) =
+              X.flattened.deformation.step (X.stepIndex old sOld) := by
+            simp [snocStepIndex, snocFlattened, sOld, Fin.cast,
+              FullDefinition19Deformation.concat_deformation_step_left]
+          _ = (X.block old).deformation.step sOld := X.step_eq old sOld
+          _ = (X.snocBlock D (Fin.castSucc old)).deformation.step s :=
+            deformation_step_cast_eq hOld s)
       i
   stepIndex_surjective := by
     intro k

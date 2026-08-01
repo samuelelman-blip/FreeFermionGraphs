@@ -28,6 +28,32 @@ variable {G : SimpleGraph V}
 
 namespace ConcretePathDeformation
 
+/-- Reorientation changes only the fixed-pairing presentation.  In particular,
+the removed vertex of a carrier step and all of its adjacencies are unchanged. -/
+private theorem removedAdj_of_reorient
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide)
+    (i : Fin D.deformation.stepCount)
+    {v : V}
+    (h : G.Adj
+      (((D.reorient side).deformation.step i).before.vertex
+        ((D.reorient side).deformation.step i).removedIndex) v) :
+    G.Adj
+      ((D.deformation.step i).before.vertex
+        (D.deformation.step i).removedIndex) v := by
+  cases side <;> exact h
+
+/-- Definition 20 dependent sets are carrier data and are unaffected by
+reorientation.  This pointwise form avoids dependent `Fin` elaboration. -/
+private theorem mem_reorient_step_dependentSet
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide)
+    (i : Fin D.deformation.stepCount)
+    {u : V}
+    (h : u ∈ (D.deformation.step i).dependentSet) :
+    u ∈ ((D.reorient side).deformation.step i).dependentSet := by
+  cases side <;> exact h
+
 namespace MixedSideFullDefinition19Lemma11AHistoryData
 
 variable {D : ConcretePathDeformation O Cprime}
@@ -128,9 +154,8 @@ theorem currentCommonNeighborOnOriginal
   refine ⟨v, hvOriginal, huv, ?_, ?_, hvCb⟩
   · simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
       hjv
-  · simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent,
-      ConcretePathDeformation.reorient, ConcreteDeformation.reorient] using
-      hkv
+  · exact removedAdj_of_reorient D X.currentSide
+      ⟨s, D.index_lt_of_mem_dependentAt hu⟩ hkv
 
 /-- The clone centre forced by degree three lies in the current orientation's
 original `C_a` class.  This is the colour step at the end of the manuscript
@@ -198,9 +223,7 @@ theorem lemma11aii_exact_of_mixedSideHistory
       D.mem_step_dependentSet_of_mem_dependentAt hu
     have huiOriented :
         u ∈ (X.orientedCurrent.deformation.step i).dependentSet := by
-      simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent,
-        ConcretePathDeformation.reorient, ConcreteDeformation.reorient] using
-        huiCarrier
+      exact mem_reorient_step_dependentSet D X.currentSide i huiCarrier
     have huCd : u ∈ (X.currentSide.family O).Cd :=
       (X.orientedCurrent.deformation.step i).dependent_mem_cd
         (X.current.neighborhood.mechanical.stepGeometry i) huiOriented

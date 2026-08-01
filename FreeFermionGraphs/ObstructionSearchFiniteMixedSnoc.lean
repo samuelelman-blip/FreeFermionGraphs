@@ -90,31 +90,63 @@ def snocSide
     DeformationSide :=
   Fin.lastCases newSide (fun old => X.side old) i
 
+/-- Direct normalization of an old block at the `Fin.castSucc` index produced
+by `Fin.lastCases`.  Dependent motives expose this constructor index rather
+than the named `snocOldBlockIndex` wrapper. -/
+@[simp] theorem snocBlock_castSucc
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (D : ConcretePathDeformation O Cprime)
+    (i : Fin X.blockCount) :
+    X.snocBlock D (Fin.castSucc i) = X.block i := by
+  simp [snocBlock]
+
+/-- Direct normalization of the appended block at `Fin.last`. -/
+@[simp] theorem snocBlock_last
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (D : ConcretePathDeformation O Cprime) :
+    X.snocBlock D (Fin.last X.blockCount) = D := by
+  simp [snocBlock]
+
+/-- Direct normalization of an old side tag at `Fin.castSucc`. -/
+@[simp] theorem snocSide_castSucc
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (newSide : DeformationSide)
+    (i : Fin X.blockCount) :
+    X.snocSide newSide (Fin.castSucc i) = X.side i := by
+  simp [snocSide]
+
+/-- Direct normalization of the appended side tag at `Fin.last`. -/
+@[simp] theorem snocSide_last
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (newSide : DeformationSide) :
+    X.snocSide newSide (Fin.last X.blockCount) = newSide := by
+  simp [snocSide]
+
 @[simp] theorem snocBlock_old
     (X : FiniteMixedSideSearchTrace S originalHole)
     (D : ConcretePathDeformation O Cprime)
     (i : Fin X.blockCount) :
     X.snocBlock D (X.snocOldBlockIndex i) = X.block i := by
-  simp [snocBlock, snocOldBlockIndex]
+  simpa [snocOldBlockIndex] using X.snocBlock_castSucc D i
 
 @[simp] theorem snocBlock_new
     (X : FiniteMixedSideSearchTrace S originalHole)
     (D : ConcretePathDeformation O Cprime) :
     X.snocBlock D X.snocNewBlockIndex = D := by
-  simp [snocBlock, snocNewBlockIndex]
+  simpa [snocNewBlockIndex] using X.snocBlock_last D
 
 @[simp] theorem snocSide_old
     (X : FiniteMixedSideSearchTrace S originalHole)
     (newSide : DeformationSide)
     (i : Fin X.blockCount) :
     X.snocSide newSide (X.snocOldBlockIndex i) = X.side i := by
-  simp [snocSide, snocOldBlockIndex]
+  simpa [snocOldBlockIndex] using X.snocSide_castSucc newSide i
 
 @[simp] theorem snocSide_new
     (X : FiniteMixedSideSearchTrace S originalHole)
     (newSide : DeformationSide) :
     X.snocSide newSide X.snocNewBlockIndex = newSide := by
-  simp [snocSide, snocNewBlockIndex]
+  simpa [snocNewBlockIndex] using X.snocSide_last newSide
 
 /-- The block chain supplies the terminal boundary for flattened
 concatenation. -/
@@ -176,7 +208,7 @@ def snocStepIndex
   Fin.lastCases
     (fun s =>
       let newStep : Fin D.deformation.stepCount :=
-        Fin.cast (by rw [snocBlock_new]) s
+        Fin.cast (by rw [snocBlock_last]) s
       let fullStep : Fin
           (D.toFullDefinition19Deformation newSide F).deformation.stepCount :=
         Fin.cast (by rfl) newStep
@@ -185,7 +217,7 @@ def snocStepIndex
         fullStep)
     (fun old s =>
       let oldStep : Fin (X.block old).deformation.stepCount :=
-        Fin.cast (by rw [snocBlock_old]) s
+        Fin.cast (by rw [snocBlock_castSucc]) s
       X.flattened.deformation.concatLeftIndex
         (D.toFullDefinition19Deformation newSide F).deformation
         (X.stepIndex old oldStep))
@@ -218,9 +250,9 @@ def snoc
   block := X.snocBlock D
   side := X.snocSide newSide
   localData := Fin.lastCases
-    (by simpa only [snocBlock_new, snocSide_new] using F)
+    (by simpa only [snocBlock_last, snocSide_last] using F)
     (fun old => by
-      simpa only [snocBlock_old, snocSide_old] using X.localData old)
+      simpa only [snocBlock_castSucc, snocSide_castSucc] using X.localData old)
   chain := by
     intro i j hij
     exact Fin.lastCases
@@ -229,6 +261,7 @@ def snoc
           Set.range (X.snocBlock D j).initialHole.vertex)
       (by
         intro h
+        change X.blockCount + 1 = j.val at h
         have hjLt := j.isLt
         omega)
       (fun oldI => by
@@ -243,11 +276,11 @@ def snoc
               apply Fin.ext
               dsimp [lastBlockIndex] at holdLast ⊢
               omega
-            rw [snocBlock_old, snocBlock_new, hlast]
+            rw [snocBlock_castSucc, snocBlock_last, hlast]
             exact hchain)
           (fun oldJ => by
             intro hold
-            rw [snocBlock_old, snocBlock_old]
+            rw [snocBlock_castSucc, snocBlock_castSucc]
             exact X.chain hold)
           j h)
       i hij
@@ -269,11 +302,11 @@ def snoc
           Set.range originalHole.vertex)
       (by
         intro s
-        rw [snocBlock_new] at s ⊢
+        rw [snocBlock_last] at s ⊢
         exact hRemoved s)
       (fun old => by
         intro s
-        rw [snocBlock_old] at s ⊢
+        rw [snocBlock_castSucc] at s ⊢
         exact X.removed_mem_original old s)
       i
   path_pairwise := by
@@ -291,7 +324,7 @@ def snoc
           (by intro h; exact (h rfl).elim)
           (fun oldJ => by
             intro _h hEq
-            rw [snocBlock_new, snocBlock_old] at hEq
+            rw [snocBlock_last, snocBlock_castSucc] at hEq
             exact hFresh oldJ hEq.symm)
           j hne)
       (fun oldI => by
@@ -302,11 +335,11 @@ def snoc
               Set.range (X.snocBlock D j).path.vertex)
           (by
             intro _h
-            rw [snocBlock_old, snocBlock_new]
+            rw [snocBlock_castSucc, snocBlock_last]
             exact hFresh oldI)
           (fun oldJ => by
             intro hcast
-            rw [snocBlock_old, snocBlock_old]
+            rw [snocBlock_castSucc, snocBlock_castSucc]
             apply X.path_pairwise
             intro hold
             apply hcast
@@ -317,9 +350,9 @@ def snoc
   firstIntroduced_uniquePath := by
     intro i
     exact Fin.lastCases
-      (by rw [snocBlock_new]; exact hUnique)
+      (by rw [snocBlock_last]; exact hUnique)
       (fun old => by
-        rw [snocBlock_old]
+        rw [snocBlock_castSucc]
         exact X.firstIntroduced_uniquePath old)
       i
   stepIndex := X.snocStepIndex D newSide F hchain
@@ -332,12 +365,12 @@ def snoc
           (X.snocBlock D i).deformation.step s)
       (by
         intro s
-        rw [snocBlock_new] at s ⊢
+        rw [snocBlock_last] at s ⊢
         simp [snocStepIndex, snocFlattened,
           FullDefinition19Deformation.concat_deformation_step_right])
       (fun old => by
         intro s
-        rw [snocBlock_old] at s ⊢
+        rw [snocBlock_castSucc] at s ⊢
         simpa [snocStepIndex, snocFlattened] using X.step_eq old s)
       i
   stepIndex_surjective := by
@@ -388,7 +421,7 @@ def snoc
                 (X.snocStepIndex D newSide F hchain j t).val)
           (by
             intro s t horder
-            rw [snocBlock_new] at s t
+            rw [snocBlock_last] at s t
             simp [snocStepIndex, ConcreteDeformation.concatRightIndex]
             rcases horder with hij | ⟨_hij, hst⟩
             · omega
@@ -396,6 +429,8 @@ def snoc
           (fun oldJ => by
             intro s t horder
             exfalso
+            change X.blockCount < oldJ.val ∨
+              (X.blockCount = oldJ.val ∧ s.val < t.val) at horder
             have hJ := oldJ.isLt
             rcases horder with hij | ⟨hij, _hst⟩ <;> omega)
           j)
@@ -412,15 +447,15 @@ def snoc
                 (X.snocStepIndex D newSide F hchain j t).val)
           (by
             intro s t _horder
-            rw [snocBlock_old] at s
-            rw [snocBlock_new] at t
+            rw [snocBlock_castSucc] at s
+            rw [snocBlock_last] at t
             simp [snocStepIndex, ConcreteDeformation.concatLeftIndex,
               ConcreteDeformation.concatRightIndex]
             have hleft := (X.stepIndex oldI s).isLt
             omega)
           (fun oldJ => by
             intro s t horder
-            rw [snocBlock_old] at s t
+            rw [snocBlock_castSucc] at s t
             simp [snocStepIndex, ConcreteDeformation.concatLeftIndex]
             apply X.stepIndex_order
             exact horder)

@@ -1,5 +1,5 @@
-import FreeFermionGraphs.ObstructionSearchFiniteMixedCrossCorollary11
 import FreeFermionGraphs.ObstructionSearchFiniteMixedFirstCommon
+import FreeFermionGraphs.ObstructionSearchFiniteMixedOrderedContext
 
 /-!
 # Same-pairing disjointness for literal finite mixed-side executions
@@ -10,9 +10,8 @@ Corollary 11 theorem excludes that witness after recovering the exact
 zero-or-positive bounded context of each block.
 
 This yields the manuscript's same-pairing path-disjointness conclusion directly
-from the inductively generated finite `OS` executions.  Its dependent context
-view is constructed from the same literal empty/nonempty split.  No total `Nat`
-history, path ownership, or Lemma 14 conclusion is assumed.
+from the inductively generated finite `OS` executions.  No total `Nat` history,
+path ownership, or Lemma 14 conclusion is assumed.
 -/
 
 universe u
@@ -63,24 +62,6 @@ variable {I : ObstructionSearchInitialization families Cprime}
 
 namespace InitializationFiniteMixedSideOSExecutionData
 
-/-- Recover the exact finite Lemma 11 context of an ordered literal block.
-The empty execution case is impossible because its ordered block index is in
-`Fin 0`. -/
-def contextAt
-    (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) :
-    ∀ i : Fin (X.ordered source).blockCount,
-      ConcretePathDeformation.FiniteMixedSideLemma11AContext
-        ((X.ordered source).block i) X.originalHole := by
-  unfold ordered
-  cases hExec : X.execution source with
-  | empty hRun =>
-      intro i
-      exact Fin.elim0 i
-  | nonempty data =>
-      intro i
-      exact data.literal.trace.contextAt i
-
 /-- Distinct initialized searches of the same pairing type have disjoint
 output-path collections. -/
 theorem samePairing_paths_disjoint
@@ -100,7 +81,7 @@ theorem samePairing_paths_disjoint
     simpa [FiniteMixedSideOrderedOSExecution.path] using hqr
   exact
     (ConcretePathDeformation.FiniteMixedSideLemma11AContext.noSharedDependentAnticommutingWitness_of_pairing_eq
-      (X.contextAt source q) (X.contextAt source' r)
+      (X.orderedContextAt source q) (X.orderedContextAt source' r)
       hpair hclaw hpathNe) hshared
 
 /-- Choose the unique source of pairing type `p` whose finite output contains

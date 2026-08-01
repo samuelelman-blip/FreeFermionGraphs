@@ -146,7 +146,8 @@ def finiteHistoryAt
         X.priorIndex current ⟨0, hcurrent⟩ = X.firstIndex := by
       apply Fin.ext
       rfl
-    simpa [hindex] using X.originalHole_eq
+    rw [hindex]
+    exact X.originalHole_eq
   lastFinal_eq_current := by
     intro r hr
     exact X.chain

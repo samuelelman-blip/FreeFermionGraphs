@@ -148,6 +148,7 @@ def concat
       A.nonempty B.nonempty hchain
     nonempty := by
       change 0 < A.deformation.stepCount + B.deformation.stepCount
+      have hA := A.nonempty
       omega
     introduced_mem_prime := ?_
     removedPrime_hasSuccessor := ?_
@@ -185,18 +186,26 @@ def concat
         apply Fin.ext
         rfl
       rw [hkEq] at hkPrime ⊢
+      have hstepI := ConcreteDeformation.concat_step_left
+        A.deformation B.deformation A.nonempty B.nonempty hchain i
       have hiPrime :
           (A.deformation.step i).before.vertex
               (A.deformation.step i).removedIndex ∈ Cprime := by
-        simpa only [ConcreteDeformation.concat_step_left] using hkPrime
+        rw [hstepI] at hkPrime
+        exact hkPrime
       obtain ⟨j, hij, hadj, hne, hnonadj⟩ :=
         A.removedPrime_hasSuccessor i hiPrime
+      have hstepJ := ConcreteDeformation.concat_step_left
+        A.deformation B.deformation A.nonempty B.nonempty hchain j
       refine ⟨A.deformation.concatLeftIndex B.deformation j,
         ?_, ?_, ?_, ?_⟩
       · exact hij
-      · simpa only [ConcreteDeformation.concat_step_left] using hadj
-      · simpa only [ConcreteDeformation.concat_step_left] using hne
-      · simpa only [ConcreteDeformation.concat_step_left] using hnonadj
+      · rw [hstepI, hstepJ]
+        exact hadj
+      · rw [hstepI, hstepJ]
+        exact hne
+      · rw [hstepI, hstepJ]
+        exact hnonadj
     · let i : Fin B.deformation.stepCount :=
         ⟨k.val - A.deformation.stepCount, by
           have hkLt := k.isLt
@@ -210,19 +219,27 @@ def concat
           (k.val - A.deformation.stepCount)
         omega
       rw [hkEq] at hkPrime ⊢
+      have hstepI := ConcreteDeformation.concat_step_right
+        A.deformation B.deformation A.nonempty B.nonempty hchain i
       have hiPrime :
           (B.deformation.step i).before.vertex
               (B.deformation.step i).removedIndex ∈ Cprime := by
-        simpa only [ConcreteDeformation.concat_step_right] using hkPrime
+        rw [hstepI] at hkPrime
+        exact hkPrime
       obtain ⟨j, hij, hadj, hne, hnonadj⟩ :=
         B.removedPrime_hasSuccessor i hiPrime
+      have hstepJ := ConcreteDeformation.concat_step_right
+        A.deformation B.deformation A.nonempty B.nonempty hchain j
       refine ⟨A.deformation.concatRightIndex B.deformation j,
         ?_, ?_, ?_, ?_⟩
       · dsimp [ConcreteDeformation.concatRightIndex]
         omega
-      · simpa only [ConcreteDeformation.concat_step_right] using hadj
-      · simpa only [ConcreteDeformation.concat_step_right] using hne
-      · simpa only [ConcreteDeformation.concat_step_right] using hnonadj
+      · rw [hstepI, hstepJ]
+        exact hadj
+      · rw [hstepI, hstepJ]
+        exact hne
+      · rw [hstepI, hstepJ]
+        exact hnonadj
 
 /-- Search output obtained by concatenating two consecutive complete
 Definition 19 executions. -/

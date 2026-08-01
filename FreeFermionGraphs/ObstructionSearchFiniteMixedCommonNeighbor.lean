@@ -217,6 +217,8 @@ theorem priorSide_eq_currentSide_of_sharedDependentVertex
   have huCurrentPrime : u ∈ Cprime :=
     dependent_mem_prime_of_mem_dependentAt D huCurrent
   have huPriorOriented : u ∈ (H.orientedPrior r).dependentAt s := by
+    change u ∈
+      ((H.priorBlock r).reorient (H.priorSide r)).dependentAt s
     rw [(H.priorBlock r).reorient_dependentAt (H.priorSide r) s]
     exact huPrior
   have huCurrentOriented :

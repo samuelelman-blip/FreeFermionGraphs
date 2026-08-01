@@ -67,15 +67,17 @@ The empty execution case is impossible because its ordered block index is in
 `Fin 0`. -/
 def contextAt
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node)
-    (i : Fin (X.ordered source).blockCount) :
-    ConcretePathDeformation.FiniteMixedSideLemma11AContext
-      ((X.ordered source).block i) X.originalHole := by
+    (source : I.Node) :
+    ∀ i : Fin (X.ordered source).blockCount,
+      ConcretePathDeformation.FiniteMixedSideLemma11AContext
+        ((X.ordered source).block i) X.originalHole := by
   unfold ordered
   cases hExec : X.execution source with
   | empty hRun =>
+      intro i
       exact Fin.elim0 i
   | nonempty data =>
+      intro i
       exact data.literal.trace.contextAt i
 
 /-- Distinct initialized searches of the same pairing type have disjoint
@@ -96,10 +98,9 @@ theorem samePairing_paths_disjoint
         Set.range ((X.ordered source').block r).path.vertex := by
     simpa [FiniteMixedSideOrderedOSExecution.path] using hqr
   exact
-    (ConcretePathDeformation.FiniteMixedSideLemma11AContext.
-      noSharedDependentAnticommutingWitness_of_pairing_eq
-        (X.contextAt source q) (X.contextAt source' r)
-        hpair hclaw hpathNe) hshared
+    (ConcretePathDeformation.FiniteMixedSideLemma11AContext.noSharedDependentAnticommutingWitness_of_pairing_eq
+      (X.contextAt source q) (X.contextAt source' r)
+      hpair hclaw hpathNe) hshared
 
 /-- Choose the unique source of pairing type `p` whose finite output contains
 `P`, when such a source exists. -/

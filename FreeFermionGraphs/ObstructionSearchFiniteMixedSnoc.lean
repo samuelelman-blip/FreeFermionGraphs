@@ -382,10 +382,9 @@ def snoc
     · let oldK : Fin X.flattened.deformation.stepCount := ⟨k.val, hk⟩
       obtain ⟨i, s, his⟩ := X.stepIndex_surjective oldK
       let newI := X.snocOldBlockIndex i
-      refine ⟨newI, ?_⟩
-      rw [show X.snocBlock D newI = X.block i by
-        simpa [newI] using X.snocBlock_old D i]
-      refine ⟨s, ?_⟩
+      refine ⟨newI, Fin.cast ?_ s, ?_⟩
+      · rw [show X.snocBlock D newI = X.block i by
+          simpa [newI] using X.snocBlock_old D i]
       apply Fin.ext
       simpa [snocStepIndex, snocOldBlockIndex, newI, Fin.cast,
         ConcreteDeformation.concatLeftIndex] using congrArg Fin.val his
@@ -394,9 +393,8 @@ def snoc
         D.deformation.stepCount at hkLt
       let s : Fin D.deformation.stepCount :=
         ⟨k.val - X.flattened.deformation.stepCount, by omega⟩
-      refine ⟨X.snocNewBlockIndex, ?_⟩
-      rw [snocBlock_new]
-      refine ⟨s, ?_⟩
+      refine ⟨X.snocNewBlockIndex, Fin.cast ?_ s, ?_⟩
+      · rw [snocBlock_new]
       apply Fin.ext
       simp [snocStepIndex, snocNewBlockIndex, Fin.cast,
         ConcreteDeformation.concatRightIndex]

@@ -76,12 +76,15 @@ def concat
             (⟨j.val - A.stepCount, by omega⟩ : Fin B.stepCount) =
               ⟨0, hB⟩ := by
           apply Fin.ext
+          change j.val - A.stepCount = 0
           omega
         rw [hiEq, hjEq]
         exact hboundary
     · have hj : ¬j.val < A.stepCount := by omega
       rw [dif_neg hi, dif_neg hj]
       apply B.carrier_chain
+      change (i.val - A.stepCount) + 1 =
+        j.val - A.stepCount
       omega
 
 @[simp] theorem concat_step_left
@@ -95,7 +98,11 @@ def concat
     (i : Fin A.stepCount) :
     (A.concat B hA hB hboundary).step
         (A.concatLeftIndex B i) = A.step i := by
-  simp [concat, concatLeftIndex]
+  change (if hi : i.val < A.stepCount then
+      A.step ⟨i.val, hi⟩
+    else
+      B.step ⟨i.val - A.stepCount, by omega⟩) = A.step i
+  rw [dif_pos i.isLt]
 
 @[simp] theorem concat_step_right
     (A B : ConcreteDeformation O Cprime)
@@ -108,7 +115,15 @@ def concat
     (i : Fin B.stepCount) :
     (A.concat B hA hB hboundary).step
         (A.concatRightIndex B i) = B.step i := by
-  simp [concat, concatRightIndex]
+  change (if hi : A.stepCount + i.val < A.stepCount then
+      A.step ⟨A.stepCount + i.val, hi⟩
+    else
+      B.step ⟨A.stepCount + i.val - A.stepCount, by omega⟩) =
+        B.step i
+  rw [dif_neg (by omega)]
+  congr 1
+  apply Fin.ext
+  simp
 
 end ConcreteDeformation
 
@@ -124,17 +139,15 @@ def concat
     FullDefinition19Deformation O Cprime := by
   have hchain :
       Set.range
-          (A.deformation.step
-            ⟨A.deformation.stepCount - 1, by omega⟩).after.vertex =
+          (A.deformation.step A.lastIndex).after.vertex =
         Set.range
           (B.deformation.step ⟨0, B.nonempty⟩).before.vertex := by
-    simpa [terminalHole, initialHole, lastIndex] using hboundary
-  let D := A.deformation.concat B.deformation
-    A.nonempty B.nonempty hchain
+    simpa [terminalHole, initialHole] using hboundary
   refine {
-    deformation := D
+    deformation := A.deformation.concat B.deformation
+      A.nonempty B.nonempty hchain
     nonempty := by
-      dsimp [D]
+      change 0 < A.deformation.stepCount + B.deformation.stepCount
       omega
     introduced_mem_prime := ?_
     removedPrime_hasSuccessor := ?_
@@ -147,21 +160,23 @@ def concat
         apply Fin.ext
         rfl
       rw [hkEq]
-      simpa [D] using A.introduced_mem_prime i
+      simpa only [ConcreteDeformation.concat_step_left] using
+        A.introduced_mem_prime i
     · let i : Fin B.deformation.stepCount :=
         ⟨k.val - A.deformation.stepCount, by
           have hkLt := k.isLt
-          dsimp [D] at hkLt
+          change k.val < A.deformation.stepCount +
+            B.deformation.stepCount at hkLt
           omega⟩
       have hkEq :
           k = A.deformation.concatRightIndex B.deformation i := by
         apply Fin.ext
-        dsimp [ConcreteDeformation.concatRightIndex, i]
-        have hkLt := k.isLt
-        dsimp [D] at hkLt
+        change k.val = A.deformation.stepCount +
+          (k.val - A.deformation.stepCount)
         omega
       rw [hkEq]
-      simpa [D] using B.introduced_mem_prime i
+      simpa only [ConcreteDeformation.concat_step_right] using
+        B.introduced_mem_prime i
   · intro k hkPrime
     by_cases hk : k.val < A.deformation.stepCount
     · let i : Fin A.deformation.stepCount := ⟨k.val, hk⟩
@@ -173,41 +188,41 @@ def concat
       have hiPrime :
           (A.deformation.step i).before.vertex
               (A.deformation.step i).removedIndex ∈ Cprime := by
-        simpa [D] using hkPrime
+        simpa only [ConcreteDeformation.concat_step_left] using hkPrime
       obtain ⟨j, hij, hadj, hne, hnonadj⟩ :=
         A.removedPrime_hasSuccessor i hiPrime
       refine ⟨A.deformation.concatLeftIndex B.deformation j,
         ?_, ?_, ?_, ?_⟩
       · exact hij
-      · simpa [D] using hadj
-      · simpa [D] using hne
-      · simpa [D] using hnonadj
+      · simpa only [ConcreteDeformation.concat_step_left] using hadj
+      · simpa only [ConcreteDeformation.concat_step_left] using hne
+      · simpa only [ConcreteDeformation.concat_step_left] using hnonadj
     · let i : Fin B.deformation.stepCount :=
         ⟨k.val - A.deformation.stepCount, by
           have hkLt := k.isLt
-          dsimp [D] at hkLt
+          change k.val < A.deformation.stepCount +
+            B.deformation.stepCount at hkLt
           omega⟩
       have hkEq :
           k = A.deformation.concatRightIndex B.deformation i := by
         apply Fin.ext
-        dsimp [ConcreteDeformation.concatRightIndex, i]
-        have hkLt := k.isLt
-        dsimp [D] at hkLt
+        change k.val = A.deformation.stepCount +
+          (k.val - A.deformation.stepCount)
         omega
       rw [hkEq] at hkPrime ⊢
       have hiPrime :
           (B.deformation.step i).before.vertex
               (B.deformation.step i).removedIndex ∈ Cprime := by
-        simpa [D] using hkPrime
+        simpa only [ConcreteDeformation.concat_step_right] using hkPrime
       obtain ⟨j, hij, hadj, hne, hnonadj⟩ :=
         B.removedPrime_hasSuccessor i hiPrime
       refine ⟨A.deformation.concatRightIndex B.deformation j,
         ?_, ?_, ?_, ?_⟩
       · dsimp [ConcreteDeformation.concatRightIndex]
         omega
-      · simpa [D] using hadj
-      · simpa [D] using hne
-      · simpa [D] using hnonadj
+      · simpa only [ConcreteDeformation.concat_step_right] using hadj
+      · simpa only [ConcreteDeformation.concat_step_right] using hne
+      · simpa only [ConcreteDeformation.concat_step_right] using hnonadj
 
 /-- Search output obtained by concatenating two consecutive complete
 Definition 19 executions. -/

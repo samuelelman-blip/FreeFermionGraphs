@@ -396,6 +396,7 @@ def snoc
                   (Fin.last X.blockCount) s) =
               D.deformation.step sD := by
             simp [snocStepIndex, snocFlattened, sD, Fin.cast,
+              toFullDefinition19Deformation,
               FullDefinition19Deformation.concat_deformation_step_right]
           _ = (X.snocBlock D (Fin.last X.blockCount)).deformation.step s :=
             deformation_step_cast_eq hLast s)

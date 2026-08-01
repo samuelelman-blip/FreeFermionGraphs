@@ -66,6 +66,10 @@ structure FiniteMixedSideSearchTrace
   path_pairwise : ∀ {i j : Fin blockCount}, i ≠ j →
     Set.range (block i).path.vertex ≠
       Set.range (block j).path.vertex
+  firstIntroduced_uniquePath : ∀ i : Fin blockCount,
+    O.IsUniqueContainingPath
+      ((block i).deformation.step (block i).firstIndex).introduced
+      (Set.range (block i).path.vertex)
   stepIndex : ∀ i : Fin blockCount,
     Fin (block i).deformation.stepCount →
       Fin flattened.deformation.stepCount

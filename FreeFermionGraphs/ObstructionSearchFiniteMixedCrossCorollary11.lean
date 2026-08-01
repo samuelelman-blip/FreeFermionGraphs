@@ -206,15 +206,17 @@ theorem baseCommonNeighborOn_originalHole
         rw [← hOriginal]
         exact hvCarrier
       refine ⟨v, hvOriginal, huv, ?_, ?_, hvCb⟩
-      · simpa [A, ConcretePathDeformation.firstIndex] using hjv
-      · simpa [A, ConcretePathDeformation.firstIndex] using hkv
+      · simpa [A, ConcretePathDeformation.firstIndex,
+          FiniteMixedSideLemma11AContext.side] using hjv
+      · simpa [A, ConcretePathDeformation.firstIndex,
+          FiniteMixedSideLemma11AContext.side] using hkv
   | later H =>
       exact H.currentBaseCommonNeighborOn hclaw
 
 /-- Every dependent vertex of the represented raw block belongs to the fixed
 prime-hole carrier. -/
 theorem dependent_mem_prime
-    (X : FiniteMixedSideLemma11AContext D originalHole)
+    (_X : FiniteMixedSideLemma11AContext D originalHole)
     {s : Nat} {u : V}
     (hu : u ∈ D.dependentAt s) :
     u ∈ Cprime := by

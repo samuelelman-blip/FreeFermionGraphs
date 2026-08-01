@@ -11,10 +11,13 @@ an integration boundary so that later refactors cannot silently change the
 hole stage, weaken a conclusion, or hide part of a manuscript lemma in an
 unqualified theorem name.
 
-At present Lemma 11(b) is exported from its literal Definition 19/20 data.
-Lemma 14 is exported only conditionally, because the long two-search terminal
-argument has not yet been constructed from the initialized executions.  There
-is deliberately no unconditional theorem named `paperLemma14` in this module.
+At present Lemma 11(b) is exported conditionally from the concrete history
+interface.  That interface still contains endpoint nonadjacency fields whose
+construction from literal Definition 19/20 data has not been integrated.
+Lemma 14 is likewise exported only conditionally, because the long two-search
+terminal argument has not yet been constructed from the initialized
+executions.  There are deliberately no unconditional theorems named
+`paperLemma11b` or `paperLemma14` in this module.
 -/
 
 universe u
@@ -43,13 +46,19 @@ def PaperLemma11BConclusion
     O.EarlierAnticommutingWitnessInUniqueBDPath
       D.dependentAt D.path.AnticommutesWith s u
 
-/-- Paper Lemma 11(b), with the final-hole stage made explicit.
+/-- Conditional bridge to Paper Lemma 11(b), with the final-hole stage made
+explicit.
 
 For `u ∈ U^(r,s)` commuting with the path operator, the manuscript concludes
 that `Delta_(C^(r))(u) = 4` and that an earlier dependent anticommuting vertex
-lies in the same fixed-pairing path component.
+lies in the same fixed-pairing path component.  The theorem name records the
+additional `Lemma11AHistoryContext` premise.  In particular, its nested
+`FullDefinition19NeighborhoodData` still carries
+`BaseOppositeEndpointNonadjacency`, so this result must not be exposed as an
+unconditional paper theorem until that field and the remaining path-history
+data are constructed from the manuscript deformation.
 -/
-theorem paperLemma11b
+theorem paperLemma11b_of_historyContext
     (D : ConcretePathDeformation O Cprime)
     (X : D.Lemma11AHistoryContext)
     (hclaw : G.IsClawFree)

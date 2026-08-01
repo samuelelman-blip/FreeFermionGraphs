@@ -26,21 +26,20 @@ variable {G : SimpleGraph V}
 
 namespace ConcretePathDeformation
 
-private theorem pathOrder_of_reorient
+private theorem parity_of_reoriented_commutes
     (A : ConcretePathDeformation O Cprime)
     (side : DeformationSide)
-    (L : Definition19GlobalOverlapPathOrder (A.reorient side)) :
-    Definition19GlobalOverlapPathOrder A := by
-  cases side <;> exact L
-
-private theorem pathCard_of_reorient
-    (A : ConcretePathDeformation O Cprime)
-    (side : DeformationSide)
-    (hcard :
-      (A.reorient side).path.card =
-        2 * (A.reorient side).deformation.stepCount) :
-    A.path.card = 2 * A.deformation.stepCount := by
-  cases side <;> exact hcard
+    (F : (A.reorient side).FullDefinition19Lemma11AData)
+    (u : V)
+    (hcomm : A.path.CommutesWith u) :
+    A.finalHole.externalDegree u % 2 =
+      A.initialHole.externalDegree u % 2 := by
+  have hcommOriented : (A.reorient side).path.CommutesWith u := by
+    simpa using hcomm
+  have hparity :=
+    (A.reorient side).finalDegree_mod_two_eq_initial_of_commutes
+      F.neighborhood.pathOrder F.path_card_eq u hcommOriented
+  cases side <;> exact hparity
 
 namespace FiniteMixedSideLemma11AHistoryData
 
@@ -101,35 +100,19 @@ theorem finalDegree_mod_two_eq_initial_of_commutes_through
   | zero =>
       let current : Fin H.priorCount := ⟨0, hn⟩
       have hdata := H.priorData current
-      have horder : Definition19GlobalOverlapPathOrder
-          (H.priorBlock current) :=
-        pathOrder_of_reorient (H.priorBlock current)
-          (H.priorSide current) hdata.neighborhood.pathOrder
-      have hcard :
-          (H.priorBlock current).path.card =
-            2 * (H.priorBlock current).deformation.stepCount :=
-        pathCard_of_reorient (H.priorBlock current)
-          (H.priorSide current) hdata.path_card_eq
       simpa [current] using
-        (H.priorBlock current).finalDegree_mod_two_eq_initial_of_commutes
-          horder hcard u (hcomm current (by omega))
+        parity_of_reoriented_commutes
+          (H.priorBlock current) (H.priorSide current) hdata u
+          (hcomm current (by simp [current]))
   | succ n ih =>
       have hnPrevious : n < H.priorCount := by omega
       let previous : Fin H.priorCount := ⟨n, hnPrevious⟩
       let current : Fin H.priorCount := ⟨n + 1, hn⟩
       have hdata := H.priorData current
-      have horder : Definition19GlobalOverlapPathOrder
-          (H.priorBlock current) :=
-        pathOrder_of_reorient (H.priorBlock current)
-          (H.priorSide current) hdata.neighborhood.pathOrder
-      have hcard :
-          (H.priorBlock current).path.card =
-            2 * (H.priorBlock current).deformation.stepCount :=
-        pathCard_of_reorient (H.priorBlock current)
-          (H.priorSide current) hdata.path_card_eq
       have hcurrent :=
-        (H.priorBlock current).finalDegree_mod_two_eq_initial_of_commutes
-          horder hcard u (hcomm current (by simp [current]))
+        parity_of_reoriented_commutes
+          (H.priorBlock current) (H.priorSide current) hdata u
+          (hcomm current (by simp [current]))
       have hmiddle :
           (H.priorBlock previous).finalHole.externalDegree u =
             (H.priorBlock current).initialHole.externalDegree u :=

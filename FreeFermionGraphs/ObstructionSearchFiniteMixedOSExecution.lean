@@ -132,7 +132,9 @@ theorem path_mem_selectedSide
     match X.side i with
     | .ac => X.path i ∈ (families (I.pairing source)).acPaths
     | .bd => X.path i ∈ (families (I.pairing source)).bdPaths := by
-  simpa [path] using X.literal.trace.path_mem_selectedSide i
+  rcases X.literal.trace.path_mem_selectedSide i with h | h
+  · simpa [path, h.1] using h.2
+  · simpa [path, h.1] using h.2
 
 /-- The stopping rule excludes every initializer other than `source` from
 every path actually appended by this execution. -/

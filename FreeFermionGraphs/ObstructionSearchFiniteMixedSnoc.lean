@@ -390,14 +390,25 @@ def snoc
             (congrArg (fun E : ConcretePathDeformation O Cprime =>
               E.deformation.stepCount) hLast)
             s
+        let sFull : Fin
+            (D.toFullDefinition19Deformation newSide F).deformation.stepCount :=
+          Fin.cast (by rfl) sD
+        have hConcat :=
+          FullDefinition19Deformation.concat_deformation_step_right
+            X.flattened
+            (D.toFullDefinition19Deformation newSide F)
+            (X.snoc_flattened_boundary D newSide F hchain)
+            sFull
         calc
           (X.snocFlattened D newSide F hchain).deformation.step
                 (X.snocStepIndex D newSide F hchain
                   (Fin.last X.blockCount) s) =
-              D.deformation.step sD := by
-            simp [snocStepIndex, snocFlattened, sD, Fin.cast,
-              toFullDefinition19Deformation,
-              FullDefinition19Deformation.concat_deformation_step_right]
+              (D.toFullDefinition19Deformation newSide F).deformation.step
+                sFull := by
+            simpa [snocStepIndex, snocFlattened, sD, sFull, Fin.cast] using
+              hConcat
+          _ = D.deformation.step sD := by
+            simp [sFull, toFullDefinition19Deformation, Fin.cast]
           _ = (X.snocBlock D (Fin.last X.blockCount)).deformation.step s :=
             deformation_step_cast_eq hLast s)
       (fun old => by

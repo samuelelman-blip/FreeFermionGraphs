@@ -26,6 +26,21 @@ namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
 
+namespace FiniteMixedSideOSExecution
+
+/-- Every actual index of one possibly empty execution carries the context of
+the corresponding literal trace block. -/
+def contextAt
+    {source : I.Node} {originalHole : IndexedInducedHole G} :
+    (X : FiniteMixedSideOSExecution I source originalHole) →
+    (i : Fin X.toOrdered.blockCount) →
+      ConcretePathDeformation.FiniteMixedSideLemma11AContext
+        (X.toOrdered.block i) originalHole
+  | .empty _, i => Fin.elim0 i
+  | .nonempty data, i => data.literal.trace.contextAt i
+
+end FiniteMixedSideOSExecution
+
 namespace InitializationFiniteMixedSideOSExecutionData
 
 /-- Every actual ordered block index recovers its literal zero-or-positive
@@ -35,17 +50,8 @@ def orderedContextAt
     (source : I.Node)
     (i : Fin (X.ordered source).blockCount) :
     ConcretePathDeformation.FiniteMixedSideLemma11AContext
-      ((X.ordered source).block i) X.originalHole := by
-  unfold ordered
-  cases h : X.execution source with
-  | empty hRun =>
-      have hi : False := by
-        have hiLt := i.isLt
-        simpa [h, FiniteMixedSideOSExecution.toOrdered] using hiLt
-      exact hi.elim
-  | nonempty data =>
-      simpa [h, FiniteMixedSideOSExecution.toOrdered] using
-        data.literal.trace.contextAt i
+      ((X.ordered source).block i) X.originalHole :=
+  (X.execution source).contextAt i
 
 end InitializationFiniteMixedSideOSExecutionData
 

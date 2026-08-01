@@ -47,11 +47,37 @@ path component.
 | `U^(r,s)` | `D.dependentAt s` | D | Audited |
 | `C^(r)` | `D.finalHole` | D, final hole of the concrete path block | Audited |
 | `Delta_(C^(r))(u)` | `D.finalHole.externalDegree u` | D | Audited |
-| earlier anticommuting vertex in same component | `EarlierAnticommutingWitnessInUniqueBDPath` | E from the completed Lemma 11(b) descent | Audited at integration level |
+| concrete Definition 19 history | `D.Lemma11AHistoryContext` | Mixed D/E/B: currently includes unconstructed endpoint fields and a legacy total `Nat` history | Not a final paper premise |
+| earlier anticommuting vertex in same component | `EarlierAnticommutingWitnessInUniqueBDPath` | E once the concrete history fields are derived from Definition 19 | Proved conditionally |
 
-`PaperFidelity.paperLemma11b` states the degree directly on `D.finalHole`, so
-a future change to the implementation abbreviation `finalDegree` cannot alter
-the public deformation stage silently.
+`PaperFidelity.paperLemma11b_of_historyContext` states the degree directly on
+`D.finalHole`, so a future change to the implementation abbreviation
+`finalDegree` cannot alter the public deformation stage silently. The theorem
+name also records that the current `Lemma11AHistoryContext` is an additional
+premise. In particular, `FullDefinition19NeighborhoodData` still contains
+`BaseOppositeEndpointNonadjacency`, and `FullDefinition19Lemma11AData` still
+contains `terminalAnticommutingNonadjacency`; neither has a repository-level
+constructor from the literal manuscript deformation. There is therefore no
+unconditional theorem named `paperLemma11b`.
+
+## Finite Definition 19 history
+
+The manuscript deformation is a finite sequence `(P^(r))_(r=0)^m`.
+`PathBlockHistory` instead stores `block : Nat → ConcretePathDeformation` and
+requires path-order, path-cardinality, and carrier-chain fields for every
+natural number. A separate `priorCount` bounds the later proofs, but it does
+not weaken those structure fields. The legacy interface is consequently
+stronger than Definition 19 and cannot be the final output of a terminating
+search loop.
+
+`FiniteMixedSideSearchTrace` is the replacement integration boundary. It has a
+positive finite `blockCount`, one `DeformationSide` per finite block, and a
+surjective order-preserving `stepIndex` into the flattened
+`SearchDeformation.run`. It also retains the original-hole label of every
+removed vertex. The theorem `output_path_iff` derives exact agreement between
+the finite block paths and the flattened output paths. Construction of this
+trace from a literal executable `OS` loop, followed by migration of the
+bounded Lemma 11 proofs, remains open.
 
 ## Lemma 14
 
@@ -108,18 +134,20 @@ vertices, the indexed path, and Definition 20 dependent sets.
 outside-hole fields; the colour-sensitive `SideMechanicalGeometry` remains an
 explicit local input for the literal `OS` construction.
 
-The positive history stored by `TwoSidedSearchPathHistoryWitness` is still a
-`FullDefinition19Lemma11AHistoryData` in one oriented family. The audit theorem
-`prior_path_mem_selectedSide` shows that every prior block in such a context is
-on the same selected side as the current block. Definition 19 permits the
-ordered deformation to contain both sides, so this homogeneous-side context
-cannot yet be the final history object for an arbitrary literal search trace.
-A mixed-side Lemma 11 history, or a proof that opposite-side blocks can be
-omitted from the relevant history argument, remains necessary.
+The positive history stored by the legacy
+`TwoSidedSearchPathHistoryWitness` is still a
+`FullDefinition19Lemma11AHistoryData` in one oriented family. The parallel
+`MixedSidePathBlockHistory` and
+`MixedSideFullDefinition19Lemma11AHistoryData` permit independent `ac` or `bd`
+tags and prove the mixed-side Lemma 11(a.ii) argument. They still inherit the
+total `Nat` carrier history, however. `ExactMixedSideSearchHistoryData` packages
+the exact per-output conclusion but explicitly does not construct its witness
+from `OS`. The new finite trace addresses the representation mismatch; the
+constructor and proof migration are the next steps.
 
 | Component | Provenance | Status |
 |---|---|---|
-| initialized ordered executions | D | Side-correct local and global execution interfaces formalized; mixed-side history construction from the concrete `OS` loop remains open |
+| initialized ordered executions | D | Side-correct local and global interfaces exist; the new finite mixed trace preserves exact flattened-step provenance, but construction from the concrete `OS` loop remains open |
 | final execution hole `C_j^(m)` | D from ordered block sequence, `manuscriptFinalHole` | Formalized, including the empty-execution case, on the old interface |
 | fixed-pairing output conclusion | E | Formalized |
 | obstruction arcs cross pairing types | E | Formalized |
@@ -144,7 +172,10 @@ omitted from the relevant history argument, remains necessary.
 | explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized for the current block; its positive context remains homogeneous-side |
 | carrier-level reorientation of concrete blocks | E from `swapSides_paths`; all carriers and dependent sets are preserved | Formalized |
 | side-correct mechanical reorientation | E from transported path labels and outside-hole facts plus explicit `SideMechanicalGeometry` | Formalized; side classification and local colour geometry still come from the concrete loop |
-| homogeneous-side restriction of the current positive history | E from `FullDefinition19Lemma11AHistoryData` and oriented `ACHoleStepGeometry` | Formalized as an audit guard; a literal mixed-side history is still missing |
+| homogeneous-side restriction of the legacy positive history | E from `FullDefinition19Lemma11AHistoryData` and oriented `ACHoleStepGeometry` | Formalized as an audit guard; the mixed interfaces supersede it, but neither old nor mixed `Nat` history is the final finite execution object |
+| mixed-side `Nat` history | D/E interface in `MixedSidePathBlockHistory` | Lemma 11(a.ii) and Corollary 11 are proved on supplied data, but the total infinite carrier obligation is stronger than the manuscript |
+| exact mixed-side output witness | D/E interface in `ExactMixedSideSearchHistoryData` | Packages the exact Lemma 11(a.ii) conclusion; does not construct the witness from `OS` |
+| finite mixed-side flattened trace | D interface in `FiniteMixedSideSearchTrace` | Formalized with exact output-path correspondence; literal `OS` constructor and migration of bounded proofs remain open |
 | side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
 | side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
 | shared dependent vertex forces equal component sides | E from Definition 20 prime membership, oriented `dependent_mem_cd`, and overlap-aware prime colour exclusion | Formalized |
@@ -190,6 +221,8 @@ named `paperLemma14`. The strongest current bridge is deliberately named
 - **Two-sided path check:** a fixed-pairing deformation may contain both
   `acPaths` and `bdPaths`; a history or execution interface restricted to one
   side cannot be used as the final construction of the manuscript search trace.
+- **Finiteness check:** a finite Definition 19 prefix must not require local or
+  carrier-chain data outside its declared block count.
 - **Boundary-case check:** empty deformations, first blocks, the initial-tether
   stopping branch, and later Definition 20 stopping must be covered explicitly.
 - **Dependency check:** a proof of Lemma 14 may use Lemmas 7–13, but it may not

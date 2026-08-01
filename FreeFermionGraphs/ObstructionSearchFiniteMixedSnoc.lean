@@ -65,24 +65,22 @@ def snocOldBlockIndex
     (X : FiniteMixedSideSearchTrace S originalHole)
     (i : Fin X.blockCount) :
     Fin (X.blockCount + 1) :=
-  ⟨i.val, by omega⟩
+  Fin.castSucc i
 
 /-- Index of the newly appended block. -/
 def snocNewBlockIndex
     (X : FiniteMixedSideSearchTrace S originalHole) :
     Fin (X.blockCount + 1) :=
-  ⟨X.blockCount, by omega⟩
+  Fin.last X.blockCount
 
-/-- Block family after appending `D`. -/
+/-- Block family after appending `D`, defined by the dependent last-element
+eliminator for `Fin (n + 1)`. -/
 def snocBlock
     (X : FiniteMixedSideSearchTrace S originalHole)
     (D : ConcretePathDeformation O Cprime)
     (i : Fin (X.blockCount + 1)) :
     ConcretePathDeformation O Cprime :=
-  if hi : i.val < X.blockCount then
-    X.block ⟨i.val, hi⟩
-  else
-    D
+  Fin.lastCases D (fun old => X.block old) i
 
 /-- Side tags after appending one block. -/
 def snocSide
@@ -90,10 +88,7 @@ def snocSide
     (newSide : DeformationSide)
     (i : Fin (X.blockCount + 1)) :
     DeformationSide :=
-  if hi : i.val < X.blockCount then
-    X.side ⟨i.val, hi⟩
-  else
-    newSide
+  Fin.lastCases newSide (fun old => X.side old) i
 
 @[simp] theorem snocBlock_old
     (X : FiniteMixedSideSearchTrace S originalHole)
@@ -175,31 +170,19 @@ def snocStepIndex
     (hchain :
       Set.range (X.block X.lastBlockIndex).finalHole.vertex =
         Set.range D.initialHole.vertex)
-    (i : Fin (X.blockCount + 1))
-    (s : Fin (X.snocBlock D i).deformation.stepCount) :
-    Fin (X.snocFlattened D newSide F hchain).deformation.stepCount := by
-  by_cases hi : i.val < X.blockCount
-  · let old : Fin X.blockCount := ⟨i.val, hi⟩
-    have hiEq : i = X.snocOldBlockIndex old := by
-      apply Fin.ext
-      rfl
-    subst i
-    let oldStep : Fin (X.block old).deformation.stepCount := by
-      simpa using s
-    exact X.flattened.deformation.concatLeftIndex
-      (D.toFullDefinition19Deformation newSide F).deformation
-      (X.stepIndex old oldStep)
-  · have hiVal : i.val = X.blockCount := by
-      have hiLt := i.isLt
-      omega
-    have hiEq : i = X.snocNewBlockIndex := by
-      apply Fin.ext
-      exact hiVal
-    subst i
-    let newStep : Fin D.deformation.stepCount := by
-      simpa using s
-    exact X.flattened.deformation.concatRightIndex
-      (D.toFullDefinition19Deformation newSide F).deformation newStep
+    (i : Fin (X.blockCount + 1)) :
+    Fin (X.snocBlock D i).deformation.stepCount →
+      Fin (X.snocFlattened D newSide F hchain).deformation.stepCount :=
+  Fin.lastCases
+    (fun s =>
+      X.flattened.deformation.concatRightIndex
+        (D.toFullDefinition19Deformation newSide F).deformation
+        (by simpa [snocBlock] using s))
+    (fun old s =>
+      X.flattened.deformation.concatLeftIndex
+        (D.toFullDefinition19Deformation newSide F).deformation
+        (X.stepIndex old (by simpa [snocBlock] using s)))
+    i
 
 /-- Append one literal Definition 19 path block to an existing finite trace. -/
 def snoc
@@ -229,172 +212,104 @@ def snoc
   side := X.snocSide newSide
   localData := by
     intro i
-    by_cases hi : i.val < X.blockCount
-    · let old : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex old := by
-        apply Fin.ext
-        rfl
-      subst i
-      simpa using X.localData old
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
-      simpa using F
+    refine Fin.lastCases ?_ ?_ i
+    · simpa [snocBlock, snocSide] using F
+    · intro old
+      simpa [snocBlock, snocSide] using X.localData old
   chain := by
-    intro i j hij
-    by_cases hi : i.val < X.blockCount
-    · by_cases hj : j.val < X.blockCount
-      · let oldI : Fin X.blockCount := ⟨i.val, hi⟩
-        let oldJ : Fin X.blockCount := ⟨j.val, hj⟩
-        have hiEq : i = X.snocOldBlockIndex oldI := by
-          apply Fin.ext
-          rfl
-        have hjEq : j = X.snocOldBlockIndex oldJ := by
-          apply Fin.ext
-          rfl
-        subst i
-        subst j
-        exact X.chain hij
-      · have hiVal : i.val = X.blockCount - 1 := by omega
-        have hjVal : j.val = X.blockCount := by omega
-        have hiEq : i = X.snocOldBlockIndex X.lastBlockIndex := by
-          apply Fin.ext
-          exact hiVal
-        have hjEq : j = X.snocNewBlockIndex := by
-          apply Fin.ext
-          exact hjVal
-        subst i
-        subst j
-        simpa using hchain
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
+    intro i
+    refine Fin.lastCases ?_ ?_ i
+    · intro j hij
       have hjLt := j.isLt
       omega
-  originalHole_eq := by
-    simpa [snocBlock, X.blockCount_pos] using X.originalHole_eq
-  removed_mem_original := by
-    intro i s
-    by_cases hi : i.val < X.blockCount
-    · let old : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex old := by
-        apply Fin.ext
-        rfl
-      subst i
-      simpa using X.removed_mem_original old s
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
-      simpa using hRemoved s
-  path_pairwise := by
-    intro i j hij
-    by_cases hi : i.val < X.blockCount
-    · let oldI : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex oldI := by
-        apply Fin.ext
-        rfl
-      subst i
-      by_cases hj : j.val < X.blockCount
-      · let oldJ : Fin X.blockCount := ⟨j.val, hj⟩
-        have hjEq : j = X.snocOldBlockIndex oldJ := by
+    · intro oldI
+      intro j
+      refine Fin.lastCases ?_ ?_ j
+      · intro hij
+        have hlast : oldI = X.lastBlockIndex := by
           apply Fin.ext
-          rfl
-        subst j
+          dsimp [snocOldBlockIndex, snocNewBlockIndex,
+            lastBlockIndex] at hij ⊢
+          omega
+        rw [hlast]
+        simpa [snocBlock] using hchain
+      · intro oldJ hij
+        simpa [snocBlock, snocOldBlockIndex] using X.chain hij
+  originalHole_eq := by
+    have hzero :
+        (⟨0, by omega⟩ : Fin (X.blockCount + 1)) =
+          X.snocOldBlockIndex X.firstIndex := by
+      apply Fin.ext
+      rfl
+    rw [hzero]
+    simpa [firstIndex] using X.originalHole_eq
+  removed_mem_original := by
+    intro i
+    refine Fin.lastCases ?_ ?_ i
+    · intro s
+      let newStep : Fin D.deformation.stepCount := by
+        simpa [snocBlock] using s
+      simpa [snocBlock] using hRemoved newStep
+    · intro old s
+      let oldStep : Fin (X.block old).deformation.stepCount := by
+        simpa [snocBlock] using s
+      simpa [snocBlock] using X.removed_mem_original old oldStep
+  path_pairwise := by
+    intro i
+    refine Fin.lastCases ?_ ?_ i
+    · intro j
+      refine Fin.lastCases ?_ ?_ j
+      · intro hij
+        exact (hij rfl).elim
+      · intro oldJ hij hEq
+        exact hFresh oldJ hEq.symm
+    · intro oldI
+      intro j
+      refine Fin.lastCases ?_ ?_ j
+      · intro _hij
+        simpa [snocBlock] using hFresh oldI
+      · intro oldJ hij
         apply X.path_pairwise
         intro hOld
         apply hij
-        rw [hOld]
-      · have hjVal : j.val = X.blockCount := by
-          have hjLt := j.isLt
-          omega
-        have hjEq : j = X.snocNewBlockIndex := by
-          apply Fin.ext
-          exact hjVal
-        subst j
-        simpa using hFresh oldI
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
-      by_cases hj : j.val < X.blockCount
-      · let oldJ : Fin X.blockCount := ⟨j.val, hj⟩
-        have hjEq : j = X.snocOldBlockIndex oldJ := by
-          apply Fin.ext
-          rfl
-        subst j
-        intro hEq
-        exact hFresh oldJ hEq.symm
-      · have hjVal : j.val = X.blockCount := by
-          have hjLt := j.isLt
-          omega
-        exfalso
-        apply hij
-        apply Fin.ext
-        exact hjVal.symm
+        cases hOld
+        rfl
   firstIntroduced_uniquePath := by
     intro i
-    by_cases hi : i.val < X.blockCount
-    · let old : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex old := by
-        apply Fin.ext
-        rfl
-      subst i
-      simpa using X.firstIntroduced_uniquePath old
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
-      simpa using hUnique
+    refine Fin.lastCases ?_ ?_ i
+    · simpa [snocBlock] using hUnique
+    · intro old
+      simpa [snocBlock] using X.firstIntroduced_uniquePath old
   stepIndex := X.snocStepIndex D newSide F hchain
   step_eq := by
-    intro i s
-    by_cases hi : i.val < X.blockCount
-    · let old : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex old := by
-        apply Fin.ext
-        rfl
-      subst i
-      let oldStep : Fin (X.block old).deformation.stepCount := by
-        simpa using s
-      change
-        (X.snocFlattened D newSide F hchain).deformation.step
-            (X.flattened.deformation.concatLeftIndex
-              (D.toFullDefinition19Deformation newSide F).deformation
-              (X.stepIndex old oldStep)) =
-          (X.block old).deformation.step oldStep
-      rw [FullDefinition19Deformation.concat_deformation_step_left]
-      exact X.step_eq old oldStep
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
+    intro i
+    refine Fin.lastCases ?_ ?_ i
+    · intro s
       let newStep : Fin D.deformation.stepCount := by
-        simpa using s
-      change
-        (X.snocFlattened D newSide F hchain).deformation.step
-            (X.flattened.deformation.concatRightIndex
+        simpa [snocBlock] using s
+      have hmap :
+          X.snocStepIndex D newSide F hchain X.snocNewBlockIndex s =
+            X.flattened.deformation.concatRightIndex
               (D.toFullDefinition19Deformation newSide F).deformation
-              newStep) =
-          D.deformation.step newStep
+              newStep := by
+        simp [snocStepIndex, snocNewBlockIndex, snocBlock, newStep]
+      rw [hmap]
       rw [FullDefinition19Deformation.concat_deformation_step_right]
-      rfl
+      simpa [snocBlock] using congrArg D.deformation.step
+        (Fin.ext (show newStep.val = s.val by rfl))
+    · intro old s
+      let oldStep : Fin (X.block old).deformation.stepCount := by
+        simpa [snocBlock] using s
+      have hmap :
+          X.snocStepIndex D newSide F hchain
+              (X.snocOldBlockIndex old) s =
+            X.flattened.deformation.concatLeftIndex
+              (D.toFullDefinition19Deformation newSide F).deformation
+              (X.stepIndex old oldStep) := by
+        simp [snocStepIndex, snocOldBlockIndex, snocBlock, oldStep]
+      rw [hmap]
+      rw [FullDefinition19Deformation.concat_deformation_step_left]
+      simpa [snocBlock] using X.step_eq old oldStep
   stepIndex_surjective := by
     intro k
     by_cases hk : k.val < X.flattened.deformation.stepCount
@@ -405,7 +320,7 @@ def snoc
         simpa [newI] using s
       refine ⟨newI, newS, ?_⟩
       apply Fin.ext
-      change (X.stepIndex i s).val = k.val
+      simp [snocStepIndex, newI, snocOldBlockIndex, snocBlock, newS]
       exact congrArg Fin.val his
     · have hkLt := k.isLt
       change k.val < X.flattened.deformation.stepCount +
@@ -417,69 +332,48 @@ def snoc
         simpa using s
       refine ⟨X.snocNewBlockIndex, newS, ?_⟩
       apply Fin.ext
+      simp [snocStepIndex, snocNewBlockIndex, snocBlock, newS]
       change X.flattened.deformation.stepCount + s.val = k.val
       dsimp [s]
       omega
   stepIndex_order := by
-    intro i j s t horder
-    by_cases hi : i.val < X.blockCount
-    · let oldI : Fin X.blockCount := ⟨i.val, hi⟩
-      have hiEq : i = X.snocOldBlockIndex oldI := by
-        apply Fin.ext
-        rfl
-      subst i
-      let oldS : Fin (X.block oldI).deformation.stepCount := by
-        simpa using s
-      by_cases hj : j.val < X.blockCount
-      · let oldJ : Fin X.blockCount := ⟨j.val, hj⟩
-        have hjEq : j = X.snocOldBlockIndex oldJ := by
-          apply Fin.ext
-          rfl
-        subst j
-        let oldT : Fin (X.block oldJ).deformation.stepCount := by
-          simpa using t
-        change (X.stepIndex oldI oldS).val <
-          (X.stepIndex oldJ oldT).val
-        apply X.stepIndex_order
-        simpa [snocOldBlockIndex] using horder
-      · have hjVal : j.val = X.blockCount := by
-          have hjLt := j.isLt
-          omega
-        have hjEq : j = X.snocNewBlockIndex := by
-          apply Fin.ext
-          exact hjVal
-        subst j
+    intro i
+    refine Fin.lastCases ?_ ?_ i
+    · intro j
+      refine Fin.lastCases ?_ ?_ j
+      · intro s t horder
+        let newS : Fin D.deformation.stepCount := by
+          simpa [snocBlock] using s
         let newT : Fin D.deformation.stepCount := by
-          simpa using t
-        change (X.stepIndex oldI oldS).val <
-          X.flattened.deformation.stepCount + newT.val
+          simpa [snocBlock] using t
+        simp [snocStepIndex, snocNewBlockIndex, snocBlock, newS, newT]
+        rcases horder with hij | ⟨_hij, hst⟩
+        · omega
+        · exact Nat.add_lt_add_left hst _
+      · intro oldJ s t horder
+        exfalso
+        rcases horder with hij | ⟨hij, _hst⟩ <;>
+          simp [snocNewBlockIndex, snocOldBlockIndex] at hij
+    · intro oldI
+      intro j
+      refine Fin.lastCases ?_ ?_ j
+      · intro s t horder
+        let oldS : Fin (X.block oldI).deformation.stepCount := by
+          simpa [snocBlock] using s
+        let newT : Fin D.deformation.stepCount := by
+          simpa [snocBlock] using t
+        simp [snocStepIndex, snocOldBlockIndex, snocNewBlockIndex,
+          snocBlock, oldS, newT]
         have hleft := (X.stepIndex oldI oldS).isLt
         omega
-    · have hiVal : i.val = X.blockCount := by
-        have hiLt := i.isLt
-        omega
-      have hiEq : i = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hiVal
-      subst i
-      have hjVal : j.val = X.blockCount := by
-        rcases horder with hij | ⟨hij, _hst⟩
-        · have hjLt := j.isLt
-          omega
-        · exact hij.symm
-      have hjEq : j = X.snocNewBlockIndex := by
-        apply Fin.ext
-        exact hjVal
-      subst j
-      let newS : Fin D.deformation.stepCount := by
-        simpa using s
-      let newT : Fin D.deformation.stepCount := by
-        simpa using t
-      change X.flattened.deformation.stepCount + newS.val <
-        X.flattened.deformation.stepCount + newT.val
-      rcases horder with hij | ⟨_hij, hst⟩
-      · omega
-      · exact Nat.add_lt_add_left hst _
+      · intro oldJ s t horder
+        let oldS : Fin (X.block oldI).deformation.stepCount := by
+          simpa [snocBlock] using s
+        let oldT : Fin (X.block oldJ).deformation.stepCount := by
+          simpa [snocBlock] using t
+        simp [snocStepIndex, snocOldBlockIndex, snocBlock, oldS, oldT]
+        apply X.stepIndex_order
+        simpa [snocOldBlockIndex] using horder
 
 end FiniteMixedSideSearchTrace
 

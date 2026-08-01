@@ -157,11 +157,11 @@ theorem path_mem_selectedSide
   cases hside : X.side i with
   | ac =>
       left
-      exact ⟨hside, by
+      exact ⟨rfl, by
         simpa [hside, DeformationSide.family] using hactive⟩
   | bd =>
       right
-      exact ⟨hside, by
+      exact ⟨rfl, by
         simpa [hside, DeformationSide.family, swapSides] using hactive⟩
 
 /-- Forgetting the side tag puts every finite trace block in the full

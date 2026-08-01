@@ -27,6 +27,23 @@ variable {G : SimpleGraph V}
 
 namespace ConcretePathDeformation
 
+private theorem reorient_lastIndex_eq
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide) :
+    (D.reorient side).lastIndex = D.lastIndex := by
+  apply Fin.ext
+  rfl
+
+private theorem reorient_step_removedVertex_eq
+    (D : ConcretePathDeformation O Cprime)
+    (side : DeformationSide)
+    (i : Fin D.deformation.stepCount) :
+    ((D.reorient side).deformation.step i).before.vertex
+        ((D.reorient side).deformation.step i).removedIndex =
+      (D.deformation.step i).before.vertex
+        (D.deformation.step i).removedIndex := by
+  cases side <;> rfl
+
 /-- Flatten a single oriented Definition 19 path block without forgetting any
 of its steps. -/
 def toFullDefinition19Deformation
@@ -48,7 +65,9 @@ def toFullDefinition19Deformation
         omega
       subst i
       exact (F.terminalRemoved_not_mem_prime (by
-        simpa using hiPrime)).elim
+        rw [reorient_lastIndex_eq,
+          reorient_step_removedVertex_eq]
+        exact hiPrime)).elim
     · have hjLt : i.val + 1 < D.deformation.stepCount := by
         have hiLt := i.isLt
         omega
@@ -63,16 +82,21 @@ def toFullDefinition19Deformation
           apply (A.path.adj_iff _ _).2
           left
           rw [L.removed_index_val, L.introduced_index_val]
-          simp [j]
+          dsimp [j]
+          omega
         rw [L.removed_eq i, L.introduced_eq j] at hpath
-        simpa [A] using hpath
+        rw [reorient_step_removedVertex_eq,
+          D.reorient_step_introduced] at hpath
+        exact hpath
       · intro hremoved
         have hremovedA :
             ((A.deformation.step i).before.vertex
                 (A.deformation.step i).removedIndex) =
               ((A.deformation.step j).before.vertex
                 (A.deformation.step j).removedIndex) := by
-          simpa [A] using hremoved
+          rw [reorient_step_removedVertex_eq,
+            reorient_step_removedVertex_eq]
+          exact hremoved
         have hpathEq :
             A.path.vertex (L.removedPathIndex i) =
               A.path.vertex (L.removedPathIndex j) := by
@@ -90,7 +114,9 @@ def toFullDefinition19Deformation
                 (A.deformation.step i).removedIndex)
               ((A.deformation.step j).before.vertex
                 (A.deformation.step j).removedIndex) := by
-          simpa [A] using hadj
+          rw [reorient_step_removedVertex_eq,
+            reorient_step_removedVertex_eq]
+          exact hadj
         have hpathAdj :
             G.Adj
               (A.path.vertex (L.removedPathIndex i))

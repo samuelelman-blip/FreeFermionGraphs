@@ -101,7 +101,8 @@ def single
     (hUnique : O.IsUniqueContainingPath
       (D.deformation.step D.firstIndex).introduced
       (Set.range D.path.vertex)) :
-    LiteralFiniteMixedSideSearchExecution originalHole where
+    LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole where
   output := D.singleBlockSearch side F
   trace := FiniteMixedSideSearchTrace.single
     D side F hOriginal hRemoved hUnique
@@ -112,7 +113,8 @@ def single
 execution. -/
 def snoc
     {originalHole : IndexedInducedHole G}
-    (X : LiteralFiniteMixedSideSearchExecution originalHole)
+    (X : LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole)
     (D : ConcretePathDeformation O Cprime)
     (side : DeformationSide)
     (F : (D.reorient side).FullDefinition19Lemma11AData)
@@ -128,7 +130,8 @@ def snoc
     (hUnique : O.IsUniqueContainingPath
       (D.deformation.step D.firstIndex).introduced
       (Set.range D.path.vertex)) :
-    LiteralFiniteMixedSideSearchExecution originalHole where
+    LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole where
   output := X.trace.snocSearch D side F hchain
   trace := X.trace.snoc D side F hchain hRemoved hFresh hUnique
   generated := FiniteMixedSideSearchTrace.IsLiteralExecution.snoc
@@ -153,7 +156,8 @@ def snoc
 
 @[simp] theorem snoc_blockCount
     {originalHole : IndexedInducedHole G}
-    (X : LiteralFiniteMixedSideSearchExecution originalHole)
+    (X : LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole)
     (D : ConcretePathDeformation O Cprime)
     (side : DeformationSide)
     (F : (D.reorient side).FullDefinition19Lemma11AData)
@@ -177,7 +181,8 @@ def snoc
 paths. -/
 theorem output_path_iff
     {originalHole : IndexedInducedHole G}
-    (X : LiteralFiniteMixedSideSearchExecution originalHole)
+    (X : LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole)
     (P : Set V) :
     P ∈ X.output.paths ↔
       ∃ i : Fin X.trace.blockCount,
@@ -188,7 +193,8 @@ theorem output_path_iff
 inductively generated literal execution. -/
 theorem output_path_has_lemma11aii_exact
     {originalHole : IndexedInducedHole G}
-    (X : LiteralFiniteMixedSideSearchExecution originalHole)
+    (X : LiteralFiniteMixedSideSearchExecution
+      (O := O) (Cprime := Cprime) originalHole)
     {P : Set V} (hP : P ∈ X.output.paths)
     (hclaw : G.IsClawFree) :
     ∃ i : Fin X.trace.blockCount,

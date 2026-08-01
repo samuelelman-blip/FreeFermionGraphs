@@ -63,13 +63,16 @@ theorem originalHole_subset_currentOriginalClasses
         (H.currentSide.family O).Cb := by
   intro x hx
   let first : Fin H.priorCount := ⟨0, H.priorCount_pos⟩
+  let A0 := H.orientedPrior first
+  have hA0Data : A0.FullDefinition19Lemma11AData := by
+    simpa [A0, orientedPrior] using H.priorData first
   have hxCarrierInitial :
       x ∈ Set.range (H.priorBlock first).initialHole.vertex := by
     rw [H.firstInitial_eq_original]
     exact hx
   have hxOriented :
-      x ∈ Set.range (H.orientedPrior first).initialHole.vertex := by
-    simpa [orientedPrior] using
+      x ∈ Set.range A0.initialHole.vertex := by
+    simpa [A0, orientedPrior] using
       (show x ∈ Set.range
           ((H.priorBlock first).reorient
             (H.priorSide first)).initialHole.vertex by
@@ -77,8 +80,8 @@ theorem originalHole_subset_currentOriginalClasses
           (H.priorSide first)]
         exact hxCarrierInitial)
   have hxFirstSide :=
-    ((H.priorData first).neighborhood.mechanical.stepGeometry
-      (H.orientedPrior first).firstIndex).before_subset (by
+    (hA0Data.neighborhood.mechanical.stepGeometry
+      A0.firstIndex).before_subset (by
         simpa [ConcretePathDeformation.initialHole] using hxOriented)
   have hxOriginal : x ∈ O.Ca ∪ O.Cb := by
     cases hside : H.priorSide first with

@@ -128,7 +128,8 @@ theorem currentCommonNeighborOnOriginal
   refine ⟨v, hvOriginal, huv, ?_, ?_, hvCb⟩
   · simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
       hjv
-  · simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
+  · simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent,
+      ConcretePathDeformation.reorient, ConcreteDeformation.reorient] using
       hkv
 
 /-- The clone centre forced by degree three lies in the current orientation's
@@ -197,7 +198,8 @@ theorem lemma11aii_exact_of_mixedSideHistory
       D.mem_step_dependentSet_of_mem_dependentAt hu
     have huiOriented :
         u ∈ (X.orientedCurrent.deformation.step i).dependentSet := by
-      simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent] using
+      simpa [MixedSideFullDefinition19Lemma11AHistoryData.orientedCurrent,
+        ConcretePathDeformation.reorient, ConcreteDeformation.reorient] using
         huiCarrier
     have huCd : u ∈ (X.currentSide.family O).Cd :=
       (X.orientedCurrent.deformation.step i).dependent_mem_cd

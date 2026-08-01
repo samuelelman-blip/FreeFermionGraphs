@@ -10,8 +10,9 @@ Corollary 11 theorem excludes that witness after recovering the exact
 zero-or-positive bounded context of each block.
 
 This yields the manuscript's same-pairing path-disjointness conclusion directly
-from the inductively generated finite `OS` executions.  No total `Nat` history,
-path ownership, or Lemma 14 conclusion is assumed.
+from the inductively generated finite `OS` executions.  Its dependent context
+view is constructed from the same literal empty/nonempty split.  No total `Nat`
+history, path ownership, or Lemma 14 conclusion is assumed.
 -/
 
 universe u

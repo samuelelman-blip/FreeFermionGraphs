@@ -1,14 +1,14 @@
 # FreeFermionGraphs
 
-Lean 4 formalisation of the graph-theoretic and operator-algebraic results in
+Lean 4 formalisation effort for the graph-theoretic results in
 *A Unified Graph-Theoretic Framework for Free-Fermion Solvability* by Adrian
 Chapman, Samuel J. Elman, and Ryan L. Mann.
 
-The project formalises the proof that a Hamiltonian admits an exact
-free-fermion description when its frustration graph is claw-free and contains
-a simplicial clique. The development includes finite claw-free graph theory,
-hole deformations, token sliding, generalized-cycle symmetries, transfer
-operators, and the operator-Krylov construction.
+The checked-in development currently concentrates on finite claw-free graph
+theory, hole deformations, token sliding, and the Definition 19 obstruction
+search. It does not yet contain the Pauli/Hamiltonian operator algebra needed
+to state or prove the manuscript's charge commutators, transfer-operator
+identities, free-fermion reconstruction, or operator-Krylov formula.
 
 ## Toolchain
 
@@ -32,37 +32,44 @@ lake build FreeFermionGraphs.ObstructionSearchTwoSidedMixedCorollary11
 
 ## Current proof status
 
-The main active proof is Theorem 1(iii), the mutual commutation of the
-generalized-cycle symmetries. Its longest combinatorial component is the
-obstruction-search argument in Lemma 14.
+The main active proof program is the graph-combinatorial route toward Theorem
+1(iii). Its current integration boundary is the obstruction-search argument in
+Lemma 14. No clause of Theorem 1 is yet exported as a manuscript-level
+operator commutator theorem.
 
 | Manuscript layer | Status |
 |---|---|
-| Finite claw-free graph theory, including Lemmas 6-10 | Formalised |
-| Token sliding, deformation closures, and generalized-cycle data | Formalised |
-| Theorem 1(i), independent-set charges commute | Formalised |
-| Theorem 1(ii), generalized-cycle charges commute with independent-set charges | Formalised |
-| Lemma 11(a), Lemma 11(b), and their concrete history machinery | Formalised |
-| Corollary 11 | Formalised for mixed-side Definition 19 histories |
-| Lemmas 12-13 | Formalised |
-| Lemma 14(i)-(iii) and most of Lemma 14(iv) | Formalised |
-| Unconditional manuscript-level Lemma 14 | Not yet closed |
-| Theorem 1(iii) | In progress |
-| Theorem 2 and Theorem 3 layers | Substantial formalisation exists; final manuscript-level integration and audit remain |
+| Finite claw-free graph theory, including Lemmas 6-10 | Lean implementations exist; complete paper-facing audit remains |
+| Token sliding, deformation closures, and generalized-cycle sums | Combinatorial and generic additive definitions exist; operator charges are absent |
+| Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
+| Lemma 11(a)-(b) | Conditional implementations exist; literal finite mixed-side history and endpoint-certificate construction remain |
+| Corollary 11 | Proved on supplied mixed-side history data; construction from the literal search remains |
+| Lemmas 12-13 | Implemented on a flattened deformation interface with explicit local fields; constructor audit remains |
+| Lemma 14(i)-(iv) | Conditional integration only; no unconditional `paperLemma14` |
+| Lemmas 15-18 | Not formalised as manuscript lemmas; some underlying graph definitions exist |
+| Theorem 2 | Not formalised |
+| Theorem 3 and Corollary 1 | Not formalised |
 
 The remaining critical path for Lemma 14 is:
 
-1. construct the mixed-side history from the concrete obstruction-search loop;
-2. prove the terminal containment statement
+1. construct `FiniteMixedSideSearchTrace` from an executable obstruction-search
+   loop, preserving the finite path blocks, their sides, and their exact map to
+   flattened steps;
+2. derive the local endpoint nonadjacency fields used by Lemma 11 directly from
+   Definition 19 and the preceding graph lemmas;
+3. port the bounded Lemma 11 and Corollary 11 arguments from the legacy total
+   `Nat` history to the finite trace;
+4. prove the terminal containment statement
    `P ∩ C_b ⊆ C_j^(m)` without excluding legitimate opposite-side overlaps;
-3. derive the remaining terminal propagation data from the two initialized
+5. derive the remaining terminal propagation data from the two initialized
    executions;
-4. remove the terminal-analysis certificate boundary and expose the exact four
+6. remove the terminal-analysis certificate boundary and expose the exact four
    conclusions of manuscript Lemma 14.
 
-After Lemma 14, the search-update argument, the unobstructed-palindromic step,
-and the final pairwise commutator cancellation remain before Theorem 1(iii) is
-complete.
+After Lemma 14, Lemmas 15-16, the search-update argument, the
+unobstructed-palindromic step, and the complete Pauli/operator layer still
+remain before Theorem 1(iii) is complete. Theorem 2 and Theorem 3 require their
+own later operator-algebra developments.
 
 ## Manuscript fidelity policy
 
@@ -93,6 +100,8 @@ history cannot be used as the final representation of the manuscript search.
 - `FORMALIZATION.md`: dependency-oriented proof plan
 - `docs/PAPER_FIDELITY.md`: manuscript correspondence, provenance, and open
   proof boundaries
+- `docs/PAPER_AUDIT_2026-08-01.md`: statement-level audit of the current branch
+  against the supplied manuscript
 - issue `#144`: detailed tracking of the remaining Lemma 14 terminal analysis
 
 ## Development workflow

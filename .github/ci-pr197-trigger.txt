@@ -1,2 +1,0 @@
-CI-only trigger for the full Lean build of the source merged by PR #197.
-The added file is inert and is not part of main.

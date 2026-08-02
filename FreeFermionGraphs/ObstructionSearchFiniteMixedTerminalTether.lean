@@ -55,10 +55,10 @@ structure FiniteMixedSideIncomingTerminalTether
         match T.currentSlot source target with
         | .first =>
             q.val + 2 = targetIndex.val →
-              G.Adj X.center (T.terminalPath target).vertex q
+              G.Adj X.center ((T.terminalPath target).vertex q)
         | .last =>
             targetIndex.val + 2 = q.val →
-              G.Adj X.center (T.terminalPath target).vertex q
+              G.Adj X.center ((T.terminalPath target).vertex q)
 
 /-- Literal tether data for every actual obstruction arc of the initialized
 finite execution. -/
@@ -153,7 +153,7 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
           have h := R.clone_adj_flank right q
           have hq' : R.targetIndex.val + 2 = q.val := by
             simpa [hindex] using hq
-          have hadj : G.Adj right.center (T.terminalPath target).vertex q := by
+          have hadj : G.Adj right.center ((T.terminalPath target).vertex q) := by
             simpa [hs'] using h hq'
           simpa [hcenter] using hadj }⟩
   · exact ⟨
@@ -170,7 +170,7 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
           have h := R.clone_adj_flank right q
           have hq' : q.val + 2 = R.targetIndex.val := by
             simpa [hindex] using hq
-          have hadj : G.Adj right.center (T.terminalPath target).vertex q := by
+          have hadj : G.Adj right.center ((T.terminalPath target).vertex q) := by
             simpa [hs'] using h hq'
           simpa [hcenter] using hadj
         clone_adj_next := by

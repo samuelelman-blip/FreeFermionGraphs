@@ -116,10 +116,13 @@ theorem mem_initialHole_or_mem_path_of_mem_finalHole
     (hx : x ∈ Set.range D.finalHole.vertex) :
     x ∈ Set.range D.initialHole.vertex ∨
       x ∈ Set.range D.path.vertex := by
+  have hlast : D.deformation.stepCount - 1 < D.deformation.stepCount := by
+    have hpos := D.nonempty
+    omega
   simpa [ConcretePathDeformation.finalHole,
     ConcretePathDeformation.lastIndex] using
     D.mem_initialHole_or_mem_path_of_mem_stepAfter
-      (D.deformation.stepCount - 1) (by omega) hx
+      (D.deformation.stepCount - 1) hlast hx
 
 namespace FiniteMixedSideSearchTrace
 
@@ -141,7 +144,7 @@ theorem mem_originalHole_or_mem_path_through
       · left
         rw [← X.originalHole_eq]
         exact hinitial
-      · exact Or.inr ⟨⟨0, hn⟩, by omega, hpath⟩
+      · exact Or.inr ⟨⟨0, hn⟩, Nat.le_refl 0, hpath⟩
   | succ n ih =>
       let current : Fin X.blockCount := ⟨n + 1, hn⟩
       rcases
@@ -160,8 +163,8 @@ theorem mem_originalHole_or_mem_path_through
           exact hinitial
         rcases ih hnPrev hxPrevious with horiginal | ⟨q, hqle, hxq⟩
         · exact Or.inl horiginal
-        · exact Or.inr ⟨q, by omega, hxq⟩
-      · exact Or.inr ⟨current, by omega, hpath⟩
+        · exact Or.inr ⟨q, Nat.le_trans hqle (Nat.le_succ n), hxq⟩
+      · exact Or.inr ⟨current, Nat.le_refl (n + 1), hpath⟩
 
 end FiniteMixedSideSearchTrace
 end ConcretePathDeformation
@@ -186,7 +189,8 @@ theorem mem_originalHole_or_mem_orderedPath_through
         q.val ≤ n ∧ x ∈ X.toOrdered.path q := by
   cases X with
   | empty hrun =>
-      omega
+      change n < 0 at hn
+      exact (Nat.not_lt_zero n hn).elim
   | nonempty data =>
       exact data.literal.trace.mem_originalHole_or_mem_path_through
         n hn hx

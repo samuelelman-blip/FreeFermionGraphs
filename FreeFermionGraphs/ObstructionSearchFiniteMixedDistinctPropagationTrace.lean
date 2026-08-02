@@ -66,7 +66,7 @@ structure FiniteMixedSideDistinctPropagationTrace
         source).path (hopBlock k)
   carried_avoidance : ∀ k : Fin (hopCount + 1),
     carriedIndex k ∉
-        T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.
+        (T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole).
           neighborIndexSet
             (F.towardEndpointVertex (T.currentSlot source target)) ∧
       carriedIndex k ≠ T.targetCloneIndexOfIncoming hclaw incoming ∧
@@ -74,7 +74,7 @@ structure FiniteMixedSideDistinctPropagationTrace
         (T.targetCloneIndexOfIncoming hclaw incoming) (carriedIndex k)
   clone_avoids_previousNeighbors :
     T.targetCloneIndexOfIncoming hclaw incoming ∉
-      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.
+      (T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole).
         neighborIndexSet
           (F.towardEndpointVertex (T.currentSlot source target))
   adj_previous :

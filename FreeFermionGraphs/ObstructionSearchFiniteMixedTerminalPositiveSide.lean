@@ -146,7 +146,7 @@ inductive FiniteMixedSidePositiveDistinctSide
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     {source source' target : I.Node}
     (incoming : I.graph.Arc source target)
-    (incoming' : I.graph.Arc source' target) : Prop where
+    (incoming' : I.graph.Arc source' target) : Type where
   | left
       (hpos :
         0 <

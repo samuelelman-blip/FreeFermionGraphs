@@ -5,9 +5,9 @@ import FreeFermionGraphs.ObstructionSearchFiniteMixedTerminalContainment
 
 A single replacement adds only its introduced vertex.  Therefore every vertex
 of the final hole of one path block either belonged to the block's initial hole
-or lies on that block's active path.  Iterating over the actual finite block
-sequence shows that every vertex of the manuscript terminal hole either came
-from the initialized original hole or lies on an appended execution path.
+or lies on that block's active path.  Iterating over the literal finite block
+trace shows that every vertex of the manuscript terminal hole either came from
+the initialized original hole or lies on an appended execution path.
 
 For an obstruction target, both alternatives are impossible: the initializer
 clone certificate puts it outside the original hole, and the stopping rule
@@ -77,8 +77,9 @@ theorem mem_initialHole_or_mem_path_of_mem_stepAfter
   | zero =>
       rcases (D.deformation.step ⟨0, hn⟩).
           mem_before_or_eq_introduced_of_mem_after hx with hbefore | hintroduced
-      · exact Or.inl (by simpa [ConcretePathDeformation.initialHole,
-          ConcretePathDeformation.firstIndex] using hbefore)
+      · exact Or.inl (by
+          simpa [ConcretePathDeformation.initialHole,
+            ConcretePathDeformation.firstIndex] using hbefore)
       · right
         rw [hintroduced]
         rw [← D.activePath_eq ⟨0, hn⟩]
@@ -119,39 +120,26 @@ theorem mem_initialHole_or_mem_path_of_mem_finalHole
 
 end ConcretePathDeformation
 
-namespace ObstructionSearchInitialization
+namespace ConcretePathDeformation.FiniteMixedSideSearchTrace
 
-variable {families : PairingType → FixedPairingPathFamily G}
-  {Cprime : Set V}
-  {I : ObstructionSearchInitialization families Cprime}
-
-namespace FiniteMixedSideOrderedOSExecution
+variable {S : SearchDeformation O Cprime}
+  {originalHole : IndexedInducedHole G}
 
 /-- Carrier provenance through the first `n+1` actual finite path blocks. -/
 theorem mem_originalHole_or_mem_path_through
-    {source : I.Node} {originalHole : IndexedInducedHole G}
-    (X : FiniteMixedSideOrderedOSExecution I source originalHole)
+    (X : FiniteMixedSideSearchTrace S originalHole)
     {x : V} (n : Nat) (hn : n < X.blockCount)
     (hx : x ∈ Set.range (X.block ⟨n, hn⟩).finalHole.vertex) :
     x ∈ Set.range originalHole.vertex ∨
       ∃ q : Fin X.blockCount,
-        q.val ≤ n ∧ x ∈ X.path q := by
+        q.val ≤ n ∧ x ∈ Set.range (X.block q).path.vertex := by
   induction n with
   | zero =>
       rcases (X.block ⟨0, hn⟩).
           mem_initialHole_or_mem_path_of_mem_finalHole hx with
         hinitial | hpath
       · left
-        have hctx :=
-          (X.localData ⟨0, hn⟩).neighborhood
-        have hfirst :
-            Set.range (X.block ⟨0, hn⟩).initialHole.vertex =
-              Set.range originalHole.vertex := by
-          have h :=
-            (ConcretePathDeformation.FiniteMixedSideLemma11AContext.first
-              (X.side ⟨0, hn⟩) (X.localData ⟨0, hn⟩) rfl).originalHole
-          simpa using h
-        rw [← hfirst]
+        rw [← X.originalHole_eq]
         exact hinitial
       · exact Or.inr ⟨⟨0, hn⟩, by omega, hpath⟩
   | succ n ih =>
@@ -163,17 +151,8 @@ theorem mem_originalHole_or_mem_path_through
         let previous : Fin X.blockCount := ⟨n, hnPrev⟩
         have hchain :
             Set.range (X.block previous).finalHole.vertex =
-              Set.range (X.block current).initialHole.vertex := by
-          let C :=
-            (ConcretePathDeformation.FiniteMixedSideLemma11AContext.later
-              ((X.localData current).toFiniteHistory
-                (fun r => X.block (X.priorIndex current r))
-                (fun r => X.side (X.priorIndex current r))
-                (fun r => X.localData (X.priorIndex current r))
-                (by intro r q hrq; exact False.elim (by omega))
-                (by intro r; exact False.elim (by omega))
-                rfl rfl))
-          exact False.elim (by omega)
+              Set.range (X.block current).initialHole.vertex :=
+          X.chain (by simp [previous, current])
         have hxPrevious :
             x ∈ Set.range (X.block previous).finalHole.vertex := by
           rw [hchain]
@@ -183,7 +162,75 @@ theorem mem_originalHole_or_mem_path_through
         · exact Or.inr ⟨q, by omega, hxq⟩
       · exact Or.inr ⟨current, by omega, hpath⟩
 
-end FiniteMixedSideOrderedOSExecution
+end ConcretePathDeformation.FiniteMixedSideSearchTrace
+
+namespace ObstructionSearchInitialization
+
+variable {families : PairingType → FixedPairingPathFamily G}
+  {Cprime : Set V}
+  {I : ObstructionSearchInitialization families Cprime}
+
+namespace FiniteMixedSideOSExecution
+
+/-- Lift final-carrier provenance through the literal empty/nonempty execution
+split.  The empty branch has no positive block index. -/
+theorem mem_originalHole_or_mem_orderedPath_through
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : FiniteMixedSideOSExecution I source originalHole)
+    {x : V} (n : Nat) (hn : n < X.toOrdered.blockCount)
+    (hx : x ∈ Set.range (X.toOrdered.block ⟨n, hn⟩).finalHole.vertex) :
+    x ∈ Set.range originalHole.vertex ∨
+      ∃ q : Fin X.toOrdered.blockCount,
+        q.val ≤ n ∧ x ∈ X.toOrdered.path q := by
+  cases X with
+  | empty hrun =>
+      omega
+  | nonempty data =>
+      exact data.literal.trace.mem_originalHole_or_mem_path_through
+        n hn hx
+
+end FiniteMixedSideOSExecution
+
+namespace InitializationFiniteMixedSideTerminalCoreData
+
+/-- Every initialized vertex, including an obstruction target, lies outside the
+initialized original hole by its literal clone certificate. -/
+theorem target_not_mem_originalHole
+    (T : I.InitializationFiniteMixedSideTerminalCoreData)
+    (target : I.Node) :
+    (target : V) ∉ Set.range
+      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.vertex := by
+  rcases T.pairingLabels.initializer_typedClone target with
+    ⟨i, hclone, _hpair⟩
+  exact hclone.outside
+
+/-- A common obstruction target is outside the exact positive final execution
+hole. -/
+theorem target_not_mem_manuscriptFinalHole_of_pos
+    (T : I.InitializationFiniteMixedSideTerminalCoreData)
+    {source target : I.Node}
+    (incoming : I.graph.Arc source target)
+    (hpos :
+      0 <
+        (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+          source).blockCount) :
+    (target : V) ∉ Set.range
+      (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+        source).manuscriptFinalHole.vertex := by
+  intro htargetFinal
+  let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
+  let X := Y.ordered source
+  let last := X.lastBlockIndex hpos
+  have htargetLast :
+      (target : V) ∈ Set.range (X.block last).finalHole.vertex := by
+    rw [← X.manuscriptFinalHole_eq_lastBlockFinalHole hpos]
+    exact htargetFinal
+  rcases (Y.execution source).mem_originalHole_or_mem_orderedPath_through
+      last.val last.isLt htargetLast with horiginal | ⟨q, _hqle, hpath⟩
+  · exact T.target_not_mem_originalHole target horiginal
+  · exact T.target_not_mem_executionPath incoming q hpath
+
+end InitializationFiniteMixedSideTerminalCoreData
 
 end ObstructionSearchInitialization
 

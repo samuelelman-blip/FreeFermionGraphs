@@ -200,10 +200,10 @@ structure FiniteMixedSideDistinctCenterFlankPropagationData
       let C := D.toInteriorTerminalCloneData hclaw
       let left := C.witnessOfInterior incoming hsource
       let right := C.witnessOfInterior incoming' hsource'
-      left.center ≠ right.center →
+      ∀ hcenter : left.center ≠ right.center,
         ∃ F : FiniteMixedSideTerminalTwoStepFlanks T target,
           match T.positiveDistinctSide_of_terminalClone_center_ne
-              left right (by assumption) with
+              left right hcenter with
           | .left _ =>
               Nonempty
                 (FiniteMixedSideDistinctClonePropagationFromFlankOccurrence

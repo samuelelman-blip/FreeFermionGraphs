@@ -37,27 +37,30 @@ At initialization the current vertex is the source, and no path need have
 been appended before the obstruction is found. -/
 structure FiniteMixedSideInitialFinalSelection
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) where
+    (source : I.Node) (u : V) : Prop where
   output_empty : (I.output source).run = none
   dependent_eq_source : u = (source : V)
 
 /-- The literal later Definition 20 provenance of a returned dependent
-vertex in an actual finite ordered block. -/
-structure FiniteMixedSideLaterFinalSelection
+vertex in an actual finite ordered block.  The concrete indices are constructor
+arguments rather than projections because this is proof data. -/
+inductive FiniteMixedSideLaterFinalSelection
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) where
-  blockIndex : Fin (X.ordered source).blockCount
-  stepIndex : Nat
-  dependent :
-    u ∈ ((X.ordered source).block blockIndex).dependentAt stepIndex
-  anticommutes :
-    ((X.ordered source).block blockIndex).path.AnticommutesWith u
+    (source : I.Node) (u : V) : Prop where
+  | mk
+      (blockIndex : Fin (X.ordered source).blockCount)
+      (stepIndex : Nat)
+      (dependent :
+        u ∈ ((X.ordered source).block blockIndex).dependentAt stepIndex)
+      (anticommutes :
+        ((X.ordered source).block blockIndex).path.AnticommutesWith u) :
+      FiniteMixedSideLaterFinalSelection X source u
 
 /-- The two faithful final-selection branches of an initialized finite
 mixed-side obstruction search. -/
 inductive FiniteMixedSideFinalSelectionWitness
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) where
+    (source : I.Node) (u : V) : Prop where
   | initialTether
       (selection : FiniteMixedSideInitialFinalSelection X source u)
   | laterDefinition20
@@ -106,12 +109,14 @@ theorem noSharedLaterFinalSelection
     (A : FiniteMixedSideLaterFinalSelection X source u)
     (B : FiniteMixedSideLaterFinalSelection X source' u) :
     False := by
-  let Q := (X.ordered source).path A.blockIndex
-  let R := (X.ordered source').path B.blockIndex
+  rcases A with ⟨q, s, huDep, huAnti⟩
+  rcases B with ⟨r, t, huDep', huAnti'⟩
+  let Q := (X.ordered source).path q
+  let R := (X.ordered source').path r
   have hQ : Q ∈ (I.output source).paths :=
-    (X.ordered source).path_mem' A.blockIndex
+    (X.ordered source).path_mem' q
   have hR : R ∈ (I.output source').paths :=
-    (X.ordered source').path_mem' B.blockIndex
+    (X.ordered source').path_mem' r
   have hpaths :
       Disjoint (I.output source).paths (I.output source').paths :=
     X.samePairing_paths_disjoint hclaw hne hpair
@@ -120,13 +125,12 @@ theorem noSharedLaterFinalSelection
     exact (Set.disjoint_left.mp hpaths) hQ (hEq ▸ hR)
   have hforbidden :=
     ConcretePathDeformation.FiniteMixedSideLemma11AContext.noSharedDependentAnticommutingWitness_of_pairing_eq
-      (X.orderedContextAt source A.blockIndex)
-      (X.orderedContextAt source' B.blockIndex)
+      (X.orderedContextAt source q)
+      (X.orderedContextAt source' r)
       hpair hclaw (by
         simpa [Q, R, FiniteMixedSideOrderedOSExecution.path] using hQR)
   apply hforbidden
-  exact ⟨u, A.stepIndex, B.stepIndex,
-    A.dependent, B.dependent, A.anticommutes, B.anticommutes⟩
+  exact ⟨u, s, t, huDep, huDep', huAnti, huAnti'⟩
 
 end InitializationFiniteMixedSideOSExecutionData
 

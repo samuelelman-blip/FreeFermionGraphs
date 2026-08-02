@@ -60,13 +60,10 @@ theorem terminalClone_center_eq_of_both_blockCount_eq_zero
       (target : V) left.cloneIndex at hleft
   change X'.manuscriptFinalHole.SingleVertexDeformation
       (target : V) right.cloneIndex at hright
-  rw [hfinal] at hleft
-  rw [hfinal'] at hright
+  cases hfinal
+  cases hfinal'
   have hindex := hleft.center_eq hright
   unfold FiniteMixedSideIncomingTerminalCloneWitness.center
-  change X.manuscriptFinalHole.vertex left.cloneIndex =
-    X'.manuscriptFinalHole.vertex right.cloneIndex
-  rw [hfinal, hfinal']
   exact congrArg C.vertex hindex
 
 /-- Unequal staged centres force at least one of the two actual finite

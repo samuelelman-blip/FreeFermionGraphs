@@ -36,7 +36,7 @@ this search. -/
 structure FiniteMixedSideIncomingTerminalTether
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     (source target : I.Node)
-    (incoming : I.graph.Arc source target) : Prop where
+    (incoming : I.graph.Arc source target) : Type where
   targetIndex : Fin (T.terminalPath target).card
   target_eq : (T.terminalPath target).vertex targetIndex = (target : V)
   targetIndex_even : Even targetIndex.val
@@ -63,7 +63,7 @@ structure FiniteMixedSideIncomingTerminalTether
 /-- Literal tether data for every actual obstruction arc of the initialized
 finite execution. -/
 structure FiniteMixedSideInitializationTerminalTetherData
-    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Prop where
+    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type where
   tether : ∀ ⦃source target : I.Node⦄
     (incoming : I.graph.Arc source target),
       FiniteMixedSideIncomingTerminalTether T source target incoming

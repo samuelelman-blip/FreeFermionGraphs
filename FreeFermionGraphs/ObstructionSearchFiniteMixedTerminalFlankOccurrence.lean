@@ -74,13 +74,15 @@ structure FiniteMixedSideFirstBlockFlankOccurrence
     F.towardEndpointVertex (T.currentSlot source target) ∈
       ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).block
-          (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-            firstBlockIndex source positive)).dependentAt step
+          (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+            T.execution.toInitializationFiniteMixedSideOSExecutionData
+            source positive)).dependentAt step
   finalDegree_three :
     ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
       source).block
-        (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-          firstBlockIndex source positive)).finalHole.externalDegree
+        (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+          T.execution.toInitializationFiniteMixedSideOSExecutionData
+          source positive)).finalHole.externalDegree
       (F.towardEndpointVertex (T.currentSlot source target)) = 3
 
 namespace FiniteMixedSideFirstBlockFlankOccurrence

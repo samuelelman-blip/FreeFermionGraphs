@@ -18,7 +18,6 @@ universe u
 variable {V : Type u}
 
 namespace SimpleGraph
-
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -29,9 +28,6 @@ namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
 
-/-- Literal bounded propagation data for every unequal pair of staged terminal
-clone centres.  The trace is supplied on one of the two actual incoming finite
-executions and contains only path-by-path carrier information. -/
 structure FiniteMixedSideDistinctCenterPropagationTraceData
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     (D : FiniteMixedSideInitializationTerminalTetherData T)
@@ -65,8 +61,6 @@ variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
   {D : FiniteMixedSideInitializationTerminalTetherData T}
   {hclaw : G.IsClawFree}
 
-/-- A bounded propagation trace supplies precisely the unequal-centre
-consequence required by the tether integration theorem. -/
 noncomputable def toDistinctCenterConsequences
     (A : FiniteMixedSideDistinctCenterPropagationTraceData T D hclaw) :
     D.DistinctCenterConsequences hclaw where
@@ -81,22 +75,15 @@ noncomputable def toDistinctCenterConsequences
     obtain ⟨F, hleft | hright⟩ := htraceAll hcenter
     · obtain ⟨X⟩ := hleft
       exact Or.inl
-        ⟨X.toPropagationFromFlankOccurrence.
+        ⟨(X.toPropagationFromFlankOccurrence).
           toPropagationFromDegreeOccurrence⟩
     · obtain ⟨X⟩ := hright
       exact Or.inr
-        ⟨X.toPropagationFromFlankOccurrence.
+        ⟨(X.toPropagationFromFlankOccurrence).
           toPropagationFromDegreeOccurrence⟩
 
 end FiniteMixedSideDistinctCenterPropagationTraceData
 
-/-- Complete literal terminal information produced by initialized finite
-mixed-side obstruction searches.
-
-The tether field records the operational stopping geometry of each incoming
-search.  The propagation field records the bounded path-by-path trace used only
-when two staged clone centres differ.  Neither field states an endpoint
-alternative or any conclusion of Lemma 14. -/
 structure InitializationFiniteMixedSideLiteralTerminalData
     (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where
   tether : FiniteMixedSideInitializationTerminalTetherData T
@@ -107,12 +94,6 @@ namespace InitializationFiniteMixedSideLiteralTerminalData
 
 variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
 
-/-- Exact four-part manuscript Lemma 14 from the literal finite initialized
-obstruction-search data.
-
-The conclusion is `PaperLemma14Conclusion I`: empty-or-complete output,
-obstruction-graph bipartiteness, same-pairing path disjointness, and the full
-two-incoming endpoint/dependent-set alternative. -/
 theorem paperLemma14
     (L : InitializationFiniteMixedSideLiteralTerminalData T)
     (hclaw : G.IsClawFree) :
@@ -121,9 +102,6 @@ theorem paperLemma14
     (L.distinctPropagation hclaw).toDistinctCenterConsequences
 
 end InitializationFiniteMixedSideLiteralTerminalData
-
 end ObstructionSearchInitialization
-
 end FixedPairingPathFamily
-
 end SimpleGraph

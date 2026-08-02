@@ -226,9 +226,13 @@ noncomputable def toDistinctCenterConsequences
     D.DistinctCenterConsequences hclaw where
   propagate := by
     classical
-    intro source source' target hne incoming incoming' hsource hsource' hcenter
-    obtain ⟨F, hprop⟩ :=
-      A.propagate hne incoming incoming' hsource hsource' hcenter
+    intro source source' target hne incoming incoming' hsource hsource'
+    dsimp
+    intro hcenter
+    have hpropAll :=
+      A.propagate hne incoming incoming' hsource hsource'
+    dsimp at hpropAll
+    obtain ⟨F, hprop⟩ := hpropAll hcenter
     cases hside : T.positiveDistinctSide_of_terminalClone_center_ne
         (D.toInteriorTerminalCloneData hclaw |>.witnessOfInterior incoming hsource)
         (D.toInteriorTerminalCloneData hclaw |>.witnessOfInterior incoming' hsource')

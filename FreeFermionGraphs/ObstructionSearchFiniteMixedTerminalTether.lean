@@ -141,7 +141,9 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
         targetIndex_even := L.targetIndex_even
         pathCard_odd := L.pathCard_odd
         cloneCenter := left.center
-        clone_adj_target := left.target_adj_center.symm
+        clone_adj_target := by
+          rw [L.target_eq]
+          exact left.target_adj_center.symm
         clone_adj_previous := by
           intro q hq
           have h := L.clone_adj_flank left q
@@ -160,7 +162,9 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
         targetIndex_even := L.targetIndex_even
         pathCard_odd := L.pathCard_odd
         cloneCenter := left.center
-        clone_adj_target := left.target_adj_center.symm
+        clone_adj_target := by
+          rw [L.target_eq]
+          exact left.target_adj_center.symm
         clone_adj_previous := by
           intro q hq
           have h := R.clone_adj_flank right q

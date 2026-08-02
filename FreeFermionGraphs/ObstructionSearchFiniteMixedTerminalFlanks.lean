@@ -172,13 +172,15 @@ structure FiniteMixedSideFirstBlockTetherOccurrence
     previous ∈
       ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).block
-          ((T.execution.toInitializationFiniteMixedSideOSExecutionData).
-            firstBlockIndex source positive)).dependentAt step
+          (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+            T.execution.toInitializationFiniteMixedSideOSExecutionData
+            source positive)).dependentAt step
   finalDegree_three :
     ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
       source).block
-        ((T.execution.toInitializationFiniteMixedSideOSExecutionData).
-          firstBlockIndex source positive)).finalHole.externalDegree previous = 3
+        (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+          T.execution.toInitializationFiniteMixedSideOSExecutionData
+          source positive)).finalHole.externalDegree previous = 3
 
 namespace FiniteMixedSideFirstBlockTetherOccurrence
 

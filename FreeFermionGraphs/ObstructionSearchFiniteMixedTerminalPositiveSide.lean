@@ -16,6 +16,34 @@ variable {V : Type u}
 
 namespace SimpleGraph
 
+namespace IndexedInducedHole
+
+/-- Transport a clone witness across equality of indexed holes, including the
+dependent finite index. -/
+theorem transport_singleVertexDeformation
+    {G : SimpleGraph V}
+    {C D : IndexedInducedHole G}
+    (hCD : C = D)
+    {s : V} {i : Fin C.card}
+    (h : C.SingleVertexDeformation s i) :
+    D.SingleVertexDeformation s
+      (Fin.cast (congrArg IndexedInducedHole.card hCD) i) := by
+  subst D
+  simpa
+
+/-- Transport evaluation of the indexed vertex map across equality of holes. -/
+theorem vertex_eq_transport
+    {G : SimpleGraph V}
+    {C D : IndexedInducedHole G}
+    (hCD : C = D)
+    (i : Fin C.card) :
+    C.vertex i =
+      D.vertex (Fin.cast (congrArg IndexedInducedHole.card hCD) i) := by
+  subst D
+  rfl
+
+end IndexedInducedHole
+
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -60,11 +88,24 @@ theorem terminalClone_center_eq_of_both_blockCount_eq_zero
       (target : V) left.cloneIndex at hleft
   change X'.manuscriptFinalHole.SingleVertexDeformation
       (target : V) right.cloneIndex at hright
-  cases hfinal
-  cases hfinal'
-  have hindex := hleft.center_eq hright
+  let leftIndex : Fin C.card :=
+    Fin.cast (congrArg IndexedInducedHole.card hfinal) left.cloneIndex
+  let rightIndex : Fin C.card :=
+    Fin.cast (congrArg IndexedInducedHole.card hfinal') right.cloneIndex
+  have hleftC : C.SingleVertexDeformation (target : V) leftIndex := by
+    exact IndexedInducedHole.transport_singleVertexDeformation hfinal hleft
+  have hrightC : C.SingleVertexDeformation (target : V) rightIndex := by
+    exact IndexedInducedHole.transport_singleVertexDeformation hfinal' hright
+  have hindex : leftIndex = rightIndex := hleftC.center_eq hrightC
   unfold FiniteMixedSideIncomingTerminalCloneWitness.center
-  exact congrArg C.vertex hindex
+  change X.manuscriptFinalHole.vertex left.cloneIndex =
+    X'.manuscriptFinalHole.vertex right.cloneIndex
+  calc
+    X.manuscriptFinalHole.vertex left.cloneIndex = C.vertex leftIndex :=
+      IndexedInducedHole.vertex_eq_transport hfinal left.cloneIndex
+    _ = C.vertex rightIndex := congrArg C.vertex hindex
+    _ = X'.manuscriptFinalHole.vertex right.cloneIndex :=
+      (IndexedInducedHole.vertex_eq_transport hfinal' right.cloneIndex).symm
 
 /-- Unequal staged centres force at least one of the two actual finite
 executions to have positive block count. -/

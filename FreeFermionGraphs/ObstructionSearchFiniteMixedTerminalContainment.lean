@@ -73,6 +73,15 @@ theorem removed_mem_selectedOriginalClass
           (families (I.pairing source)).Cb := by
   have hremoved :=
     ((X.localData q).neighborhood.mechanical.stepGeometry s).removed_ca
+  have hvertex :
+      (((X.block q).reorient (X.side q)).deformation.step s).before.vertex
+          (((X.block q).reorient (X.side q)).deformation.step s).removedIndex =
+        ((X.block q).deformation.step s).before.vertex
+          ((X.block q).deformation.step s).removedIndex := by
+    simpa [ConcreteDeformation.reorient_step] using
+      ConcreteDeformationStep.reorient_removedVertex
+        ((X.block q).deformation.step s) (X.side q)
+  rw [hvertex] at hremoved
   cases hside : X.side q with
   | ac =>
       simpa [hside, DeformationSide.family] using hremoved
@@ -117,15 +126,17 @@ variable {S : SearchDeformation O Cprime}
 /-- A concrete removal represented in the context at block `i` belongs to an
 actual block no later than `i`. -/
 theorem exists_blockStep_le_of_contextAt_containsRemovedVertex
-    (X : FiniteMixedSideSearchTrace S originalHole)
+    (X : ConcretePathDeformation.FiniteMixedSideSearchTrace S originalHole)
     (i : Fin X.blockCount) {x : V}
-    (hx : (X.contextAt i).ContainsRemovedVertex x) :
+    (hx :
+      (ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt X i).
+        ContainsRemovedVertex x) :
     ∃ q : Fin X.blockCount,
       ∃ s : Fin (X.block q).deformation.stepCount,
         q.val ≤ i.val ∧
           x = ((X.block q).deformation.step s).before.vertex
             ((X.block q).deformation.step s).removedIndex := by
-  unfold contextAt at hx
+  unfold ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt at hx
   split at hx
   next hi =>
     change ∃ s : Fin (X.block i).deformation.stepCount,
@@ -170,8 +181,9 @@ theorem exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
       exact Fin.elim0 i
   | nonempty data =>
       exact
-        ConcretePathDeformation.FiniteMixedSideSearchTrace.exists_blockStep_le_of_contextAt_containsRemovedVertex
-          data.literal.trace i hx
+        ConcretePathDeformation.FiniteMixedSideSearchTrace.
+          exists_blockStep_le_of_contextAt_containsRemovedVertex
+            data.literal.trace i hx
 
 end FiniteMixedSideOSExecution
 
@@ -237,26 +249,33 @@ theorem terminalCb_mem_manuscriptFinalHole
         source).manuscriptFinalHole.vertex := by
   by_contra hxFinal
   let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
-  let X := Y.ordered source
-  let last := X.lastBlockIndex hpos
+  let E := Y.execution source
+  let X := E.toOrdered
+  have hposX : 0 < X.blockCount := by
+    simpa [X, E, Y, InitializationFiniteMixedSideOSExecutionData.ordered] using hpos
+  let last := X.lastBlockIndex hposX
   have hremovedContext :
-      (Y.orderedContextAt source last).ContainsRemovedVertex x :=
-    Y.containsRemovedVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
-      source hpos hxOriginal hxFinal
+      (E.contextAt last).ContainsRemovedVertex x := by
+    have h :=
+      Y.containsRemovedVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
+        source hpos hxOriginal hxFinal
+    simpa [E, X, last, Y,
+      InitializationFiniteMixedSideOSExecutionData.ordered,
+      InitializationFiniteMixedSideOSExecutionData.orderedContextAt] using h
   obtain ⟨q, s, _hqle, hremoved⟩ :=
-    (Y.execution source).exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
+    E.exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
       last hremovedContext
   have hside : X.side q = .bd := by
     cases hs : X.side q with
     | ac =>
         have hxCa : x ∈ (families (I.pairing source)).Ca := by
           have hclass := X.removed_mem_selectedOriginalClass q s
-          simpa [X, hs, hremoved] using hclass
+          simpa [hs, hremoved] using hclass
         exact
           ((Set.disjoint_left.mp
             (T.pairingLabels.familyGeometry.ca_cb_disjoint_at
               (I.pairing source))) hxCa hxCb).elim
-    | bd => exact hs
+    | bd => rfl
   have hpathBd : X.path q ∈ (families (I.pairing source)).bdPaths := by
     have h := X.path_mem_selectedSide q
     simpa [hside] using h
@@ -273,7 +292,8 @@ theorem terminalCb_mem_manuscriptFinalHole
       Set.range (T.terminalPath target).vertex = X.path q :=
     (families (I.pairing source)).eq_of_mem_bdPaths
       hterminalBd hpathBd hxTerminal hxPath
-  exact T.terminalPath_ne_executionPath incoming q hpaths
+  have hne := T.terminalPath_ne_executionPath incoming q
+  exact hne hpaths
 
 end InitializationFiniteMixedSideTerminalCoreData
 

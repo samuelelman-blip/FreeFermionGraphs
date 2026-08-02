@@ -68,9 +68,8 @@ theorem mem_currentFinalHole_of_mem_originalHole_of_avoids
       have hxFirstFinal :
           x ∈ Set.range
             (H.priorBlock ⟨0, H.priorCount_pos⟩).finalHole.vertex :=
-        (H.priorBlock ⟨0, H.priorCount_pos⟩).
-          mem_finalHole_of_mem_initialHole_of_not_mem_path
-            hxFirstInitial (hprior ⟨0, H.priorCount_pos⟩)
+        (H.priorBlock ⟨0, H.priorCount_pos⟩).mem_finalHole_of_mem_initialHole_of_not_mem_path
+          hxFirstInitial (hprior ⟨0, H.priorCount_pos⟩)
       have hxLastFinal :
           x ∈ Set.range (H.priorBlock H.lastIndex).finalHole.vertex := by
         apply H.mem_finalHole_of_mem_finalHole_through
@@ -122,12 +121,10 @@ theorem exists_removedStep_through_of_mem_firstInitial_of_not_mem_finalHole
         ∃ i : Fin (H.priorBlock ⟨r, hr⟩).deformation.stepCount,
           x = ((H.priorBlock ⟨r, hr⟩).deformation.step i).before.vertex
             ((H.priorBlock ⟨r, hr⟩).deformation.step i).removedIndex := by
-  induction n with
+  induction n generalizing hn with
   | zero =>
-      rcases
-        (H.priorBlock ⟨0, H.priorCount_pos⟩).
-          exists_removedStep_of_mem_initialHole_of_not_mem_finalHole
-            hxInitial (by simpa using hxNotFinal) with ⟨i, hi⟩
+      rcases (H.priorBlock ⟨0, H.priorCount_pos⟩).exists_removedStep_of_mem_initialHole_of_not_mem_finalHole
+          hxInitial (by simpa using hxNotFinal) with ⟨i, hi⟩
       exact ⟨0, H.priorCount_pos, by omega, i, hi⟩
   | succ n ih =>
       have hnPrev : n < H.priorCount := by omega
@@ -142,13 +139,11 @@ theorem exists_removedStep_through_of_mem_firstInitial_of_not_mem_finalHole
               simp [previous, current])
           rw [← hchain]
           exact hxPrevious
-        rcases
-          (H.priorBlock current).
-            exists_removedStep_of_mem_initialHole_of_not_mem_finalHole
-              hxCurrentInitial (by simpa [current] using hxNotFinal) with
+        rcases (H.priorBlock current).exists_removedStep_of_mem_initialHole_of_not_mem_finalHole
+            hxCurrentInitial (by simpa [current] using hxNotFinal) with
           ⟨i, hi⟩
         exact ⟨n + 1, hn, by omega, i, by simpa [current] using hi⟩
-      · rcases ih hnPrev hxInitial (by simpa [previous] using hxPrevious) with
+      · rcases ih hnPrev (by simpa [previous] using hxPrevious) with
           ⟨r, hr, hrle, i, hi⟩
         exact ⟨r, hr, by omega, i, hi⟩
 
@@ -227,10 +222,9 @@ theorem mem_lastBlockFinalHole_of_mem_originalHole_of_avoidsContext
     x ∈ Set.range
       ((Y.ordered source).block
         ((Y.ordered source).lastBlockIndex hpos)).finalHole.vertex :=
-  ConcretePathDeformation.FiniteMixedSideLemma11AContext.
-    mem_currentFinalHole_of_mem_originalHole_of_avoids
-      (Y.orderedContextAt source
-        ((Y.ordered source).lastBlockIndex hpos)) hx havoid
+  ConcretePathDeformation.FiniteMixedSideLemma11AContext.mem_currentFinalHole_of_mem_originalHole_of_avoids
+    (Y.orderedContextAt source
+      ((Y.ordered source).lastBlockIndex hpos)) hx havoid
 
 /-- The same persistence conclusion on the exact finite manuscript terminal
 hole. -/
@@ -268,10 +262,9 @@ theorem containsRemovedVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
     apply hxNotFinal
     rw [(Y.ordered source).manuscriptFinalHole_eq_lastBlockFinalHole hpos]
     exact hx
-  exact ConcretePathDeformation.FiniteMixedSideLemma11AContext.
-    containsRemovedVertex_of_mem_originalHole_of_not_mem_currentFinalHole
-      (Y.orderedContextAt source
-        ((Y.ordered source).lastBlockIndex hpos)) hxOriginal hxNotLast
+  exact ConcretePathDeformation.FiniteMixedSideLemma11AContext.containsRemovedVertex_of_mem_originalHole_of_not_mem_currentFinalHole
+    (Y.orderedContextAt source
+      ((Y.ordered source).lastBlockIndex hpos)) hxOriginal hxNotLast
 
 end InitializationFiniteMixedSideOSExecutionData
 

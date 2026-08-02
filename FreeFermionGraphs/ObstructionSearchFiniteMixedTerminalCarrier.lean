@@ -59,7 +59,7 @@ theorem mem_currentFinalHole_of_mem_originalHole_of_avoids
         exact hx
       · simpa [AvoidsAllPaths] using havoid
   | later H =>
-      rcases havod : havoid with ⟨hprior, hcurrent⟩
+      rcases havoid with ⟨hprior, hcurrent⟩
       have hxFirstInitial :
           x ∈ Set.range
             (H.priorBlock ⟨0, H.priorCount_pos⟩).initialHole.vertex := by
@@ -230,7 +230,7 @@ theorem mem_lastBlockFinalHole_of_mem_originalHole_of_avoidsContext
   ConcretePathDeformation.FiniteMixedSideLemma11AContext.
     mem_currentFinalHole_of_mem_originalHole_of_avoids
       (Y.orderedContextAt source
-        ((Y.ordered source).lastBlockIndex hpos)) hx havod
+        ((Y.ordered source).lastBlockIndex hpos)) hx havoid
 
 /-- The same persistence conclusion on the exact finite manuscript terminal
 hole. -/
@@ -246,7 +246,7 @@ theorem mem_manuscriptFinalHole_of_mem_originalHole_of_avoidsContext
     x ∈ Set.range (Y.ordered source).manuscriptFinalHole.vertex := by
   rw [(Y.ordered source).manuscriptFinalHole_eq_lastBlockFinalHole hpos]
   exact Y.mem_lastBlockFinalHole_of_mem_originalHole_of_avoidsContext
-    source hpos hx havod
+    source hpos hx havoid
 
 /-- If an initialized original-hole vertex is missing from the exact positive
 terminal hole, a concrete step represented by the last finite context removes

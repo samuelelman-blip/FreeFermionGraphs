@@ -50,7 +50,7 @@ structure FiniteMixedSideDistinctCenterPropagationTraceData
       let C := D.toInteriorTerminalCloneData hclaw
       let left := C.witnessOfInterior incoming hsource
       let right := C.witnessOfInterior incoming' hsource'
-      left.center ≠ right.center →
+      ∀ hcenter : left.center ≠ right.center,
         ∃ F : FiniteMixedSideTerminalTwoStepFlanks T target,
           (Nonempty
               (FiniteMixedSideDistinctPropagationTrace
@@ -72,9 +72,13 @@ noncomputable def toDistinctCenterConsequences
     D.DistinctCenterConsequences hclaw where
   propagate := by
     classical
-    intro source source' target hne incoming incoming' hsource hsource' hcenter
-    obtain ⟨F, hleft | hright⟩ :=
-      A.trace hne incoming incoming' hsource hsource' hcenter
+    intro source source' target hne incoming incoming' hsource hsource'
+    dsimp
+    intro hcenter
+    have htraceAll :=
+      A.trace hne incoming incoming' hsource hsource'
+    dsimp at htraceAll
+    obtain ⟨F, hleft | hright⟩ := htraceAll hcenter
     · obtain ⟨X⟩ := hleft
       exact Or.inl
         ⟨X.toPropagationFromFlankOccurrence.
@@ -94,7 +98,7 @@ search.  The propagation field records the bounded path-by-path trace used only
 when two staged clone centres differ.  Neither field states an endpoint
 alternative or any conclusion of Lemma 14. -/
 structure InitializationFiniteMixedSideLiteralTerminalData
-    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Prop where
+    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where
   tether : FiniteMixedSideInitializationTerminalTetherData T
   distinctPropagation : ∀ hclaw : G.IsClawFree,
     FiniteMixedSideDistinctCenterPropagationTraceData T tether hclaw

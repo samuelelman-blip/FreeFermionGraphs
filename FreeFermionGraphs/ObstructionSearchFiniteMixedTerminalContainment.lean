@@ -78,9 +78,7 @@ theorem removed_mem_selectedOriginalClass
           (((X.block q).reorient (X.side q)).deformation.step s).removedIndex =
         ((X.block q).deformation.step s).before.vertex
           ((X.block q).deformation.step s).removedIndex := by
-    simpa [ConcreteDeformation.reorient_step] using
-      ConcreteDeformationStep.reorient_removedVertex
-        ((X.block q).deformation.step s) (X.side q)
+    cases hside : X.side q <;> rfl
   rw [hvertex] at hremoved
   cases hside : X.side q with
   | ac =>
@@ -129,8 +127,7 @@ theorem exists_blockStep_le_of_contextAt_containsRemovedVertex
     (X : ConcretePathDeformation.FiniteMixedSideSearchTrace S originalHole)
     (i : Fin X.blockCount) {x : V}
     (hx :
-      (ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt X i).
-        ContainsRemovedVertex x) :
+      (ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt X i).ContainsRemovedVertex x) :
     ∃ q : Fin X.blockCount,
       ∃ s : Fin (X.block q).deformation.stepCount,
         q.val ≤ i.val ∧
@@ -181,9 +178,8 @@ theorem exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
       exact Fin.elim0 i
   | nonempty data =>
       exact
-        ConcretePathDeformation.FiniteMixedSideSearchTrace.
-          exists_blockStep_le_of_contextAt_containsRemovedVertex
-            data.literal.trace i hx
+        ConcretePathDeformation.FiniteMixedSideSearchTrace.exists_blockStep_le_of_contextAt_containsRemovedVertex
+          data.literal.trace i hx
 
 end FiniteMixedSideOSExecution
 

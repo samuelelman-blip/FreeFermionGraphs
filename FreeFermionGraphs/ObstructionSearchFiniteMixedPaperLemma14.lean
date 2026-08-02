@@ -74,13 +74,11 @@ noncomputable def toDistinctCenterConsequences
     dsimp at htraceAll
     obtain ⟨F, hleft | hright⟩ := htraceAll hcenter
     · obtain ⟨X⟩ := hleft
-      exact Or.inl
-        ⟨(X.toPropagationFromFlankOccurrence).
-          toPropagationFromDegreeOccurrence⟩
+      let Y := X.toPropagationFromFlankOccurrence
+      exact Or.inl ⟨Y.toPropagationFromDegreeOccurrence⟩
     · obtain ⟨X⟩ := hright
-      exact Or.inr
-        ⟨(X.toPropagationFromFlankOccurrence).
-          toPropagationFromDegreeOccurrence⟩
+      let Y := X.toPropagationFromFlankOccurrence
+      exact Or.inr ⟨Y.toPropagationFromDegreeOccurrence⟩
 
 end FiniteMixedSideDistinctCenterPropagationTraceData
 

@@ -1,5 +1,6 @@
 import FreeFermionGraphs.ObstructionSearchFiniteMixedFinalSelection
 import FreeFermionGraphs.ObstructionSearchNearest
+import FreeFermionGraphs.ObstructionSearchTerminalSameClone
 
 /-!
 # Terminal core from finite mixed-side obstruction-search executions
@@ -17,7 +18,8 @@ first source, making the first incoming arc a self-loop.
 
 Thus terminal-slot injectivity and the generic Lemma 14 initialization
 geometry are derived from literal finite data, without the legacy total
-`Nat`-indexed execution trace.
+`Nat`-indexed execution trace.  The same-clone branch of the two-incoming
+terminal argument is then discharged on this finite core.
 -/
 
 universe u
@@ -207,6 +209,69 @@ noncomputable def toInitializationGeometry
     (T.obstructionOpposite hclaw)
     T.currentSlot
     (T.currentSlot_source_injective hclaw)
+
+end InitializationFiniteMixedSideTerminalCoreData
+
+/-- The concrete equal-clone branch for two finite mixed-side searches
+entering one target.  The field supplies the alternating terminal
+neighborhood, not the desired endpoint conclusion. -/
+structure FiniteMixedSideSameCloneTerminalAnalysis
+    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Prop where
+  interiorGeometry :
+    ∀ ⦃source source' target : I.Node⦄,
+      source ≠ source' →
+      I.graph.Arc source target →
+      I.graph.Arc source' target →
+      (T.terminalPath target).obstructionEndpoint
+          (T.currentSlot source target) ≠ (target : V) →
+      (T.terminalPath target).obstructionEndpoint
+          (T.currentSlot source' target) ≠ (target : V) →
+        Nonempty
+          ((T.terminalPath target).SameCloneTerminalNeighborhood
+            (target : V))
+
+namespace InitializationFiniteMixedSideTerminalCoreData
+
+/-- The common-clone local claw theorem yields the exact two-incoming
+endpoint alternative on the finite mixed-side terminal core. -/
+theorem target_is_current_endpoint_of_twoIncoming_of_sameClone
+    (T : I.InitializationFiniteMixedSideTerminalCoreData)
+    (S : FiniteMixedSideSameCloneTerminalAnalysis T)
+    (hclaw : G.IsClawFree)
+    {source source' target : I.Node}
+    (hne : source ≠ source')
+    (incoming : I.graph.Arc source target)
+    (incoming' : I.graph.Arc source' target) :
+    ((T.terminalPath target).obstructionEndpoint
+          (T.currentSlot source target) = (target : V) ∨
+      (T.terminalPath target).obstructionEndpoint
+          (T.currentSlot source' target) = (target : V)) := by
+  have hslots :
+      T.currentSlot source target ≠
+        T.currentSlot source' target := by
+    intro hs
+    exact hne
+      (T.currentSlot_source_injective hclaw incoming incoming' hs)
+  exact
+    (T.terminalPath target).target_eq_selectedEndpoint_of_sameClone
+      (target : V)
+      (T.currentSlot source target)
+      (T.currentSlot source' target)
+      (by
+        intro hfirst hlast
+        obtain ⟨X⟩ :=
+          S.interiorGeometry hne incoming incoming' hfirst hlast
+        cases hsource : T.currentSlot source target <;>
+            cases hsource' : T.currentSlot source' target
+        · exact (hslots (hsource.trans hsource'.symm)).elim
+        · exact X.toInteriorGeometry
+            (by simpa [hsource] using hfirst)
+            (by simpa [hsource'] using hlast)
+        · exact X.toInteriorGeometry
+            (by simpa [hsource'] using hlast)
+            (by simpa [hsource] using hfirst)
+        · exact (hslots (hsource.trans hsource'.symm)).elim)
+      hclaw
 
 end InitializationFiniteMixedSideTerminalCoreData
 

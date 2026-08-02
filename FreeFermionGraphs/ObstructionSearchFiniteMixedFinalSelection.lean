@@ -37,7 +37,7 @@ At initialization the current vertex is the source, and no path need have
 been appended before the obstruction is found. -/
 structure FiniteMixedSideInitialFinalSelection
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) : Prop where
+    (source : I.Node) (u : V) where
   output_empty : (I.output source).run = none
   dependent_eq_source : u = (source : V)
 
@@ -45,7 +45,7 @@ structure FiniteMixedSideInitialFinalSelection
 vertex in an actual finite ordered block. -/
 structure FiniteMixedSideLaterFinalSelection
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) : Prop where
+    (source : I.Node) (u : V) where
   blockIndex : Fin (X.ordered source).blockCount
   stepIndex : Nat
   dependent :
@@ -57,7 +57,7 @@ structure FiniteMixedSideLaterFinalSelection
 mixed-side obstruction search. -/
 inductive FiniteMixedSideFinalSelectionWitness
     (X : I.InitializationFiniteMixedSideOSExecutionData)
-    (source : I.Node) (u : V) : Prop where
+    (source : I.Node) (u : V) where
   | initialTether
       (selection : FiniteMixedSideInitialFinalSelection X source u)
   | laterDefinition20
@@ -119,12 +119,11 @@ theorem noSharedLaterFinalSelection
     intro hEq
     exact (Set.disjoint_left.mp hpaths) hQ (hEq ▸ hR)
   have hforbidden :=
-    ConcretePathDeformation.FiniteMixedSideLemma11AContext.
-      noSharedDependentAnticommutingWitness_of_pairing_eq
-        (X.orderedContextAt source A.blockIndex)
-        (X.orderedContextAt source' B.blockIndex)
-        hpair hclaw (by
-          simpa [Q, R, FiniteMixedSideOrderedOSExecution.path] using hQR)
+    ConcretePathDeformation.FiniteMixedSideLemma11AContext.noSharedDependentAnticommutingWitness_of_pairing_eq
+      (X.orderedContextAt source A.blockIndex)
+      (X.orderedContextAt source' B.blockIndex)
+      hpair hclaw (by
+        simpa [Q, R, FiniteMixedSideOrderedOSExecution.path] using hQR)
   apply hforbidden
   exact ⟨u, A.stepIndex, B.stepIndex,
     A.dependent, B.dependent, A.anticommutes, B.anticommutes⟩

@@ -63,7 +63,7 @@ structure FiniteMixedSideIncomingTerminalTether
 /-- Literal tether data for every actual obstruction arc of the initialized
 finite execution. -/
 structure FiniteMixedSideInitializationTerminalTetherData
-    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type where
+    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where
   tether : ∀ ⦃source target : I.Node⦄
     (incoming : I.graph.Arc source target),
       FiniteMixedSideIncomingTerminalTether T source target incoming

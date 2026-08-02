@@ -66,10 +66,14 @@ theorem originalDegree_two_of_firstBlock_dependent
   have hlocal :=
     (A.lemma11a_membership_iff_ne_first_and_degree
       hData hclaw huPrime hantiA).mp ⟨s, huA⟩
+  have hstepA :
+      A.finalHole.externalDegree u =
+        A.initialHole.externalDegree u + 1 :=
+    hlocal.2
   have hstep :
       D.finalHole.externalDegree u =
         D.initialHole.externalDegree u + 1 := by
-    cases side <;> exact hlocal.2
+    simpa [A, D, side] using hstepA
   have hinitial : D.initialHole.externalDegree u = 2 := by
     change D.finalHole.externalDegree u = 3 at hthree
     omega
@@ -538,8 +542,9 @@ theorem lemma14_of_terminalClawAnalysis
               I.dependentSet source' ≠ {(target : V)}) ∨
             (I.dependentSet source ≠ {(target : V)} ∧
               I.dependentSet source' = {(target : V)}))) :=
-  (T.toInitializationFiniteMixedSideTerminalData_of_clawAnalysis A hclaw).
-    lemma14_of_initializationFiniteMixedSideTerminalData hclaw
+  InitializationFiniteMixedSideTerminalData.lemma14_of_initializationFiniteMixedSideTerminalData
+    (T.toInitializationFiniteMixedSideTerminalData_of_clawAnalysis A hclaw)
+    hclaw
 
 end InitializationFiniteMixedSideTerminalCoreData
 

@@ -164,7 +164,7 @@ namespace InitializationFiniteMixedSideTerminalCoreData
 
 /-- Choose one positive execution from an unequal pair of staged clone
 centres. -/
-theorem positiveDistinctSide_of_terminalClone_center_ne
+noncomputable def positiveDistinctSide_of_terminalClone_center_ne
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     {source source' target : I.Node}
     {incoming : I.graph.Arc source target}
@@ -175,10 +175,21 @@ theorem positiveDistinctSide_of_terminalClone_center_ne
       T source' target incoming')
     (hne : left.center ≠ right.center) :
     FiniteMixedSidePositiveDistinctSide T incoming incoming' := by
-  rcases T.blockCount_pos_or_blockCount_pos_of_terminalClone_center_ne
-      left right hne with hleft | hright
+  classical
+  by_cases hleft :
+      0 <
+        (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+          source).blockCount
   · exact FiniteMixedSidePositiveDistinctSide.left hleft
-  · exact FiniteMixedSidePositiveDistinctSide.right hright
+  · have hor :=
+      T.blockCount_pos_or_blockCount_pos_of_terminalClone_center_ne
+        left right hne
+    have hright :
+        0 <
+          (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+            source').blockCount :=
+      Or.resolve_left hor hleft
+    exact FiniteMixedSidePositiveDistinctSide.right hright
 
 end InitializationFiniteMixedSideTerminalCoreData
 

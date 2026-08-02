@@ -114,6 +114,7 @@ theorem targetIndex_eq
 paper's common-centre terminal neighborhood. -/
 theorem sameCloneTerminalNeighborhood_of_center_eq
     (D : FiniteMixedSideInitializationTerminalTetherData T)
+    (hclaw : G.IsClawFree)
     {source source' target : I.Node}
     (hne : source ≠ source')
     (incoming : I.graph.Arc source target)
@@ -129,8 +130,7 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
   let R := D.tether incoming'
   have hslots :
       T.currentSlot source target ≠ T.currentSlot source' target :=
-    T.currentSlot_ne_of_twoIncoming (by
-      exact Classical.choice inferInstance) hne incoming incoming'
+    T.currentSlot_ne_of_twoIncoming hclaw hne incoming incoming'
   have hindex : L.targetIndex = R.targetIndex := D.targetIndex_eq
   cases hs : T.currentSlot source target <;>
     cases hs' : T.currentSlot source' target
@@ -218,7 +218,7 @@ noncomputable def toTerminalCloneComparisonAnalysis
     refine ⟨left, right, ?_, ?_⟩
     · intro hcenter
       exact D.sameCloneTerminalNeighborhood_of_center_eq
-        hne incoming incoming' left right hcenter
+        hclaw hne incoming incoming' left right hcenter
     · intro hcenter
       exact A.propagate hne incoming incoming' hsource hsource' hcenter
 

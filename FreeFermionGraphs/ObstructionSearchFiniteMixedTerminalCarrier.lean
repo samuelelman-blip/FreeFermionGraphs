@@ -121,7 +121,7 @@ theorem exists_removedStep_through_of_mem_firstInitial_of_not_mem_finalHole
         ∃ i : Fin (H.priorBlock ⟨r, hr⟩).deformation.stepCount,
           x = ((H.priorBlock ⟨r, hr⟩).deformation.step i).before.vertex
             ((H.priorBlock ⟨r, hr⟩).deformation.step i).removedIndex := by
-  induction n generalizing hn with
+  induction n with
   | zero =>
       rcases (H.priorBlock ⟨0, H.priorCount_pos⟩).exists_removedStep_of_mem_initialHole_of_not_mem_finalHole
           hxInitial (by simpa using hxNotFinal) with ⟨i, hi⟩

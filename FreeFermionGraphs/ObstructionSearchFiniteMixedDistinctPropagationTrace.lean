@@ -20,7 +20,6 @@ universe u
 variable {V : Type u}
 
 namespace SimpleGraph
-
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -31,9 +30,6 @@ namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
 
-/-- A bounded path-by-path propagation on one selected positive execution.
-The predecessor is the source-side two-step terminal flank, while the target's
-original-hole clone index is fixed by the literal stopping branch. -/
 structure FiniteMixedSideDistinctPropagationTrace
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     (hclaw : G.IsClawFree)
@@ -66,17 +62,15 @@ structure FiniteMixedSideDistinctPropagationTrace
         source).path (hopBlock k)
   carried_avoidance : ∀ k : Fin (hopCount + 1),
     carriedIndex k ∉
-        T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.
-          neighborIndexSet
-            (F.towardEndpointVertex (T.currentSlot source target)) ∧
+        (T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole).neighborIndexSet
+          (F.towardEndpointVertex (T.currentSlot source target)) ∧
       carriedIndex k ≠ T.targetCloneIndexOfIncoming hclaw incoming ∧
       ¬CyclicAdjacent
         (T.targetCloneIndexOfIncoming hclaw incoming) (carriedIndex k)
   clone_avoids_previousNeighbors :
     T.targetCloneIndexOfIncoming hclaw incoming ∉
-      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.
-        neighborIndexSet
-          (F.towardEndpointVertex (T.currentSlot source target))
+      (T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole).neighborIndexSet
+        (F.towardEndpointVertex (T.currentSlot source target))
   adj_previous :
     G.Adj center
       (F.towardEndpointVertex (T.currentSlot source target))
@@ -97,21 +91,17 @@ variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
   {incoming : I.graph.Arc source target}
   {F : FiniteMixedSideTerminalTwoStepFlanks T target}
 
-/-- Last carried original-hole index. -/
 def finalIndex
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming) : Fin (X.hopCount + 1) :=
   ⟨X.hopCount, by omega⟩
 
-/-- Last carried original-hole vertex. -/
 def finalVertex
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming) : V :=
   T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.vertex
     (X.carriedIndex X.finalIndex)
 
-/-- The predecessor differs from the final carried vertex because the former is
-outside and the latter is on the initialized original hole. -/
 theorem previous_ne_finalVertex
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming) :
@@ -120,8 +110,6 @@ theorem previous_ne_finalVertex
   apply X.previous_outside_originalHole
   exact ⟨X.carriedIndex X.finalIndex, hEq.symm⟩
 
-/-- The final carried vertex is different from every original-hole neighbour
-of the predecessor. -/
 theorem finalVertex_ne_previousNeighbor
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
@@ -139,8 +127,6 @@ theorem finalVertex_ne_previousNeighbor
   rw [hIndex]
   exact hAdj
 
-/-- Recover the flank-level propagation package.  All noncollision conditions
-are consequences of the trace's index invariants and clone-centre uniqueness. -/
 noncomputable def toPropagationFromFlankOccurrence
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming) :
@@ -187,8 +173,11 @@ noncomputable def toPropagationFromFlankOccurrence
             have hCloneIndex : cloneIndex = canonical :=
               hclone.center_eq hcanonical
             have hIndex : cloneIndex = q := C.injective hEq
+            have hTargetIndex :
+                T.targetCloneIndexOfIncoming hclaw incoming = q := by
+              simpa [canonical] using hCloneIndex.symm.trans hIndex
             apply X.clone_avoids_previousNeighbors
-            rw [← hCloneIndex, hIndex]
+            rw [hTargetIndex]
             exact hAdj
           propagatedNeighbor_ne_cycleNeighbor := by
             intro cloneIndex q hclone hAdj hEq
@@ -204,9 +193,6 @@ noncomputable def toPropagationFromFlankOccurrence
             exact hCyclic } }
 
 end FiniteMixedSideDistinctPropagationTrace
-
 end ObstructionSearchInitialization
-
 end FixedPairingPathFamily
-
 end SimpleGraph

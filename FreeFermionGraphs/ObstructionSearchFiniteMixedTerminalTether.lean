@@ -36,7 +36,7 @@ this search. -/
 structure FiniteMixedSideIncomingTerminalTether
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     (source target : I.Node)
-    (incoming : I.graph.Arc source target) : Prop where
+    (incoming : I.graph.Arc source target) : Type where
   targetIndex : Fin (T.terminalPath target).card
   target_eq : (T.terminalPath target).vertex targetIndex = (target : V)
   targetIndex_even : Even targetIndex.val
@@ -55,15 +55,15 @@ structure FiniteMixedSideIncomingTerminalTether
         match T.currentSlot source target with
         | .first =>
             q.val + 2 = targetIndex.val →
-              G.Adj X.center (T.terminalPath target).vertex q
+              G.Adj X.center ((T.terminalPath target).vertex q)
         | .last =>
             targetIndex.val + 2 = q.val →
-              G.Adj X.center (T.terminalPath target).vertex q
+              G.Adj X.center ((T.terminalPath target).vertex q)
 
 /-- Literal tether data for every actual obstruction arc of the initialized
 finite execution. -/
 structure FiniteMixedSideInitializationTerminalTetherData
-    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Prop where
+    (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where
   tether : ∀ ⦃source target : I.Node⦄
     (incoming : I.graph.Arc source target),
       FiniteMixedSideIncomingTerminalTether T source target incoming
@@ -147,14 +147,22 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
         clone_adj_previous := by
           intro q hq
           have h := L.clone_adj_flank left q
-          simpa [hs] using h hq
+          have h' :
+              q.val + 2 = L.targetIndex.val →
+                G.Adj left.center ((T.terminalPath target).vertex q) := by
+            simpa [hs] using h
+          exact h' hq
         clone_adj_next := by
           intro q hq
           have h := R.clone_adj_flank right q
+          have h' :
+              R.targetIndex.val + 2 = q.val →
+                G.Adj right.center ((T.terminalPath target).vertex q) := by
+            simpa [hs'] using h
           have hq' : R.targetIndex.val + 2 = q.val := by
             simpa [hindex] using hq
-          have hadj : G.Adj right.center (T.terminalPath target).vertex q := by
-            simpa [hs'] using h hq'
+          have hadj : G.Adj right.center ((T.terminalPath target).vertex q) :=
+            h' hq'
           simpa [hcenter] using hadj }⟩
   · exact ⟨
       { targetIndex := L.targetIndex
@@ -168,15 +176,23 @@ theorem sameCloneTerminalNeighborhood_of_center_eq
         clone_adj_previous := by
           intro q hq
           have h := R.clone_adj_flank right q
+          have h' :
+              q.val + 2 = R.targetIndex.val →
+                G.Adj right.center ((T.terminalPath target).vertex q) := by
+            simpa [hs'] using h
           have hq' : q.val + 2 = R.targetIndex.val := by
             simpa [hindex] using hq
-          have hadj : G.Adj right.center (T.terminalPath target).vertex q := by
-            simpa [hs'] using h hq'
+          have hadj : G.Adj right.center ((T.terminalPath target).vertex q) :=
+            h' hq'
           simpa [hcenter] using hadj
         clone_adj_next := by
           intro q hq
           have h := L.clone_adj_flank left q
-          simpa [hs] using h hq }⟩
+          have h' :
+              L.targetIndex.val + 2 = q.val →
+                G.Adj left.center ((T.terminalPath target).vertex q) := by
+            simpa [hs] using h
+          exact h' hq }⟩
   · exact (hslots (hs.trans hs'.symm)).elim
 
 /-- The only remaining pairwise branch after literal tether data is the

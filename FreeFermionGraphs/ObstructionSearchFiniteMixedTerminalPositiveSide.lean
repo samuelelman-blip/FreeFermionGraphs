@@ -16,6 +16,34 @@ variable {V : Type u}
 
 namespace SimpleGraph
 
+namespace IndexedInducedHole
+
+/-- Transport a clone witness across equality of indexed holes, including the
+dependent finite index. -/
+theorem transport_singleVertexDeformation
+    {G : SimpleGraph V}
+    {C D : IndexedInducedHole G}
+    (hCD : C = D)
+    {s : V} {i : Fin C.card}
+    (h : C.SingleVertexDeformation s i) :
+    D.SingleVertexDeformation s
+      (Fin.cast (congrArg IndexedInducedHole.card hCD) i) := by
+  subst D
+  simpa
+
+/-- Transport evaluation of the indexed vertex map across equality of holes. -/
+theorem vertex_eq_transport
+    {G : SimpleGraph V}
+    {C D : IndexedInducedHole G}
+    (hCD : C = D)
+    (i : Fin C.card) :
+    C.vertex i =
+      D.vertex (Fin.cast (congrArg IndexedInducedHole.card hCD) i) := by
+  subst D
+  rfl
+
+end IndexedInducedHole
+
 namespace FixedPairingPathFamily
 
 variable {G : SimpleGraph V}
@@ -60,14 +88,24 @@ theorem terminalClone_center_eq_of_both_blockCount_eq_zero
       (target : V) left.cloneIndex at hleft
   change X'.manuscriptFinalHole.SingleVertexDeformation
       (target : V) right.cloneIndex at hright
-  rw [hfinal] at hleft
-  rw [hfinal'] at hright
-  have hindex := hleft.center_eq hright
+  let leftIndex : Fin C.card :=
+    Fin.cast (congrArg IndexedInducedHole.card hfinal) left.cloneIndex
+  let rightIndex : Fin C.card :=
+    Fin.cast (congrArg IndexedInducedHole.card hfinal') right.cloneIndex
+  have hleftC : C.SingleVertexDeformation (target : V) leftIndex := by
+    exact IndexedInducedHole.transport_singleVertexDeformation hfinal hleft
+  have hrightC : C.SingleVertexDeformation (target : V) rightIndex := by
+    exact IndexedInducedHole.transport_singleVertexDeformation hfinal' hright
+  have hindex : leftIndex = rightIndex := hleftC.center_eq hrightC
   unfold FiniteMixedSideIncomingTerminalCloneWitness.center
   change X.manuscriptFinalHole.vertex left.cloneIndex =
     X'.manuscriptFinalHole.vertex right.cloneIndex
-  rw [hfinal, hfinal']
-  exact congrArg C.vertex hindex
+  calc
+    X.manuscriptFinalHole.vertex left.cloneIndex = C.vertex leftIndex :=
+      IndexedInducedHole.vertex_eq_transport hfinal left.cloneIndex
+    _ = C.vertex rightIndex := congrArg C.vertex hindex
+    _ = X'.manuscriptFinalHole.vertex right.cloneIndex :=
+      (IndexedInducedHole.vertex_eq_transport hfinal' right.cloneIndex).symm
 
 /-- Unequal staged centres force at least one of the two actual finite
 executions to have positive block count. -/
@@ -108,7 +146,7 @@ inductive FiniteMixedSidePositiveDistinctSide
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     {source source' target : I.Node}
     (incoming : I.graph.Arc source target)
-    (incoming' : I.graph.Arc source' target) : Prop where
+    (incoming' : I.graph.Arc source' target) : Type where
   | left
       (hpos :
         0 <
@@ -126,7 +164,7 @@ namespace InitializationFiniteMixedSideTerminalCoreData
 
 /-- Choose one positive execution from an unequal pair of staged clone
 centres. -/
-theorem positiveDistinctSide_of_terminalClone_center_ne
+noncomputable def positiveDistinctSide_of_terminalClone_center_ne
     (T : I.InitializationFiniteMixedSideTerminalCoreData)
     {source source' target : I.Node}
     {incoming : I.graph.Arc source target}
@@ -137,10 +175,21 @@ theorem positiveDistinctSide_of_terminalClone_center_ne
       T source' target incoming')
     (hne : left.center ≠ right.center) :
     FiniteMixedSidePositiveDistinctSide T incoming incoming' := by
-  rcases T.blockCount_pos_or_blockCount_pos_of_terminalClone_center_ne
-      left right hne with hleft | hright
+  classical
+  by_cases hleft :
+      0 <
+        (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+          source).blockCount
   · exact FiniteMixedSidePositiveDistinctSide.left hleft
-  · exact FiniteMixedSidePositiveDistinctSide.right hright
+  · have hor :=
+      T.blockCount_pos_or_blockCount_pos_of_terminalClone_center_ne
+        left right hne
+    have hright :
+        0 <
+          (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+            source').blockCount :=
+      Or.resolve_left hor hleft
+    exact FiniteMixedSidePositiveDistinctSide.right hright
 
 end InitializationFiniteMixedSideTerminalCoreData
 

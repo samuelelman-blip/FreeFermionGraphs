@@ -111,6 +111,27 @@ theorem exists_twoStepFlanks
 
 end FiniteMixedSideInitializationTerminalTetherData
 
+namespace FiniteMixedSideOSExecution
+
+/-- Block zero of a positive literal finite execution starts from the supplied
+original hole.  Case analysis is performed on the execution itself, avoiding
+a dependent equality recursor through `toOrdered`. -/
+theorem firstBlock_initial_eq_original
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : FiniteMixedSideOSExecution I source originalHole)
+    (hpos : 0 < X.toOrdered.blockCount) :
+    Set.range (X.toOrdered.block ⟨0, hpos⟩).initialHole.vertex =
+      Set.range originalHole.vertex := by
+  cases X with
+  | empty hrun =>
+      change 0 < 0 at hpos
+      omega
+  | nonempty data =>
+      simpa [FiniteMixedSideOSExecution.toOrdered] using
+        data.literal.trace.originalHole_eq
+
+end FiniteMixedSideOSExecution
+
 namespace InitializationFiniteMixedSideOSExecutionData
 
 /-- Canonical index of block zero in a positive literal finite execution. -/
@@ -130,16 +151,9 @@ theorem firstBlock_initial_eq_original
     Set.range
         ((Y.ordered source).block (Y.firstBlockIndex source hpos)).initialHole.vertex =
       Set.range Y.originalHole.vertex := by
-  cases hExec : Y.execution source with
-  | empty hrun =>
-      have hzero : (Y.ordered source).blockCount = 0 := by
-        simp [InitializationFiniteMixedSideOSExecutionData.ordered,
-          hExec, FiniteMixedSideOSExecution.toOrdered]
-      omega
-  | nonempty data =>
-      simpa [InitializationFiniteMixedSideOSExecutionData.ordered,
-        hExec, FiniteMixedSideOSExecution.toOrdered, firstBlockIndex] using
-        data.literal.trace.originalHole_eq
+  simpa [InitializationFiniteMixedSideOSExecutionData.ordered,
+    firstBlockIndex] using
+    (Y.execution source).firstBlock_initial_eq_original hpos
 
 end InitializationFiniteMixedSideOSExecutionData
 
@@ -158,13 +172,15 @@ structure FiniteMixedSideFirstBlockTetherOccurrence
     previous ∈
       ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).block
-          (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-            firstBlockIndex source positive)).dependentAt step
+          (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+            T.execution.toInitializationFiniteMixedSideOSExecutionData
+            source positive)).dependentAt step
   finalDegree_three :
     ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
       source).block
-        (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-          firstBlockIndex source positive)).finalHole.externalDegree previous = 3
+        (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+          T.execution.toInitializationFiniteMixedSideOSExecutionData
+          source positive)).finalHole.externalDegree previous = 3
 
 namespace FiniteMixedSideFirstBlockTetherOccurrence
 
@@ -175,16 +191,16 @@ variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
 distinct-clone contradiction. -/
 def toDegreeOccurrence
     (W : FiniteMixedSideFirstBlockTetherOccurrence T source previous) :
-    FiniteMixedSideFirstBlockPredecessorDegreeOccurrence T source previous where
-  blockIndex :=
-    T.execution.toInitializationFiniteMixedSideOSExecutionData.
-      firstBlockIndex source W.positive
-  block_initial_eq_original :=
-    T.execution.toInitializationFiniteMixedSideOSExecutionData.
-      firstBlock_initial_eq_original source W.positive
-  step := W.step
-  mem_dependent := W.mem_dependent
-  finalDegree_three := W.finalDegree_three
+    FiniteMixedSideFirstBlockPredecessorDegreeOccurrence T source previous := by
+  let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
+  refine {
+    blockIndex := Y.firstBlockIndex source W.positive
+    block_initial_eq_original :=
+      Y.firstBlock_initial_eq_original source W.positive
+    step := W.step
+    mem_dependent := W.mem_dependent
+    finalDegree_three := W.finalDegree_three
+  }
 
 end FiniteMixedSideFirstBlockTetherOccurrence
 

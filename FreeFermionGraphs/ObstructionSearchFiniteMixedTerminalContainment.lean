@@ -64,15 +64,22 @@ theorem removed_mem_selectedOriginalClass
     (s : Fin (X.block q).deformation.stepCount) :
     match X.side q with
     | .ac =>
-        (X.block q).deformation.step s |>.before.vertex
+        ((X.block q).deformation.step s).before.vertex
             ((X.block q).deformation.step s).removedIndex ∈
           (families (I.pairing source)).Ca
     | .bd =>
-        (X.block q).deformation.step s |>.before.vertex
+        ((X.block q).deformation.step s).before.vertex
             ((X.block q).deformation.step s).removedIndex ∈
           (families (I.pairing source)).Cb := by
   have hremoved :=
     ((X.localData q).neighborhood.mechanical.stepGeometry s).removed_ca
+  have hvertex :
+      (((X.block q).reorient (X.side q)).deformation.step s).before.vertex
+          (((X.block q).reorient (X.side q)).deformation.step s).removedIndex =
+        ((X.block q).deformation.step s).before.vertex
+          ((X.block q).deformation.step s).removedIndex := by
+    cases hside : X.side q <;> rfl
+  rw [hvertex] at hremoved
   cases hside : X.side q with
   | ac =>
       simpa [hside, DeformationSide.family] using hremoved
@@ -108,7 +115,8 @@ theorem path_mem_selectedSide
 
 end FiniteMixedSideOrderedOSExecution
 
-namespace ConcretePathDeformation.FiniteMixedSideSearchTrace
+namespace ConcretePathDeformation
+namespace FiniteMixedSideSearchTrace
 
 variable {S : SearchDeformation O Cprime}
   {originalHole : IndexedInducedHole G}
@@ -116,19 +124,20 @@ variable {S : SearchDeformation O Cprime}
 /-- A concrete removal represented in the context at block `i` belongs to an
 actual block no later than `i`. -/
 theorem exists_blockStep_le_of_contextAt_containsRemovedVertex
-    (X : FiniteMixedSideSearchTrace S originalHole)
+    (X : ConcretePathDeformation.FiniteMixedSideSearchTrace S originalHole)
     (i : Fin X.blockCount) {x : V}
-    (hx : (X.contextAt i).ContainsRemovedVertex x) :
+    (hx :
+      (ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt X i).ContainsRemovedVertex x) :
     ∃ q : Fin X.blockCount,
       ∃ s : Fin (X.block q).deformation.stepCount,
         q.val ≤ i.val ∧
-          x = (X.block q).deformation.step s |>.before.vertex
+          x = ((X.block q).deformation.step s).before.vertex
             ((X.block q).deformation.step s).removedIndex := by
-  unfold contextAt at hx
+  unfold ConcretePathDeformation.FiniteMixedSideSearchTrace.contextAt at hx
   split at hx
   next hi =>
     change ∃ s : Fin (X.block i).deformation.stepCount,
-      x = (X.block i).deformation.step s |>.before.vertex
+      x = ((X.block i).deformation.step s).before.vertex
         ((X.block i).deformation.step s).removedIndex at hx
     obtain ⟨s, hs⟩ := hx
     exact ⟨i, s, Nat.le_refl _, hs⟩
@@ -136,10 +145,10 @@ theorem exists_blockStep_le_of_contextAt_containsRemovedVertex
     change
       (∃ r : Fin i.val,
         ∃ s : Fin (X.block (X.priorIndex i r)).deformation.stepCount,
-          x = (X.block (X.priorIndex i r)).deformation.step s |>.before.vertex
+          x = ((X.block (X.priorIndex i r)).deformation.step s).before.vertex
             ((X.block (X.priorIndex i r)).deformation.step s).removedIndex) ∨
       ∃ s : Fin (X.block i).deformation.stepCount,
-        x = (X.block i).deformation.step s |>.before.vertex
+        x = ((X.block i).deformation.step s).before.vertex
           ((X.block i).deformation.step s).removedIndex at hx
     rcases hx with hprior | hcurrent
     · obtain ⟨r, s, hs⟩ := hprior
@@ -147,7 +156,8 @@ theorem exists_blockStep_le_of_contextAt_containsRemovedVertex
     · obtain ⟨s, hs⟩ := hcurrent
       exact ⟨i, s, Nat.le_refl _, hs⟩
 
-end ConcretePathDeformation.FiniteMixedSideSearchTrace
+end FiniteMixedSideSearchTrace
+end ConcretePathDeformation
 
 namespace FiniteMixedSideOSExecution
 
@@ -161,15 +171,15 @@ theorem exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
     ∃ q : Fin X.toOrdered.blockCount,
       ∃ s : Fin (X.toOrdered.block q).deformation.stepCount,
         q.val ≤ i.val ∧
-          x = (X.toOrdered.block q).deformation.step s |>.before.vertex
+          x = ((X.toOrdered.block q).deformation.step s).before.vertex
             ((X.toOrdered.block q).deformation.step s).removedIndex := by
   cases X with
   | empty hrun =>
       exact Fin.elim0 i
   | nonempty data =>
       exact
-        data.literal.trace.exists_blockStep_le_of_contextAt_containsRemovedVertex
-          i hx
+        ConcretePathDeformation.FiniteMixedSideSearchTrace.exists_blockStep_le_of_contextAt_containsRemovedVertex
+          data.literal.trace i hx
 
 end FiniteMixedSideOSExecution
 
@@ -235,34 +245,40 @@ theorem terminalCb_mem_manuscriptFinalHole
         source).manuscriptFinalHole.vertex := by
   by_contra hxFinal
   let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
-  let X := Y.ordered source
-  let last := X.lastBlockIndex hpos
+  let E := Y.execution source
+  let X := E.toOrdered
+  have hposX : 0 < X.blockCount := by
+    simpa [X, E, Y, InitializationFiniteMixedSideOSExecutionData.ordered] using hpos
+  let last := X.lastBlockIndex hposX
   have hremovedContext :
-      (Y.orderedContextAt source last).ContainsRemovedVertex x :=
-    Y.containsRemovedVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
-      source hpos hxOriginal hxFinal
+      (E.contextAt last).ContainsRemovedVertex x := by
+    have h :=
+      Y.containsRemovedVertex_of_mem_originalHole_of_not_mem_manuscriptFinalHole
+        source hpos hxOriginal hxFinal
+    simpa [E, X, last, Y,
+      InitializationFiniteMixedSideOSExecutionData.ordered,
+      InitializationFiniteMixedSideOSExecutionData.orderedContextAt] using h
   obtain ⟨q, s, _hqle, hremoved⟩ :=
-    (Y.execution source).
-      exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
-        last hremovedContext
+    E.exists_orderedBlockStep_le_of_contextAt_containsRemovedVertex
+      last hremovedContext
   have hside : X.side q = .bd := by
     cases hs : X.side q with
     | ac =>
         have hxCa : x ∈ (families (I.pairing source)).Ca := by
           have hclass := X.removed_mem_selectedOriginalClass q s
-          simpa [X, hs, hremoved] using hclass
+          simpa [hs, hremoved] using hclass
         exact
           ((Set.disjoint_left.mp
             (T.pairingLabels.familyGeometry.ca_cb_disjoint_at
               (I.pairing source))) hxCa hxCb).elim
-    | bd => exact hs
+    | bd => rfl
   have hpathBd : X.path q ∈ (families (I.pairing source)).bdPaths := by
     have h := X.path_mem_selectedSide q
     simpa [hside] using h
   have hxPath : x ∈ X.path q := by
     rw [hremoved]
     change
-      (X.block q).deformation.step s |>.before.vertex
+      ((X.block q).deformation.step s).before.vertex
           ((X.block q).deformation.step s).removedIndex ∈
         Set.range (X.block q).path.vertex
     rw [← (X.block q).activePath_eq s]
@@ -272,7 +288,8 @@ theorem terminalCb_mem_manuscriptFinalHole
       Set.range (T.terminalPath target).vertex = X.path q :=
     (families (I.pairing source)).eq_of_mem_bdPaths
       hterminalBd hpathBd hxTerminal hxPath
-  exact T.terminalPath_ne_executionPath incoming q hpaths
+  have hne := T.terminalPath_ne_executionPath incoming q
+  exact hne hpaths
 
 end InitializationFiniteMixedSideTerminalCoreData
 

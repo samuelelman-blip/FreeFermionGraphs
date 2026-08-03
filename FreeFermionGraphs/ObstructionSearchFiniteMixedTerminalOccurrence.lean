@@ -205,8 +205,8 @@ theorem exists_output_path_of_mem_originalHole_of_not_mem_manuscriptFinalHole
     apply hxNotFinal
     rw [(Y.ordered source).manuscriptFinalHole_eq_lastBlockFinalHole hpos]
     exact hx
-  exact ConcretePathDeformation.FiniteMixedSideLemma11AContext.
-    containsVertex_of_mem_originalHole_of_not_mem_currentFinalHole
+  exact
+    ConcretePathDeformation.FiniteMixedSideLemma11AContext.containsVertex_of_mem_originalHole_of_not_mem_currentFinalHole
       (Y.orderedContextAt source
         ((Y.ordered source).lastBlockIndex hpos))
       hxOriginal hxNotLast

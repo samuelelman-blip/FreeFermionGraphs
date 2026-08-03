@@ -74,13 +74,15 @@ structure FiniteMixedSideFirstBlockFlankOccurrence
     F.towardEndpointVertex (T.currentSlot source target) ∈
       ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).block
-          (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-            firstBlockIndex source positive)).dependentAt step
+          (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+            T.execution.toInitializationFiniteMixedSideOSExecutionData
+            source positive)).dependentAt step
   finalDegree_three :
     ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
       source).block
-        (T.execution.toInitializationFiniteMixedSideOSExecutionData.
-          firstBlockIndex source positive)).finalHole.externalDegree
+        (InitializationFiniteMixedSideOSExecutionData.firstBlockIndex
+          T.execution.toInitializationFiniteMixedSideOSExecutionData
+          source positive)).finalHole.externalDegree
       (F.towardEndpointVertex (T.currentSlot source target)) = 3
 
 namespace FiniteMixedSideFirstBlockFlankOccurrence
@@ -198,10 +200,10 @@ structure FiniteMixedSideDistinctCenterFlankPropagationData
       let C := D.toInteriorTerminalCloneData hclaw
       let left := C.witnessOfInterior incoming hsource
       let right := C.witnessOfInterior incoming' hsource'
-      left.center ≠ right.center →
+      ∀ hcenter : left.center ≠ right.center,
         ∃ F : FiniteMixedSideTerminalTwoStepFlanks T target,
           match T.positiveDistinctSide_of_terminalClone_center_ne
-              left right (by assumption) with
+              left right hcenter with
           | .left _ =>
               Nonempty
                 (FiniteMixedSideDistinctClonePropagationFromFlankOccurrence
@@ -224,9 +226,13 @@ noncomputable def toDistinctCenterConsequences
     D.DistinctCenterConsequences hclaw where
   propagate := by
     classical
-    intro source source' target hne incoming incoming' hsource hsource' hcenter
-    obtain ⟨F, hprop⟩ :=
-      A.propagate hne incoming incoming' hsource hsource' hcenter
+    intro source source' target hne incoming incoming' hsource hsource'
+    dsimp
+    intro hcenter
+    have hpropAll :=
+      A.propagate hne incoming incoming' hsource hsource'
+    dsimp at hpropAll
+    obtain ⟨F, hprop⟩ := hpropAll hcenter
     cases hside : T.positiveDistinctSide_of_terminalClone_center_ne
         (D.toInteriorTerminalCloneData hclaw |>.witnessOfInterior incoming hsource)
         (D.toInteriorTerminalCloneData hclaw |>.witnessOfInterior incoming' hsource')

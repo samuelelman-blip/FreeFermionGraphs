@@ -27,49 +27,54 @@ lake build
 A single module can be checked first, for example:
 
 ```bash
-lake build FreeFermionGraphs.ObstructionSearchTwoSidedMixedCorollary11
+lake build FreeFermionGraphs.ObstructionSearchFiniteMixedPaperLemma14
 ```
 
 ## Current proof status
 
 The main active proof program is the graph-combinatorial route toward Theorem
-1(iii). Its current integration boundary is the obstruction-search argument in
-Lemma 14. No clause of Theorem 1 is yet exported as a manuscript-level
-operator commutator theorem.
+1(iii). The complete finite terminal-analysis route for manuscript Lemma 14 is
+now imported by `FreeFermionGraphs.lean` and exposes
+`InitializationFiniteMixedSideLiteralTerminalData.paperLemma14`.
+
+This theorem proves the exact four-part `PaperLemma14Conclusion` from a finite
+literal-terminal-data interface consisting of:
+
+- one-sided terminal tether data for each initialized search; and
+- a bounded distinct-centre propagation trace on one of the two actual incoming
+  finite executions.
+
+The remaining fidelity boundary is to construct that complete terminal-data
+interface directly from the primitive executable Definition 19 obstruction
+search and previously audited graph lemmas. In particular, the repository does
+not yet derive every `distinctPropagation` trace from the concrete search loop.
+No clause of Theorem 1 is yet exported as a manuscript-level Pauli-operator
+commutator theorem.
 
 | Manuscript layer | Status |
 |---|---|
 | Finite claw-free graph theory, including Lemmas 6-10 | Lean implementations exist; complete paper-facing audit remains |
 | Token sliding, deformation closures, and generalized-cycle sums | Combinatorial and generic additive definitions exist; operator charges are absent |
 | Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
-| Lemma 11(a)-(b) | Conditional implementations exist; literal finite mixed-side history and endpoint-certificate construction remain |
-| Corollary 11 | Proved on supplied mixed-side history data; construction from the literal search remains |
-| Lemmas 12-13 | Implemented on a flattened deformation interface with explicit local fields; constructor audit remains |
-| Lemma 14(i)-(iv) | Conditional integration only; no unconditional `paperLemma14` |
-| Lemmas 15-18 | Not formalised as manuscript lemmas; some underlying graph definitions exist |
+| Lemma 11(a)-(b) | Substantial finite and mixed-side implementations exist; final constructor audit remains |
+| Corollary 11 | Proved on supplied mixed-side finite history data |
+| Lemmas 12-13 | Implemented on supporting deformation interfaces; constructor audit remains |
+| Lemma 14(i)-(iv) | Exact conclusion proved from `InitializationFiniteMixedSideLiteralTerminalData`; construction of that data from the primitive search remains |
+| Lemmas 15-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
-The remaining critical path for Lemma 14 is:
+The next critical path is:
 
-1. construct `FiniteMixedSideSearchTrace` from an executable obstruction-search
-   loop, preserving the finite path blocks, their sides, and their exact map to
-   flattened steps;
-2. derive the local endpoint nonadjacency fields used by Lemma 11 directly from
-   Definition 19 and the preceding graph lemmas;
-3. port the bounded Lemma 11 and Corollary 11 arguments from the legacy total
-   `Nat` history to the finite trace;
-4. prove the terminal containment statement
-   `P ∩ C_b ⊆ C_j^(m)` without excluding legitimate opposite-side overlaps;
-5. derive the remaining terminal propagation data from the two initialized
-   executions;
-6. remove the terminal-analysis certificate boundary and expose the exact four
-   conclusions of manuscript Lemma 14.
-
-After Lemma 14, Lemmas 15-16, the search-update argument, the
-unobstructed-palindromic step, and the complete Pauli/operator layer still
-remain before Theorem 1(iii) is complete. Theorem 2 and Theorem 3 require their
-own later operator-algebra developments.
+1. construct `InitializationFiniteMixedSideLiteralTerminalData` from the
+   executable finite obstruction-search loop;
+2. derive the bounded `distinctPropagation` trace rather than accepting it as
+   input data;
+3. complete Lemmas 15-16 and the unobstructed-palindromic search step;
+4. finish the combinatorial proof of Theorem 1(iii);
+5. introduce the Pauli/frustration-graph algebra required for Theorem 1;
+6. formalise the exact free-fermion solution of Theorem 2 and the Krylov
+   construction of Theorem 3.
 
 ## Manuscript fidelity policy
 
@@ -84,14 +89,13 @@ Paper-facing results are therefore gated by
 - hole stages and degree expressions must be explicit;
 - additional premises must be documented;
 - boundary certificates may not appear in the final paper theorem;
-- an unqualified name such as `paperLemma14` is reserved for the exact
-  manuscript statement;
-- conditional bridges retain names such as `paperLemma14_of_...` until every
-  extra premise is discharged.
+- an unqualified paper theorem must expose the exact manuscript conclusion;
+- any remaining constructor or provenance boundary must be recorded explicitly.
 
-This policy is especially important for Definition 19, where one fixed-pairing
-deformation may contain paths from both component families. A one-sided
-history cannot be used as the final representation of the manuscript search.
+This policy is especially important for Definition 19, where one
+fixed-pairing deformation may contain paths from both component families. A
+one-sided history cannot be used as the final representation of the manuscript
+search.
 
 ## Repository layout
 
@@ -100,20 +104,18 @@ history cannot be used as the final representation of the manuscript search.
 - `FORMALIZATION.md`: dependency-oriented proof plan
 - `docs/PAPER_FIDELITY.md`: manuscript correspondence, provenance, and open
   proof boundaries
-- `docs/PAPER_AUDIT_2026-08-01.md`: statement-level audit of the current branch
-  against the supplied manuscript
-- issue `#144`: detailed tracking of the remaining Lemma 14 terminal analysis
+- `docs/PAPER_AUDIT_2026-08-01.md`: statement-level audit against the supplied
+  manuscript
 
 ## Development workflow
 
-Hosted CI is currently avoided to conserve GitHub Actions usage. Pull requests
-are validated locally with both a focused module build and the full project
-build:
+Every pull request touching a numbered manuscript result should be validated
+with both a focused module build and the full project build:
 
 ```bash
 lake build FreeFermionGraphs.<ModuleName>
 lake build
 ```
 
-Commits made during this phase include `[skip ci]`. A pull request is not merged
-until the corresponding local build has been reported successful.
+A pull request should not be merged until the exact head has passed the
+corresponding validation gate.

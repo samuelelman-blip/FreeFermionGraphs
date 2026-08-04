@@ -339,17 +339,13 @@ theorem target_commutes_executionPath
   have hparity :=
     (Y.execution source).manuscriptFinalHole_degree_mod_two_eq_of_commuting_suffix
       (target : V) q hlaterCommutes
-  have hfourRaw :
-      ((Y.execution source).toOrdered.block q).finalHole.externalDegree
-        (target : V) = 4 := by
-    simpa [X] using hfour
-  have hfinalEvenRaw :
-      (Y.execution source).toOrdered.manuscriptFinalHole.externalDegree
-        (target : V) % 2 = 0 := by
-    rw [hparity, hfourRaw]
+  have hparityX :
+      X.manuscriptFinalHole.externalDegree (target : V) % 2 =
+        (X.block q).finalHole.externalDegree (target : V) % 2 := by
+    simpa [X, InitializationFiniteMixedSideOSExecutionData.ordered] using hparity
   have hfinalEven :
       X.manuscriptFinalHole.externalDegree (target : V) % 2 = 0 := by
-    simpa [X] using hfinalEvenRaw
+    rw [hparityX, hfour]
   have hpos : 0 < X.blockCount := Nat.zero_lt_of_lt q.isLt
   obtain ⟨i, hterminalClone⟩ := E.positive_target_clone hpos
   have hterminalThree :

@@ -1,6 +1,6 @@
 import FreeFermionGraphs.ObstructionSearchFiniteMixedFinalCarrierProvenance
 import FreeFermionGraphs.ObstructionSearchFiniteMixedLemma11A
-import FreeFermionGraphs.Lemma11AThreeNeighborClone
+import FreeFermionGraphs.ObstructionSearchFiniteMixedGeneratedTerminalEvent
 
 /-!
 # Terminal degree three from commuting execution paths
@@ -42,12 +42,14 @@ private theorem oriented_finalDegree_parity
       (X.block i).initialHole.externalDegree u % 2 := by
   let A := X.orientedBlock i
   have hcommA : A.path.CommutesWith u := by
-    simpa [A] using hcomm
+    simpa [A, FiniteMixedSideSearchTrace.orientedBlock] using hcomm
   have hparity :=
     A.finalDegree_mod_two_eq_initial_of_commutes
       (X.localData i).neighborhood.pathOrder
       (X.localData i).path_card_eq u hcommA
-  simpa [A] using hparity
+  simpa only [A, FiniteMixedSideSearchTrace.orientedBlock,
+    ConcretePathDeformation.reorient_finalHole,
+    ConcretePathDeformation.reorient_initialHole] using hparity
 
 private theorem block_finalHole_even
     (X : FiniteMixedSideSearchTrace S originalHole)
@@ -61,7 +63,8 @@ private theorem block_finalHole_even
   have hfinalEven : Even A.finalHole.card := by
     rw [hfinal]
     exact hinitial
-  simpa [A] using hfinalEven
+  simpa only [A, FiniteMixedSideSearchTrace.orientedBlock,
+    ConcretePathDeformation.reorient_finalHole] using hfinalEven
 
 /-- If an external vertex starts with degree three and commutes with every
 actual path, then it has degree three at the end of every finite block. -/

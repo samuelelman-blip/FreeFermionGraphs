@@ -70,7 +70,7 @@ theorem even_iff_mem_of_first_mem_and_step_flip
           have hnotEven : ¬Even n := by
             intro heven
             exact hnotMem ((ih hnPrevious).1 heven)
-          rcases even_or_odd n with heven | hodd
+          rcases Nat.even_or_odd n with heven | hodd
           · exact (hnotEven heven).elim
           · obtain ⟨a, ha⟩ := hodd
             exact ⟨a + 1, by omega⟩

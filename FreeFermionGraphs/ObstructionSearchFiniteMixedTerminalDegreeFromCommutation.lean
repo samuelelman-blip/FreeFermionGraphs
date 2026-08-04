@@ -1,5 +1,6 @@
 import FreeFermionGraphs.ObstructionSearchFiniteMixedFinalCarrierProvenance
 import FreeFermionGraphs.ObstructionSearchFiniteMixedLemma11A
+import FreeFermionGraphs.Lemma11AThreeNeighborClone
 
 /-!
 # Terminal degree three from commuting execution paths
@@ -28,52 +29,6 @@ variable {G : SimpleGraph V}
   {Cprime : Set V}
 
 namespace ConcretePathDeformation
-
-/-- Every hole in a concrete path block has the same cardinality as the
-initial hole. -/
-theorem finalHole_card_eq_initialHole_card
-    (D : ConcretePathDeformation O Cprime) :
-    D.finalHole.card = D.initialHole.card := by
-  have hbefore :
-      ∀ n : Nat, ∀ hn : n < D.deformation.stepCount,
-        (D.deformation.step ⟨n, hn⟩).before.card =
-          D.initialHole.card := by
-    intro n
-    induction n with
-    | zero =>
-        intro hn
-        rfl
-    | succ n ih =>
-        intro hn
-        have hnPrevious : n < D.deformation.stepCount := by omega
-        let previous : Fin D.deformation.stepCount := ⟨n, hnPrevious⟩
-        let current : Fin D.deformation.stepCount := ⟨n + 1, hn⟩
-        have hchain :
-            Set.range (D.deformation.step previous).after.vertex =
-              Set.range (D.deformation.step current).before.vertex :=
-          D.deformation.carrier_chain (by simp [previous, current])
-        have hcard :
-            (D.deformation.step previous).after.card =
-              (D.deformation.step current).before.card :=
-          IndexedInducedHole.card_eq_of_range_eq
-            (D.deformation.step previous).after
-            (D.deformation.step current).before hchain
-        calc
-          (D.deformation.step ⟨n + 1, hn⟩).before.card =
-              (D.deformation.step current).before.card := by rfl
-          _ = (D.deformation.step previous).after.card := hcard.symm
-          _ = (D.deformation.step previous).before.card := by rfl
-          _ = D.initialHole.card := by
-                simpa [previous] using ih hnPrevious
-  have hlast : D.deformation.stepCount - 1 < D.deformation.stepCount := by
-    omega
-  calc
-    D.finalHole.card =
-        (D.deformation.step D.lastIndex).before.card := by rfl
-    _ = D.initialHole.card := by
-      simpa [ConcretePathDeformation.lastIndex] using
-        hbefore (D.deformation.stepCount - 1) hlast
-
 namespace FiniteMixedSideSearchTrace
 
 variable {S : SearchDeformation O Cprime}
@@ -87,14 +42,12 @@ private theorem oriented_finalDegree_parity
       (X.block i).initialHole.externalDegree u % 2 := by
   let A := X.orientedBlock i
   have hcommA : A.path.CommutesWith u := by
-    simpa [A, FiniteMixedSideSearchTrace.orientedBlock] using hcomm
+    simpa [A] using hcomm
   have hparity :=
     A.finalDegree_mod_two_eq_initial_of_commutes
       (X.localData i).neighborhood.pathOrder
       (X.localData i).path_card_eq u hcommA
-  cases hside : X.side i <;>
-    simpa [A, FiniteMixedSideSearchTrace.orientedBlock, hside,
-      ConcretePathDeformation.reorient] using hparity
+  simpa [A] using hparity
 
 private theorem block_finalHole_even
     (X : FiniteMixedSideSearchTrace S originalHole)
@@ -108,20 +61,15 @@ private theorem block_finalHole_even
   have hfinalEven : Even A.finalHole.card := by
     rw [hfinal]
     exact hinitial
-  cases hside : X.side i <;>
-    simpa [A, FiniteMixedSideSearchTrace.orientedBlock, hside,
-      ConcretePathDeformation.reorient] using hfinalEven
+  simpa [A] using hfinalEven
 
-/-- If an external vertex starts with degree three, remains outside every
-block-final hole, and commutes with every actual path, then it has degree three
-at the end of every finite block. -/
+/-- If an external vertex starts with degree three and commutes with every
+actual path, then it has degree three at the end of every finite block. -/
 theorem blockFinal_externalDegree_eq_three_of_commutes
     (X : FiniteMixedSideSearchTrace S originalHole)
     (hclaw : G.IsClawFree)
     {u : V}
     (horiginal : originalHole.externalDegree u = 3)
-    (houtside : ∀ i : Fin X.blockCount,
-      u ∉ Set.range (X.block i).finalHole.vertex)
     (hcomm : ∀ i : Fin X.blockCount,
       (X.block i).path.CommutesWith u)
     (i : Fin X.blockCount) :
@@ -160,7 +108,9 @@ theorem blockFinal_externalDegree_eq_three_of_commutes
           X.chain (by simp [previous, current])
         have hinitial :
             (X.block current).initialHole.externalDegree u = 3 := by
-          have hdegree :=
+          have hdegree :
+              (X.block previous).finalHole.externalDegree u =
+                (X.block current).initialHole.externalDegree u :=
             (X.block previous).finalHole.externalDegree_eq_of_range_eq
               (X.block current).initialHole hchain
           exact hdegree.symm.trans hprevious
@@ -180,32 +130,48 @@ variable {families : PairingType → FixedPairingPathFamily G}
   {I : ObstructionSearchInitialization families Cprime}
 
 namespace ObstructionSearchInitialization
-namespace InitializationFiniteMixedSideTerminalCoreData
+namespace FiniteMixedSideOSExecution
 
-/-- A common obstruction target is outside the final hole of every actual
-block in an incoming finite execution. -/
-theorem target_not_mem_blockFinalHole
-    (T : I.InitializationFiniteMixedSideTerminalCoreData)
-    {source target : I.Node}
-    (incoming : I.graph.Arc source target)
-    (q : Fin
-      (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
-        source).blockCount) :
-    (target : V) ∉ Set.range
-      ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
-        source).block q).finalHole.vertex := by
-  intro htarget
-  let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
-  let E := Y.execution source
-  let X := E.toOrdered
-  have htargetX :
-      (target : V) ∈ Set.range (X.block q).finalHole.vertex := by
-    simpa [X, E, Y,
-      InitializationFiniteMixedSideOSExecutionData.ordered] using htarget
-  rcases E.mem_originalHole_or_mem_orderedPath_through
-      q.val q.isLt htargetX with horiginal | ⟨r, _hrle, hpath⟩
-  · exact T.target_not_mem_originalHole target horiginal
-  · exact T.target_not_mem_executionPath incoming r hpath
+/-- A positive finite execution whose paths all commute with `u` preserves an
+initial external degree of three on the exact manuscript final hole. -/
+theorem manuscriptFinalHole_externalDegree_eq_three_of_commutes
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : FiniteMixedSideOSExecution I source originalHole)
+    (hclaw : G.IsClawFree)
+    {u : V}
+    (horiginal : originalHole.externalDegree u = 3)
+    (hcomm : ∀ q : Fin X.toOrdered.blockCount,
+      (X.toOrdered.block q).path.CommutesWith u)
+    (hpos : 0 < X.toOrdered.blockCount) :
+    X.toOrdered.manuscriptFinalHole.externalDegree u = 3 := by
+  cases X with
+  | empty hrun =>
+      simp [FiniteMixedSideOSExecution.toOrdered] at hpos
+  | nonempty data =>
+      let trace := data.literal.trace
+      let last : Fin trace.blockCount := trace.lastBlockIndex
+      have hcommTrace : ∀ i : Fin trace.blockCount,
+          (trace.block i).path.CommutesWith u := by
+        intro i
+        simpa [trace, FiniteMixedSideOSExecution.toOrdered] using hcomm i
+      have hlast :=
+        trace.blockFinal_externalDegree_eq_three_of_commutes
+          hclaw horiginal hcommTrace last
+      let ordered := (FiniteMixedSideOSExecution.nonempty data).toOrdered
+      have hfinal := ordered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
+      have hindex : ordered.lastBlockIndex hpos = last := by
+        apply Fin.ext
+        rfl
+      rw [hfinal]
+      change
+        (data.literal.trace.block (ordered.lastBlockIndex hpos)).finalHole.externalDegree
+          u = 3
+      rw [hindex]
+      exact hlast
+
+end FiniteMixedSideOSExecution
+
+namespace InitializationFiniteMixedSideTerminalCoreData
 
 /-- The manuscript's commutation assertion implies exact degree three in the
 positive terminal hole. No stepwise target-balance certificate is used. -/
@@ -228,44 +194,11 @@ theorem positive_finalDegree_three_of_executionPaths_commute
       source).manuscriptFinalHole.externalDegree (target : V) = 3 := by
   let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
   let E := Y.execution source
-  cases hE : E with
-  | empty hrun =>
-      change 0 < 0 at hpos
-      omega
-  | nonempty data =>
-      let trace := data.literal.trace
-      let last : Fin trace.blockCount := trace.lastBlockIndex
-      have horiginal : Y.originalHole.externalDegree (target : V) = 3 := by
-        obtain ⟨i, hi⟩ := T.exists_target_clone_of_incoming hclaw incoming
-        exact hi.externalDegree_eq_three
-      have houtside : ∀ i : Fin trace.blockCount,
-          (target : V) ∉ Set.range (trace.block i).finalHole.vertex := by
-        intro i
-        have hordered := T.target_not_mem_blockFinalHole incoming i
-        simpa [Y, E, hE, trace,
-          InitializationFiniteMixedSideOSExecutionData.ordered,
-          FiniteMixedSideOSExecution.toOrdered] using hordered
-      have hcommTrace : ∀ i : Fin trace.blockCount,
-          (trace.block i).path.CommutesWith (target : V) := by
-        intro i
-        have h := hcomm i
-        simpa [Y, E, hE, trace,
-          InitializationFiniteMixedSideOSExecutionData.ordered,
-          FiniteMixedSideOSExecution.toOrdered] using h
-      have hlast :=
-        trace.blockFinal_externalDegree_eq_three_of_commutes
-          hclaw horiginal houtside hcommTrace last
-      let ordered := E.toOrdered
-      have hfinal := ordered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
-      have hindex : ordered.lastBlockIndex hpos = last := by
-        apply Fin.ext
-        rfl
-      rw [hfinal]
-      change
-        (data.literal.trace.block (ordered.lastBlockIndex hpos)).finalHole.externalDegree
-          (target : V) = 3
-      rw [hindex]
-      exact hlast
+  obtain ⟨i, hi⟩ := T.exists_target_clone_of_incoming hclaw incoming
+  have horiginal : Y.originalHole.externalDegree (target : V) = 3 :=
+    hi.externalDegree_eq_three
+  exact E.manuscriptFinalHole_externalDegree_eq_three_of_commutes
+    hclaw horiginal hcomm hpos
 
 end InitializationFiniteMixedSideTerminalCoreData
 end ObstructionSearchInitialization

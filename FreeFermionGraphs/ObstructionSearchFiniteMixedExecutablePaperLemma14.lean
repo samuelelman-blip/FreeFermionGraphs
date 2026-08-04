@@ -1,23 +1,25 @@
-import FreeFermionGraphs.ObstructionSearchFiniteMixedGeneratedTerminalEvent
+import FreeFermionGraphs.ObstructionSearchFiniteMixedCommutingTerminalEvent
 
 /-!
 # Conditional Lemma 14 bridge from generated finite obstruction-search data
 
 This module packages the strongest currently available finite Lemma 14 route.
 Terminal-path parity is derived from the manuscript coordinate form
-`j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`. Positive terminal degree three is transported by the
-target-balance invariant preserved by `single` and `snoc`. Clone-to-flank
+`j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`. Positive terminal degree three is now derived from the
+manuscript's assertion that the common target commutes with every actual path
+component: commuting blocks preserve degree parity, all intermediate holes are
+even, and Lemma 7 forces the odd degree to remain three. Clone-to-flank
 adjacency is derived from the adjacent tether-link coordinate. The
 unequal-centre branch accepts only a bounded trace carrying an `IsGenerated`
 derivation from the finite start and hop constructors.
 
-These improvements remove several direct conclusion certificates. They do not
-yet construct all terminal and propagation inputs from
-`InitializationFiniteMixedSideTerminalCoreData` alone. In particular, the
-terminal event still supplies the coordinate presentation, target-balance
-proofs, and adjacent tether links, while the propagation datum supplies a
-generated trace whose constructor inputs include the required avoidance and
-adjacency facts.
+The route no longer assumes the stronger step-by-step `TargetBalanced`
+certificate. It still does not construct all terminal and propagation inputs
+from `InitializationFiniteMixedSideTerminalCoreData` alone. In particular, the
+terminal event still supplies the coordinate presentation, path commutation,
+and adjacent tether links, while the propagation datum supplies a generated
+trace whose constructor inputs include the required avoidance and adjacency
+facts.
 
 The theorem below is therefore deliberately conditional and must not be named
 `paperLemma14` until those remaining inputs are derived from the literal
@@ -47,13 +49,13 @@ This structure is not yet an output constructed from
 remaining provenance boundary:
 
 - literal terminal coordinates and stopping-link data;
-- target balance for each incoming execution;
+- commutation of the target with every actual path in each incoming execution;
 - an `IsGenerated` unequal-centre trace whose constructor inputs include the
   local avoidance and adjacency facts used by the manuscript propagation.
 -/
 structure InitializationFiniteMixedSideExecutableLemma14Data
     (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where
-  terminal : InitializationFiniteMixedSideGeneratedTerminalEvent T
+  terminal : InitializationFiniteMixedSideCommutingTerminalEvent T
   propagation : ∀ hclaw : G.IsClawFree,
     let terminalData := terminal.toLabelledOperationalTerminalData hclaw
     let D := terminalData.toOperationalTerminalData.toTerminalTetherData

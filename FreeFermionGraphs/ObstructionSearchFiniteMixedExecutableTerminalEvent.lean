@@ -141,8 +141,21 @@ theorem lastEndpoint_mem_sameSide
     (C : FiniteMixedSideTerminalComponentExecution T target) :
     (T.terminalPath target).obstructionEndpoint .last ∈ C.sameSide := by
   refine ⟨C.lastCoordinate, ?_⟩
-  rw [C.last_eq]
-  rfl
+  change
+    (T.terminalPath target).vertex (C.sameIndex C.lastCoordinate) =
+      (T.terminalPath target).vertex
+        ((T.terminalPath target).obstructionEndpointIndex .last)
+  exact congrArg (T.terminalPath target).vertex C.last_eq
+
+/-- The raw target coordinate is the canonical nearest-target coordinate. -/
+theorem targetIndex_eq_canonical
+    (C : FiniteMixedSideTerminalComponentExecution T target)
+    {source : I.Node}
+    (incoming : I.graph.Arc source target) :
+    C.sameIndex C.targetCoordinate = T.terminalTargetIndex incoming := by
+  apply (T.terminalPath target).injective
+  exact C.target_eq.trans
+    (T.terminalTargetIndex_target_eq incoming).symm
 
 /-- Convert raw terminal coordinates to the alternating-label interface. -/
 def toAlternatingLabelData
@@ -263,9 +276,8 @@ def toOperationalTether
   positive_finalDegree_three := E.positive_finalDegree_three
   clone_adj_flank := by
     intro X q
-    have h := E.clone_adj_flank X q
-    simpa [C.target_eq,
-      T.terminalTargetIndex_eq incoming incoming] using h
+    have hindex := C.targetIndex_eq_canonical incoming
+    simpa [hindex] using E.clone_adj_flank X q
 
 end FiniteMixedSideIncomingTerminalStopExecution
 
@@ -290,8 +302,10 @@ terminal events. -/
 def toLabelledOperationalTerminalData
     (E : InitializationFiniteMixedSideExecutableTerminalEvent T) :
     FiniteMixedSideInitializationLabelledOperationalTerminalData T where
-  labels := E.component.toAlternatingLabelData
-  tether := fun incoming => (E.stop incoming).toOperationalTether
+  labels :=
+    FiniteMixedSideTerminalComponentExecution.toAlternatingLabelData E.component
+  tether := fun {source target} incoming =>
+    (E.stop (source := source) (target := target) incoming).toOperationalTether
 
 end InitializationFiniteMixedSideExecutableTerminalEvent
 

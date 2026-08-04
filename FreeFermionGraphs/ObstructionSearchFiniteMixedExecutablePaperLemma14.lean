@@ -1,4 +1,4 @@
-import FreeFermionGraphs.ObstructionSearchFiniteMixedCommutingTerminalEvent
+import FreeFermionGraphs.ObstructionSearchFiniteMixedTargetCommutation
 
 /-!
 # Conditional Lemma 14 bridge from generated finite obstruction-search data

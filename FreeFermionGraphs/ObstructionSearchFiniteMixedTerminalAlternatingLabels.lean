@@ -73,11 +73,11 @@ theorem pathCard_odd_of_incoming
     (A.index_even_iff_mem_sameSide target last).2 hlastMem
   obtain ⟨k, hk⟩ := hlastEven
   refine ⟨k, ?_⟩
-  have hcardPos : 0 < P.card := P.nonempty
-  have hlastVal : last.val = P.card - 1 := by
-    rfl
-  dsimp [P] at hcardPos ⊢
-  rw [hlastVal] at hk
+  have hcard : P.card = last.val + 1 := by
+    have hcardPos : 0 < P.card := P.nonempty
+    dsimp [last, IndexedInducedPath.obstructionEndpointIndex]
+    omega
+  dsimp [P] at hcard ⊢
   omega
 
 /-- Alternating labels construct the target-level arithmetic interface used by
@@ -116,7 +116,8 @@ def toOperationalTerminalData
     (D : FiniteMixedSideInitializationLabelledOperationalTerminalData T) :
     FiniteMixedSideInitializationOperationalTerminalData T where
   alternation := D.labels.toTerminalAlternationData
-  tether := D.tether
+  tether := fun {source target} incoming =>
+    D.tether (source := source) (target := target) incoming
 
 end FiniteMixedSideInitializationLabelledOperationalTerminalData
 

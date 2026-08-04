@@ -240,8 +240,15 @@ theorem manuscriptFinalHole_externalDegree_eq_original_of_targetBalanced
           u hbalanced last.val last.isLt
       let ordered := (FiniteMixedSideOSExecution.nonempty data).toOrdered
       have hfinal := ordered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
+      have hindex : ordered.lastBlockIndex hpos = last := by
+        apply Fin.ext
+        rfl
       rw [hfinal]
-      simpa [ordered, FiniteMixedSideOSExecution.toOrdered, last] using hlast
+      change
+        (data.literal.trace.block (ordered.lastBlockIndex hpos)).finalHole.externalDegree u =
+          originalHole.externalDegree u
+      rw [hindex]
+      exact hlast
 
 end FiniteMixedSideOSExecution
 

@@ -52,6 +52,7 @@ def targetIndex
     (P : FiniteMixedSideTerminalPathExecution T target) :
     Fin (T.terminalPath target).card :=
   ⟨2 * P.targetPosition, by
+    have hle := P.targetPosition_le
     rw [P.card_eq]
     omega⟩
 

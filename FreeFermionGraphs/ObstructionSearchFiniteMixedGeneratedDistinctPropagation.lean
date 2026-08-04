@@ -197,13 +197,16 @@ def snoc
     intro k
     by_cases hk : k.val < X.hopCount
     · let old : Fin X.hopCount := ⟨k.val, hk⟩
-      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by omega
+      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by
+        simpa using k.isLt
       have hold := X.carried_mem_hopPath old
       rw [X.snocCarriedIndex_of_lt nextIndex (Fin.castSucc k) hcarried,
         X.snocHopBlock_of_lt block k hk]
       simpa [old] using hold
-    · have hkEq : k.val = X.hopCount := by omega
-      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by omega
+    · have hkEq : k.val = X.hopCount :=
+        Nat.le_antisymm (Nat.le_of_lt_succ k.isLt) (Nat.le_of_not_gt hk)
+      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by
+        simpa using k.isLt
       rw [X.snocCarriedIndex_of_lt nextIndex (Fin.castSucc k) hcarried,
         X.snocHopBlock_of_not_lt block k hk]
       have hindex :
@@ -217,7 +220,8 @@ def snoc
     intro k
     by_cases hk : k.val < X.hopCount
     · let old : Fin X.hopCount := ⟨k.val, hk⟩
-      have hnext : (Fin.succ k).val < X.hopCount + 1 := by omega
+      have hnext : (Fin.succ k).val < X.hopCount + 1 := by
+        simpa using Nat.succ_lt_succ hk
       have hold := X.next_mem_hopPath old
       rw [X.snocCarriedIndex_of_lt nextIndex (Fin.succ k) hnext,
         X.snocHopBlock_of_lt block k hk]
@@ -228,8 +232,10 @@ def snoc
         rfl
       rw [hindex]
       exact hold
-    · have hkEq : k.val = X.hopCount := by omega
-      have hnext : ¬(Fin.succ k).val < X.hopCount + 1 := by omega
+    · have hkEq : k.val = X.hopCount :=
+        Nat.le_antisymm (Nat.le_of_lt_succ k.isLt) (Nat.le_of_not_gt hk)
+      have hnext : ¬(Fin.succ k).val < X.hopCount + 1 := by
+        simp [hkEq]
       rw [X.snocCarriedIndex_of_not_lt nextIndex (Fin.succ k) hnext,
         X.snocHopBlock_of_not_lt block k hk]
       exact next_mem_path
@@ -245,7 +251,8 @@ def snoc
   adj_finalCarried := by
     have hlast :
         ¬(⟨X.hopCount + 1, by omega⟩ : Fin (X.hopCount + 2)).val <
-          X.hopCount + 1 := by omega
+          X.hopCount + 1 := by
+      simp
     rw [X.snocCarriedIndex_of_not_lt nextIndex
       ⟨X.hopCount + 1, by omega⟩ hlast]
     exact adj_next

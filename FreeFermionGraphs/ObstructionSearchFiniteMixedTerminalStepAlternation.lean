@@ -4,7 +4,7 @@ import FreeFermionGraphs.ObstructionSearchFiniteMixedTerminalAlternatingLabels
 # Terminal parity from stepwise colour alternation
 
 The terminal component used in manuscript Lemma 14 is written
-`j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`.  Rather than storing the conclusion that even indices
+`j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`. Rather than storing the conclusion that even indices
 are precisely the `j`-side, this module records only the literal local fact
 that membership in that colour side flips at every consecutive path step.
 Parity of every path coordinate is then proved by induction.
@@ -15,13 +15,10 @@ universe u
 variable {V : Type u}
 
 namespace SimpleGraph
-namespace FixedPairingPathFamily
-
-variable {G : SimpleGraph V}
-  {families : PairingType → FixedPairingPathFamily G}
-  {Cprime : Set V}
 
 namespace IndexedInducedPath
+
+variable {G : SimpleGraph V}
 
 /-- A path side containing the first vertex and flipping at every step is
 exactly the even-index side. -/
@@ -78,6 +75,12 @@ theorem even_iff_mem_of_first_mem_and_step_flip
 
 end IndexedInducedPath
 
+namespace FixedPairingPathFamily
+
+variable {G : SimpleGraph V}
+  {families : PairingType → FixedPairingPathFamily G}
+  {Cprime : Set V}
+
 namespace ObstructionSearchInitialization
 
 variable {I : ObstructionSearchInitialization families Cprime}
@@ -85,7 +88,7 @@ variable {I : ObstructionSearchInitialization families Cprime}
 /-- Literal local alternation of each terminal path.
 
 The colour side contains the first endpoint, the obstruction target, and the
-last endpoint.  Consecutive path coordinates alternate membership in that
+last endpoint. Consecutive path coordinates alternate membership in that
 side. -/
 structure FiniteMixedSideTerminalStepAlternationData
     (T : I.InitializationFiniteMixedSideTerminalCoreData) : Type (u + 1) where

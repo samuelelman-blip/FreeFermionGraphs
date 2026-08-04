@@ -277,7 +277,21 @@ def toOperationalTether
   clone_adj_flank := by
     intro X q
     have hindex := C.targetIndex_eq_canonical incoming
-    simpa [hindex] using E.clone_adj_flank X q
+    cases hs : T.currentSlot source target with
+    | first =>
+        intro hq
+        have h := E.clone_adj_flank X q
+        rw [hs] at h
+        apply h
+        rw [hindex]
+        exact hq
+    | last =>
+        intro hq
+        have h := E.clone_adj_flank X q
+        rw [hs] at h
+        apply h
+        rw [hindex]
+        exact hq
 
 end FiniteMixedSideIncomingTerminalStopExecution
 

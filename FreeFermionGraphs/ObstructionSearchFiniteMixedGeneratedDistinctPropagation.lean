@@ -91,10 +91,13 @@ def snocCarriedIndex
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
     (nextIndex : Fin
-      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card) :
-    Fin (X.hopCount + 2) → Fin
+      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card)
+    (k : Fin (X.hopCount + 2)) : Fin
       T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card :=
-  Fin.lastCases nextIndex X.carriedIndex
+  if hk : k.val < X.hopCount + 1 then
+    X.carriedIndex ⟨k.val, hk⟩
+  else
+    nextIndex
 
 /-- Append one actual execution path to the hop sequence. -/
 def snocHopBlock
@@ -102,47 +105,56 @@ def snocHopBlock
       T hclaw F source incoming)
     (block : Fin
       (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
-        source).blockCount) :
-    Fin (X.hopCount + 1) → Fin
+        source).blockCount)
+    (k : Fin (X.hopCount + 1)) : Fin
       (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).blockCount :=
-  Fin.lastCases block X.hopBlock
+  if hk : k.val < X.hopCount then
+    X.hopBlock ⟨k.val, hk⟩
+  else
+    block
 
-@[simp] theorem snocCarriedIndex_castSucc
+@[simp] theorem snocCarriedIndex_of_lt
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
     (nextIndex : Fin
       T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card)
-    (k : Fin (X.hopCount + 1)) :
-    X.snocCarriedIndex nextIndex (Fin.castSucc k) = X.carriedIndex k := by
-  simp [snocCarriedIndex]
+    (k : Fin (X.hopCount + 2))
+    (hk : k.val < X.hopCount + 1) :
+    X.snocCarriedIndex nextIndex k = X.carriedIndex ⟨k.val, hk⟩ := by
+  simp [snocCarriedIndex, hk]
 
-@[simp] theorem snocCarriedIndex_last
+@[simp] theorem snocCarriedIndex_of_not_lt
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
     (nextIndex : Fin
-      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card) :
-    X.snocCarriedIndex nextIndex (Fin.last (X.hopCount + 1)) = nextIndex := by
-  simp [snocCarriedIndex]
+      T.execution.toInitializationFiniteMixedSideOSExecutionData.originalHole.card)
+    (k : Fin (X.hopCount + 2))
+    (hk : ¬k.val < X.hopCount + 1) :
+    X.snocCarriedIndex nextIndex k = nextIndex := by
+  simp [snocCarriedIndex, hk]
 
-@[simp] theorem snocHopBlock_castSucc
+@[simp] theorem snocHopBlock_of_lt
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
     (block : Fin
       (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
         source).blockCount)
-    (k : Fin X.hopCount) :
-    X.snocHopBlock block (Fin.castSucc k) = X.hopBlock k := by
-  simp [snocHopBlock]
+    (k : Fin (X.hopCount + 1))
+    (hk : k.val < X.hopCount) :
+    X.snocHopBlock block k = X.hopBlock ⟨k.val, hk⟩ := by
+  simp [snocHopBlock, hk]
 
-@[simp] theorem snocHopBlock_last
+@[simp] theorem snocHopBlock_of_not_lt
     (X : FiniteMixedSideDistinctPropagationTrace
       T hclaw F source incoming)
     (block : Fin
       (T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
-        source).blockCount) :
-    X.snocHopBlock block (Fin.last X.hopCount) = block := by
-  simp [snocHopBlock]
+        source).blockCount)
+    (k : Fin (X.hopCount + 1))
+    (hk : ¬k.val < X.hopCount) :
+    X.snocHopBlock block k = block := by
+  simp [snocHopBlock, hk]
 
 /-- One inductive hop through an actual ordered execution path. -/
 def snoc
@@ -183,22 +195,60 @@ def snoc
   hopBlock := X.snocHopBlock block
   carried_mem_hopPath := by
     intro k
-    refine Fin.lastCases ?_ (fun old => ?_) k
-    · simpa [FiniteMixedSideDistinctPropagationTrace.finalIndex] using
-        current_mem_path
-    · simpa using X.carried_mem_hopPath old
+    by_cases hk : k.val < X.hopCount
+    · let old : Fin X.hopCount := ⟨k.val, hk⟩
+      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by omega
+      have hold := X.carried_mem_hopPath old
+      rw [X.snocCarriedIndex_of_lt nextIndex (Fin.castSucc k) hcarried,
+        X.snocHopBlock_of_lt block k hk]
+      simpa [old] using hold
+    · have hkEq : k.val = X.hopCount := by omega
+      have hcarried : (Fin.castSucc k).val < X.hopCount + 1 := by omega
+      rw [X.snocCarriedIndex_of_lt nextIndex (Fin.castSucc k) hcarried,
+        X.snocHopBlock_of_not_lt block k hk]
+      have hindex :
+          (⟨(Fin.castSucc k).val, hcarried⟩ : Fin (X.hopCount + 1)) =
+            X.finalIndex := by
+        apply Fin.ext
+        simp [FiniteMixedSideDistinctPropagationTrace.finalIndex, hkEq]
+      rw [hindex]
+      exact current_mem_path
   next_mem_hopPath := by
     intro k
-    refine Fin.lastCases ?_ (fun old => ?_) k
-    · simpa using next_mem_path
-    · simpa using X.next_mem_hopPath old
+    by_cases hk : k.val < X.hopCount
+    · let old : Fin X.hopCount := ⟨k.val, hk⟩
+      have hnext : (Fin.succ k).val < X.hopCount + 1 := by omega
+      have hold := X.next_mem_hopPath old
+      rw [X.snocCarriedIndex_of_lt nextIndex (Fin.succ k) hnext,
+        X.snocHopBlock_of_lt block k hk]
+      have hindex :
+          (⟨(Fin.succ k).val, hnext⟩ : Fin (X.hopCount + 1)) =
+            Fin.succ old := by
+        apply Fin.ext
+        rfl
+      rw [hindex]
+      exact hold
+    · have hkEq : k.val = X.hopCount := by omega
+      have hnext : ¬(Fin.succ k).val < X.hopCount + 1 := by omega
+      rw [X.snocCarriedIndex_of_not_lt nextIndex (Fin.succ k) hnext,
+        X.snocHopBlock_of_not_lt block k hk]
+      exact next_mem_path
   carried_avoidance := by
     intro k
-    refine Fin.lastCases next_avoidance (fun old => X.carried_avoidance old) k
+    by_cases hk : k.val < X.hopCount + 1
+    · rw [X.snocCarriedIndex_of_lt nextIndex k hk]
+      exact X.carried_avoidance ⟨k.val, hk⟩
+    · rw [X.snocCarriedIndex_of_not_lt nextIndex k hk]
+      exact next_avoidance
   clone_avoids_previousNeighbors := X.clone_avoids_previousNeighbors
   adj_previous := X.adj_previous
   adj_finalCarried := by
-    simpa [FiniteMixedSideDistinctPropagationTrace.finalIndex] using adj_next
+    have hlast :
+        ¬(⟨X.hopCount + 1, by omega⟩ : Fin (X.hopCount + 2)).val <
+          X.hopCount + 1 := by omega
+    rw [X.snocCarriedIndex_of_not_lt nextIndex
+      ⟨X.hopCount + 1, by omega⟩ hlast]
+    exact adj_next
   adj_stoppingCloneCenter := X.adj_stoppingCloneCenter
 
 /-- Proof that a bounded propagation trace was produced only by the literal

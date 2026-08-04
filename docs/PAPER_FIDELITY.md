@@ -1,18 +1,18 @@
 # Manuscript fidelity gates
 
 This document records the acceptance criteria for claiming that a Lean theorem
-formalizes a numbered result of *A Unified Graph-Theoretic Framework for
+formalises a numbered result of *A Unified Graph-Theoretic Framework for
 Free-Fermion Solvability*.
 
 A successful build establishes type correctness. It does not by itself show
-that the formal statement has the same hypotheses, deformation stage, or
-conclusion as the manuscript.
+that the formal statement has the same hypotheses, quantifiers, deformation
+stage, provenance, or conclusion as the manuscript.
 
 ## Merge gates
 
 A pull request touching a numbered manuscript result must identify:
 
-1. the exact manuscript statement or proof sentence being formalized;
+1. the exact manuscript statement or proof sentence being formalised;
 2. the Lean object corresponding to every manuscript object;
 3. the deformation stage of every hole and degree expression;
 4. the provenance of every new structure field;
@@ -25,63 +25,78 @@ must retain names of the form `paperLemma14_of_...`.
 
 ## Provenance classes
 
-Every field used by a paper-facing theorem belongs to one of these classes.
-
-| Class | Meaning | Permitted in final paper theorem |
+| Class | Meaning | Permitted in an unqualified paper theorem |
 |---|---|---|
 | D | Literal definition or algorithm data from the manuscript | Yes |
-| E | Derived from D by a previously audited theorem | Yes |
+| E | Derived from D by an audited theorem | Yes |
 | M | Intermediate claim explicitly proved in the manuscript | Only after it is derived from D/E |
-| B | Boundary certificate currently standing in for an unformalized manuscript argument | No |
+| B | Boundary certificate standing in for an unformalised manuscript argument | No |
+
+## Recurring checks
+
+- **Stage check:** degrees compared in one argument must refer to definitionally
+  equal hole objects, or an explicit carrier/index equivalence theorem must be
+  supplied.
+- **Quantifier check:** pairwise terminal claims must not be strengthened to
+  per-arc claims unless the strengthening is separately proved.
+- **Orientation check:** public conclusions must be invariant under reversing
+  or cyclically shifting an indexed hole.
+- **Overlap check:** original-hole and prime-hole colour memberships are not
+  globally exclusive.
+- **Two-sided path check:** a fixed-pairing deformation may contain both
+  `acPaths` and `bdPaths`.
+- **Finiteness check:** a finite Definition 19 prefix must not require data
+  outside its declared block count.
+- **Boundary-case check:** empty deformations, first blocks, the initial-tether
+  stopping branch, and later Definition 20 stopping must be covered.
+- **Dependency check:** a proof of Lemma 14 may use Lemmas 7-13, but it may not
+  consume a field that already assumes a conclusion of Lemma 14(iv).
 
 ## Lemma 11(b)
 
-Manuscript target: for `u ∈ U^(r,s)` whose operator commutes with the path
-operator, `Delta_(C^(r))(u) = 4`, and there is an earlier dependent vertex
-whose operator anticommutes with the path operator in the same fixed-pairing
-path component.
+The manuscript concludes that for `u ∈ U^(r,s)` commuting with the path
+operator,
 
-| Manuscript object | Lean object | Stage/provenance | Status |
-|---|---|---|---|
-| `P^(r)` | `D.path` | D | Audited |
-| `U^(r,s)` | `D.dependentAt s` | D | Audited |
-| `C^(r)` | `D.finalHole` | D, final hole of the concrete path block | Audited |
-| `Delta_(C^(r))(u)` | `D.finalHole.externalDegree u` | D | Audited |
-| concrete Definition 19 history | `D.Lemma11AHistoryContext` | Mixed D/E/B: currently includes unconstructed endpoint fields and a legacy total `Nat` history | Not a final paper premise |
-| earlier anticommuting vertex in same component | `EarlierAnticommutingWitnessInUniqueBDPath` | E once the concrete history fields are derived from Definition 19 | Proved conditionally |
+- `Delta_(C^(r))(u) = 4`; and
+- an earlier dependent anticommuting vertex lies in the same fixed-pairing path
+  component.
 
-`PaperFidelity.paperLemma11b_of_historyContext` states the degree directly on
-`D.finalHole`, so a future change to the implementation abbreviation
-`finalDegree` cannot alter the public deformation stage silently. The theorem
-name also records that the current `Lemma11AHistoryContext` is an additional
-premise. In particular, `FullDefinition19NeighborhoodData` still contains
-`BaseOppositeEndpointNonadjacency`, and `FullDefinition19Lemma11AData` still
-contains `terminalAnticommutingNonadjacency`; neither has a repository-level
-constructor from the literal manuscript deformation. There is therefore no
-unconditional theorem named `paperLemma11b`.
+The current theorem
+
+```lean
+PaperFidelity.paperLemma11b_of_historyContext
+```
+
+states the degree on the exact final hole `D.finalHole`, but still takes
+`D.Lemma11AHistoryContext` as an additional premise. That context contains
+history and endpoint data not yet constructed from the literal finite
+Definition 19 deformation. There is therefore no unconditional theorem named
+`paperLemma11b`.
 
 ## Finite Definition 19 history
 
-The manuscript deformation is a finite sequence `(P^(r))_(r=0)^m`.
-`PathBlockHistory` instead stores `block : Nat → ConcretePathDeformation` and
-requires path-order, path-cardinality, and carrier-chain fields for every
-natural number. A separate `priorCount` bounds the later proofs, but it does
-not weaken those structure fields. The legacy interface is consequently
-stronger than Definition 19 and cannot be the final output of a terminating
-search loop.
+The manuscript deformation is finite. Legacy `PathBlockHistory` values are
+total over `Nat`, so they are stronger than the manuscript even when later
+proofs use only a bounded prefix.
 
-`FiniteMixedSideSearchTrace` is the replacement integration boundary. It has a
-positive finite `blockCount`, one `DeformationSide` per finite block, and a
-surjective order-preserving `stepIndex` into the flattened
-`SearchDeformation.run`. It also retains the original-hole label of every
-removed vertex. The theorem `output_path_iff` derives exact agreement between
-the finite block paths and the flattened output paths. Construction of this
-trace from a literal executable `OS` loop, followed by migration of the
-bounded Lemma 11 proofs, remains open.
+The replacement finite layer uses `FiniteMixedSideSearchTrace`, with:
+
+- a positive finite `blockCount`;
+- one `DeformationSide` per block;
+- an order-preserving, surjective local-to-flattened step map;
+- exact output-path correspondence;
+- original-hole provenance for removed vertices.
+
+The repository now constructs substantial bounded mixed-side execution data and
+uses it throughout the finite Lemma 11 and Lemma 14 development. Legacy total
+histories remain available internally but are not acceptable final premises for
+an unqualified paper theorem.
 
 ## Lemma 14
 
-The exact four conclusions are represented by `PaperLemma14Conclusion`:
+### Manuscript conclusion
+
+`PaperLemma14Conclusion` represents the exact four conclusions:
 
 1. every initialized output is a possibly empty fixed-pairing deformation;
 2. the obstruction graph is bipartite by pairing type;
@@ -89,144 +104,105 @@ The exact four conclusions are represented by `PaperLemma14Conclusion`:
 4. every target has at most two incoming arcs and, for two distinct incoming
    arcs, the target is the unique member of exactly one final dependent set.
 
-### Current provenance
+### Current strongest bridge
 
-Corollary 9 explicitly allows a vertex to belong to one original-hole colour
-class and one prime-hole colour class, and consequently to occur on one `ac`
-path and one `bd` path. Therefore `ExactlyOneOfFour` is not a faithful generic
-hypothesis for a vertex of `P ∩ C_b`, and opposite-family path occurrence cannot
-be excluded merely from component membership.
+The current finite endpoint is
 
-The manuscript's fixed-pairing deformation may contain components from both
-`C_a ⊕ C'_c` and `C_b ⊕ C'_d`. The current `SearchPathHistoryWitness` represents
-every output path by a concrete block carrying `ACHoleStepGeometry`; the audit
-theorem `SearchHistoryData.paths_subset_acPaths` therefore shows that this
-interface forces every represented output path into `acPaths`.
+```lean
+InitializationFiniteMixedSideExecutableLemma14Data
+  .paperLemma14_of_executableData
+```
 
-`TwoSidedSearchPathHistoryWitness` records an explicit path side. A `bd` block
-is interpreted through the side-swapped family obtained by exchanging
-`C_a ↔ C_b`, `C'_c ↔ C'_d`, and `acPaths ↔ bdPaths`.
+with hypotheses
 
-`TwoSidedOrderedPathExecution` migrates the finite block enumeration, output
-coverage, source uniqueness, and literal `W \ {source}` stopping invariant.
-`TwoSidedOrderedOSExecution` also records the maximal-`L_{r,s}` update rule: the
-first introduced vertex of every later block lies in a dependent set of a
-strictly earlier block and anticommutes with that block's path.
+```lean
+(L : InitializationFiniteMixedSideExecutableLemma14Data T)
+(hclaw : G.IsClawFree)
+```
 
-The history-backed Corollary 11 theorem is complete on the two-sided interface.
-A hypothetical shared dependent vertex first forces both blocks to have the same
-`DeformationSide`; the concrete history theorem then applies in that common
-orientation, including the `swapSides` presentation of two `bd` blocks.
+and conclusion `PaperLemma14Conclusion I`.
 
-The canonical orientation of a common Definition 19 path is now derived rather
-than stored. Equality of induced-path carriers makes the index-zero vertex of
-one presentation either the index-zero or final vertex of the other. The final
-alternative is impossible because the first introduced vertex lies in the fixed
-prime carrier, while the terminal removed vertex is outside it.
-`InitializationTwoSidedOrderedExecutionData` therefore constructs the complete
-two-sided ordered-trace and first-common-path interfaces without any cross-trace
-certificate.
+The theorem is valid and proves the exact conclusion, but it is conditional on
+`L`. The repository does not yet construct `L` from
+`InitializationFiniteMixedSideTerminalCoreData T` and claw-freeness alone.
 
-Carrier-level `reorient` maps a concrete replacement, deformation, or path block
-to the family selected by a `DeformationSide` while preserving all holes,
-vertices, the indexed path, and Definition 20 dependent sets.
-`MechanicalData.reorient` additionally transports the path labeling and
-outside-hole fields; the colour-sensitive `SideMechanicalGeometry` remains an
-explicit local input for the literal `OS` construction.
+### What the current route genuinely derives
 
-The positive history stored by the legacy
-`TwoSidedSearchPathHistoryWitness` is still a
-`FullDefinition19Lemma11AHistoryData` in one oriented family. The parallel
-`MixedSidePathBlockHistory` and
-`MixedSideFullDefinition19Lemma11AHistoryData` permit independent `ac` or `bd`
-tags and prove the mixed-side Lemma 11(a.ii) argument. They still inherit the
-total `Nat` carrier history, however. `ExactMixedSideSearchHistoryData` packages
-the exact per-output conclusion but explicitly does not construct its witness
-from `OS`. The new finite trace addresses the representation mismatch; the
-constructor and proof migration are the next steps.
+The current route removes several direct conclusion certificates:
 
-| Component | Provenance | Status |
-|---|---|---|
-| initialized ordered executions | D | Side-correct local and global interfaces exist; the new finite mixed trace preserves exact flattened-step provenance, but construction from the concrete `OS` loop remains open |
-| final execution hole `C_j^(m)` | D from ordered block sequence, `manuscriptFinalHole` | Formalized, including the empty-execution case, on the old interface |
-| fixed-pairing output conclusion | E | Formalized |
-| obstruction arcs cross pairing types | E | Formalized |
-| same-pairing path disjointness | E from canonical Definition 19 orientation, the least-common-path proof, and two-sided Corollary 11 | Derived from `InitializationTwoSidedOrderedExecutionData`; concrete mixed-side execution construction remains open |
-| source injectivity at a terminal slot | E | Formalized through the old one-sided execution data |
-| distinct incoming sources occupy opposite terminal slots | E from slot injectivity and the two-valued slot type | Formalized through the old one-sided execution data |
-| target differs from both path endpoints in the remaining two-incoming branch | E from the two scoped endpoint inequalities | Formalized |
-| target has an interior terminal-path index, matching `j_(p-1)` with `1 < p` | E from nearest-target membership and endpoint inequalities | Formalized |
-| terminal path has at least three vertices in the remaining branch | E from the interior index | Formalized |
-| consecutive path segment `j_(p-2) - j'' - j_p` around the target | E from indexed-path order and inducedness | Formalized |
-| same-clone claw contradiction | E/M | Formalized |
-| stopping-derived clone centre in the initialized original hole | E | Formalized |
-| final-hole target clone for an empty initialized execution | E because `manuscriptFinalHole` is the original hole | Formalized from the stopping branch |
-| outside-hole plus degree-three geometry implies a final-hole target clone | E from Lemma 7 and the indexed three-neighbor clone theorem | Formalized on the exact `manuscriptFinalHole` stage |
-| positive `manuscriptFinalHole` equals the last concrete block final hole | E from the ordered execution definition | Formalized with `lastBlockIndex` on the old interface |
-| original-hole vertices avoiding all recorded prior/current paths persist to the positive terminal hole | E from the finite `Lemma11AHistoryContext` carrier chain | Formalized without terminal-specific data |
-| distinct `bd` components are disjoint | E from the `bdPaths.Pairwise Disjoint` field | Formalized |
-| a missing original-hole vertex occurs on at least one represented prior/current path | E by contraposition from carrier persistence | Formalized without assigning a component family or introduced/removed role |
-| a represented vertex occurrence yields an actual output path containing the vertex | E from current `output_mem` and prior `prior_output_mem` | Formalized |
-| a missing original-hole vertex equals the removed vertex of a concrete represented step | E from the one-step carrier replacement and finite block/history chains | Formalized without assigning the step to the `ac` or `bd` family |
-| current `SearchHistoryData` forces all represented output paths into `acPaths` | E from the stored `ACHoleStepGeometry` of each witness block | Formalized as an audit guard; this old boundary is stronger than the manuscript |
-| explicit two-sided path-history interface | D/E through `DeformationSide`, `swapSides`, and `TwoSidedSearchPathHistoryWitness` | Formalized for the current block; its positive context remains homogeneous-side |
-| carrier-level reorientation of concrete blocks | E from `swapSides_paths`; all carriers and dependent sets are preserved | Formalized |
-| side-correct mechanical reorientation | E from transported path labels and outside-hole facts plus explicit `SideMechanicalGeometry` | Formalized; side classification and local colour geometry still come from the concrete loop |
-| homogeneous-side restriction of the legacy positive history | E from `FullDefinition19Lemma11AHistoryData` and oriented `ACHoleStepGeometry` | Formalized as an audit guard; the mixed interfaces supersede it, but neither old nor mixed `Nat` history is the final finite execution object |
-| mixed-side `Nat` history | D/E interface in `MixedSidePathBlockHistory` | Lemma 11(a.ii) and Corollary 11 are proved on supplied data, but the total infinite carrier obligation is stronger than the manuscript |
-| exact mixed-side output witness | D/E interface in `ExactMixedSideSearchHistoryData` | Packages the exact Lemma 11(a.ii) conclusion; does not construct the witness from `OS` |
-| finite mixed-side flattened trace | D interface in `FiniteMixedSideSearchTrace` | Formalized with exact output-path correspondence; literal `OS` constructor and migration of bounded proofs remain open |
-| side-correct ordered path enumeration and stopping invariants | D in `TwoSidedOrderedPathExecution` | Formalized |
-| side-correct maximal-step earlier selection | D in `TwoSidedOrderedOSExecution.earlierSelection` | Formalized as the literal local update invariant; construction from the concrete loop remains open |
-| shared dependent vertex forces equal component sides | E from Definition 20 prime membership, oriented `dependent_mem_cd`, and overlap-aware prime colour exclusion | Formalized |
-| full two-sided no-shared-dependent-anticommuting-witness theorem | E from side reduction and the concrete finite-history Corollary 11 proof | Formalized on the current homogeneous-side history context |
-| canonical common-path first-introduced endpoint equality | E from carrier endpoint invariance, prime membership of the first introduced vertex, and non-prime membership of the terminal removed vertex | Formalized without a cross-trace premise |
-| side-correct first-common-path witness | E from the canonical entry theorem, least common indexed block, and two earlier-selection rules | Derived from `InitializationTwoSidedOrderedExecutionData`; literal mixed-side construction remains open |
-| terminal obstruction path is absent from every actual execution path and from the output path set | E from nearest-target membership and the literal stopping rule | Formalized through the old execution interface |
-| terminal obstruction path is absent as a represented component of the last block history | E from history-output provenance and the stopping rule | Formalized through the old interface; its vertices may still occur on opposite-family paths |
-| prior blocks represented by a positive `SearchPathHistoryWitness` are paths of the same search output | D in `prior_output_mem`, expressing literal earlier-block provenance | Recorded explicitly in both history interfaces; current two-sided contexts cover only one selected side |
-| terminal path belongs to the `bd` family indexed by the opposite target pairing, hence to the incoming source family | D interface in `InitializationTerminalPathComponentData`, then E from obstruction-pairing transport | Recorded explicitly; construction from the concrete `OS` stopping path remains part of the execution-data boundary |
-| `P ∩ C_b ⊆ C_j^(m)` for the terminal path | M/B | Not yet formalized faithfully: construct the mixed-side ordered execution from the concrete loop, then classify a missing `C_b` vertex as removed by a prior `bd` block |
-| terminal-path `C_b` vertices belong to the initialized original-hole carrier | D/M | Still requires the literal identification of `C_b` as an original-hole colour class in the initialized data |
-| outside-hole and degree-three geometry on the last positive block | M/B | Exact remaining terminal-tether argument after the corrected carrier step |
-| scoped target clone interface for the full interior case | M/B | Conditional bridge reduced to the scoped positive last-block geometry |
-| unrestricted target clone for every incoming arc | stronger than the manuscript branch | Retained only as an older convenience interface; not used by the strongest fidelity bridge |
-| uniqueness of the final-hole clone centre for one incoming search | E from induced-hole clone uniqueness | Formalized |
-| canonical centre selected under an interior premise | E once the scoped existence fact is supplied | Formalized, choice-independent, and proof-irrelevant |
-| equality-versus-inequality split of the two scoped final-hole clone centres | E once both interior witnesses are supplied | Formalized; no longer an independent branch certificate |
-| predecessor original-hole degree two | E from Lemma 11(a) | Formalized |
-| predecessor anticommutation from dependent membership and final degree three | E from Lemma 11(b) | Formalized and stage-checked |
-| same-centre terminal-neighborhood consequence | M/B | Isolated as a pairwise consequence; not yet derived from the two terminal holes |
-| existence of the first-block predecessor with final degree three | M/B | Not yet derived from execution histories |
-| propagated centre and original-hole leaf | M/B | Not yet derived from execution histories |
-| required propagated nonedges | M/B | Not yet derived from execution histories |
+- terminal parity, endpoint-side membership, and odd path cardinality are
+  derived from coordinates of the form `j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`;
+- target degree is transported through finite block replacement once local
+  target balance is supplied;
+- clone-to-flank adjacency is derived from a tether-link coordinate adjacent to
+  the target;
+- unequal-centre propagation traces must carry an `IsGenerated` proof using
+  only the finite `start` and `snoc` constructors;
+- the final theorem concludes the exact four-part `PaperLemma14Conclusion`.
 
-Consequently, the repository must not yet expose an unconditional theorem
-named `paperLemma14`. The strongest current bridge is deliberately named
-`paperLemma14_of_interiorTerminalCloneData_and_consequences`.
+### Remaining provenance boundary
 
-## Additional recurring checks
+`InitializationFiniteMixedSideExecutableLemma14Data` still supplies data that
+has not been derived from the literal initialized Definition 19/20 search:
 
-- **Stage check:** degrees compared in one argument must refer to definitionally
-  equal hole objects, or an explicit carrier/index equivalence theorem must be
-  supplied.
-- **Quantifier check:** pairwise terminal claims must not be strengthened to
-  per-arc claims unless that strengthening is separately proved.
-- **Orientation check:** statements may use a chosen indexing internally, but
-  public conclusions must be invariant under reversing or cyclically shifting
-  the indexed hole.
-- **Overlap check:** original-hole and prime-hole colour memberships are not
-  globally exclusive; any exact-colour hypothesis must be justified for the
-  specific vertex class under consideration.
-- **Two-sided path check:** a fixed-pairing deformation may contain both
-  `acPaths` and `bdPaths`; a history or execution interface restricted to one
-  side cannot be used as the final construction of the manuscript search trace.
-- **Finiteness check:** a finite Definition 19 prefix must not require local or
-  carrier-chain data outside its declared block count.
-- **Boundary-case check:** empty deformations, first blocks, the initial-tether
-  stopping branch, and later Definition 20 stopping must be covered explicitly.
-- **Dependency check:** a proof of Lemma 14 may use Lemmas 7–13, but it may not
-  consume a structure field that already assumes a conclusion of Lemma 14(iv).
-- **Model check:** small finite claw-free examples should test the encodings of
-  clonehood, dependent subsets, hole degree, and path anticommutation. These
-  tests supplement but do not replace proofs.
+1. the terminal coordinate package, including cardinality and target-position
+   equalities;
+2. one local `TargetBalanced` proof for each incoming execution;
+3. the stopping tether-link index, centre equality, and direction toward the
+   target;
+4. a generated unequal-centre trace whose `start` inputs include the required
+   initial avoidance and adjacency facts;
+5. each propagation `snoc` input's next avoidance and adjacency facts.
+
+`IsGenerated` verifies that the trace has the intended finite constructor
+shape. It does not by itself prove that the search supplies the constructor
+inputs.
+
+Consequently, the repository must not currently expose an unconditional
+`paperLemma14`. The present theorem is correctly named
+`paperLemma14_of_executableData`.
+
+### Acceptance criteria for unconditional Lemma 14
+
+An unqualified theorem may be added only after the repository proves a
+constructor or equivalent theorem of the form
+
+```lean
+InitializationFiniteMixedSideTerminalCoreData T
+  → G.IsClawFree
+  → InitializationFiniteMixedSideExecutableLemma14Data T
+```
+
+or proves `PaperLemma14Conclusion I` directly from the manuscript setup without
+an equivalent additional boundary package.
+
+The proof must derive, rather than assume:
+
+- terminal coordinates and target placement from the stopping component;
+- local target balance from the Definition 19/20 path geometry;
+- the adjacent stopping tether link;
+- every local avoidance and adjacency fact used to start and extend the
+  unequal-centre propagation.
+
+## Current manuscript coverage
+
+| Manuscript layer | Fidelity status |
+|---|---|
+| Lemmas 6-10 | Substantial graph-level implementations; complete statement audit remains |
+| Definition 14 | Combinatorial token-sliding charges only; operator charge absent |
+| Definition 15 | Combinatorial deformation closure only; operator symmetry absent |
+| Lemma 11(a)-(b) | Substantial finite/mixed-side proofs; paper-facing constructor audit remains |
+| Corollary 11 | Proved on bounded mixed-side finite histories |
+| Lemmas 12-13 | Supporting implementations exist; final statement audit remains |
+| Lemma 14 | Exact conclusion proved conditionally from executable-data package; unconditional theorem open |
+| Lemmas 15-18 | Not complete manuscript-level results |
+| Theorem 1(i)-(iii) | Operator commutator statements absent |
+| Theorem 2 | Transfer/free-fermion reconstruction absent |
+| Theorem 3 and Corollary 1 | Weighted matrix-power and nested-commutator theorem absent |
+
+## Documentation rule
+
+Historical audit documents retain the repository state at their stated date and
+baseline. The README and this file are the authoritative current status. Any PR
+that changes a paper-facing theorem must update both when the provenance status
+changes.

@@ -134,8 +134,8 @@ noncomputable def toTerminalTetherData
     {T : I.InitializationFiniteMixedSideTerminalCoreData}
     (D : FiniteMixedSideInitializationTerminalTetherWithoutTargetIndexData T) :
     FiniteMixedSideInitializationTerminalTetherData T where
-  tether := fun incoming =>
-    (D.tether incoming).toIncomingTerminalTether
+  tether := fun {source target} incoming =>
+    (D.tether (source := source) (target := target) incoming).toIncomingTerminalTether
 
 end FiniteMixedSideInitializationTerminalTetherWithoutTargetIndexData
 

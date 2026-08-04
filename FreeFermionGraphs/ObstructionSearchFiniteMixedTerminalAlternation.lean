@@ -113,12 +113,13 @@ index. -/
 noncomputable def toTerminalTetherWithoutTargetIndexData
     (D : FiniteMixedSideInitializationOperationalTerminalData T) :
     FiniteMixedSideInitializationTerminalTetherWithoutTargetIndexData T where
-  tether := fun incoming =>
+  tether := fun {source target} incoming =>
     { targetIndex_even := D.alternation.canonicalTargetIndex_even incoming
       pathCard_odd := D.alternation.pathCard_odd_of_incoming incoming
       positive_finalDegree_three :=
-        (D.tether incoming).positive_finalDegree_three
-      clone_adj_flank := (D.tether incoming).clone_adj_flank }
+        (D.tether (source := source) (target := target) incoming).positive_finalDegree_three
+      clone_adj_flank :=
+        (D.tether (source := source) (target := target) incoming).clone_adj_flank }
 
 /-- Reconstruct the established terminal tether analysis. -/
 noncomputable def toTerminalTetherData

@@ -24,56 +24,59 @@ lake update
 lake build
 ```
 
-A single module can be checked first, for example:
+The executable Lemma 14 endpoint can be checked first with:
 
 ```bash
-lake build FreeFermionGraphs.ObstructionSearchFiniteMixedPaperLemma14
+lake build FreeFermionGraphs.ObstructionSearchFiniteMixedExecutablePaperLemma14
 ```
 
 ## Current proof status
 
 The main active proof program is the graph-combinatorial route toward Theorem
 1(iii). The complete finite terminal-analysis route for manuscript Lemma 14 is
-now imported by `FreeFermionGraphs.lean` and exposes
-`InitializationFiniteMixedSideLiteralTerminalData.paperLemma14`.
+imported by `FreeFermionGraphs.lean` and exposes
+`InitializationFiniteMixedSideExecutableLemma14Data.paperLemma14`.
 
-This theorem proves the exact four-part `PaperLemma14Conclusion` from a finite
-literal-terminal-data interface consisting of:
+The theorem proves the exact four-part `PaperLemma14Conclusion` from the
+initialized finite obstruction-search execution and claw-freeness. Its terminal
+facts are generated as follows:
 
-- one-sided terminal tether data for each initialized search; and
-- a bounded distinct-centre propagation trace on one of the two actual incoming
-  finite executions.
+- the terminal component is represented in the manuscript coordinate form
+  `j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`, from which target parity, endpoint-side membership,
+  and odd path cardinality are derived;
+- target adjacency balance is proved for the one-block constructor and
+  preserved by literal `snoc`, which transports the original stopping-clone
+  degree three to the exact positive manuscript final hole;
+- clone-to-flank adjacency is derived from the adjacent tether-link coordinate;
+- the unequal-centre propagation is accepted only with an `IsGenerated`
+  derivation from the finite zero-hop and `snoc` propagation constructors.
 
-The remaining fidelity boundary is to construct that complete terminal-data
-interface directly from the primitive executable Definition 19 obstruction
-search and previously audited graph lemmas. In particular, the repository does
-not yet derive every `distinctPropagation` trace from the concrete search loop.
-No clause of Theorem 1 is yet exported as a manuscript-level Pauli-operator
-commutator theorem.
+The paper-facing theorem therefore contains no terminal parity, degree-three,
+flank-adjacency, endpoint conclusion, or arbitrary bounded-propagation
+certificate. No clause of Theorem 1 is yet exported as a manuscript-level
+Pauli-operator commutator theorem.
 
 | Manuscript layer | Status |
 |---|---|
 | Finite claw-free graph theory, including Lemmas 6-10 | Lean implementations exist; complete paper-facing audit remains |
 | Token sliding, deformation closures, and generalized-cycle sums | Combinatorial and generic additive definitions exist; operator charges are absent |
 | Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
-| Lemma 11(a)-(b) | Substantial finite and mixed-side implementations exist; final constructor audit remains |
-| Corollary 11 | Proved on supplied mixed-side finite history data |
-| Lemmas 12-13 | Implemented on supporting deformation interfaces; constructor audit remains |
-| Lemma 14(i)-(iv) | Exact conclusion proved from `InitializationFiniteMixedSideLiteralTerminalData`; construction of that data from the primitive search remains |
+| Lemma 11(a)-(b) | Substantial finite and mixed-side implementations exist; final statement audit remains |
+| Corollary 11 | Proved on bounded mixed-side finite histories |
+| Lemmas 12-13 | Implemented on supporting deformation interfaces; statement audit remains |
+| Lemma 14(i)-(iv) | Exact conclusion proved from generated finite obstruction-search events by `InitializationFiniteMixedSideExecutableLemma14Data.paperLemma14` |
 | Lemmas 15-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
 The next critical path is:
 
-1. construct `InitializationFiniteMixedSideLiteralTerminalData` from the
-   executable finite obstruction-search loop;
-2. derive the bounded `distinctPropagation` trace rather than accepting it as
-   input data;
-3. complete Lemmas 15-16 and the unobstructed-palindromic search step;
-4. finish the combinatorial proof of Theorem 1(iii);
-5. introduce the Pauli/frustration-graph algebra required for Theorem 1;
-6. formalise the exact free-fermion solution of Theorem 2 and the Krylov
+1. formalise Lemma 15, preserving the four Lemma 14 invariants after each
+   elimination step of the search process;
+2. formalise Lemma 16 and the unobstructed-palindromic termination argument;
+3. complete the remaining combinatorial route to Theorem 1(iii);
+4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
+5. formalise the exact free-fermion solution of Theorem 2 and the Krylov
    construction of Theorem 3.
 
 ## Manuscript fidelity policy

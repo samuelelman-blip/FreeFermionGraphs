@@ -51,7 +51,9 @@ variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
 def targetIndex
     (P : FiniteMixedSideTerminalPathExecution T target) :
     Fin (T.terminalPath target).card :=
-  ⟨2 * P.targetPosition, by omega⟩
+  ⟨2 * P.targetPosition, by
+    rw [P.card_eq]
+    omega⟩
 
 @[simp] theorem targetIndex_val
     (P : FiniteMixedSideTerminalPathExecution T target) :
@@ -80,7 +82,7 @@ theorem index_even_iff_mem_sameSide
     exact ⟨q, hq, rfl⟩
   · rintro ⟨r, hrEven, hr⟩
     have hqr : q = r :=
-      (T.terminalPath target).injective hr
+      (T.terminalPath target).injective hr.symm
     simpa [hqr] using hrEven
 
 /-- The obstruction target lies on the endpoint side. -/
@@ -88,6 +90,7 @@ theorem target_mem_sameSide
     (P : FiniteMixedSideTerminalPathExecution T target) :
     (target : V) ∈ P.sameSide := by
   refine ⟨P.targetIndex, ?_, P.targetIndex_target_eq⟩
+  change Even (2 * P.targetPosition)
   exact ⟨P.targetPosition, by omega⟩
 
 /-- The last endpoint has coordinate `2ℓ` and is on the same side. -/
@@ -97,8 +100,9 @@ theorem lastEndpoint_mem_sameSide
   let q := (T.terminalPath target).obstructionEndpointIndex .last
   refine ⟨q, ?_, rfl⟩
   refine ⟨P.halfLength, ?_⟩
-  change q.val = P.halfLength + P.halfLength
-  dsimp [q, IndexedInducedPath.obstructionEndpointIndex]
+  change (T.terminalPath target).card - 1 =
+    P.halfLength + P.halfLength
+  rw [P.card_eq]
   omega
 
 /-- Literal odd-path coordinates provide the alternating-label interface. -/
@@ -253,8 +257,10 @@ def toLabelledOperationalTerminalData
     (E : InitializationFiniteMixedSideGeneratedTerminalEvent T)
     (hclaw : G.IsClawFree) :
     FiniteMixedSideInitializationLabelledOperationalTerminalData T where
-  labels := E.path.toAlternatingLabelData
-  tether := fun incoming => (E.stop incoming).toOperationalTether hclaw
+  labels :=
+    FiniteMixedSideTerminalPathExecution.toAlternatingLabelData E.path
+  tether := fun {source target} incoming =>
+    (E.stop (source := source) (target := target) incoming).toOperationalTether hclaw
 
 end InitializationFiniteMixedSideGeneratedTerminalEvent
 

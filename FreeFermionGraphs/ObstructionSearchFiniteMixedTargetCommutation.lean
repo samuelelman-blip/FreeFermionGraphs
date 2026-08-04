@@ -104,7 +104,7 @@ theorem finalDegree_mod_two_eq_initial_of_commutes
     ConcretePathDeformation.reorient_initialHole] using hparity
 
 /-- Once block `q` has even degree and every later path commutes, the last
-block-final degree remains even. -/
+block-final degree has the same parity. -/
 theorem lastFinalDegree_mod_two_eq_of_commuting_suffix
     (X : FiniteMixedSideSearchTrace S originalHole)
     (u : V)
@@ -123,24 +123,25 @@ theorem lastFinalDegree_mod_two_eq_of_commuting_suffix
     | zero =>
         intro hn hqn
         have hqzero : q.val = 0 := by omega
-        apply congrArg (fun z => z % 2)
-        congr 2
-        apply Fin.ext
-        exact hqzero.symm
+        have hidx : (⟨0, hn⟩ : Fin X.blockCount) = q :=
+          Fin.ext hqzero.symm
+        rw [hidx]
     | succ n ih =>
         intro hn hqn
         by_cases hEq : q.val = n + 1
-        · apply congrArg (fun z => z % 2)
-          congr 2
-          apply Fin.ext
-          exact hEq.symm
+        · have hidx : (⟨n + 1, hn⟩ : Fin X.blockCount) = q :=
+            Fin.ext hEq.symm
+          rw [hidx]
         · have hqle : q.val ≤ n := by omega
           have hnPrevious : n < X.blockCount := by omega
           let previous : Fin X.blockCount := ⟨n, hnPrevious⟩
           let current : Fin X.blockCount := ⟨n + 1, hn⟩
+          have hqcurrent : q.val < current.val := by
+            dsimp [current]
+            omega
           have hparity :=
             X.finalDegree_mod_two_eq_initial_of_commutes current u
-              (hcomm current (by omega))
+              (hcomm current hqcurrent)
           have hchain :
               Set.range (X.block previous).finalHole.vertex =
                 Set.range (X.block current).initialHole.vertex :=
@@ -170,6 +171,57 @@ variable {families : PairingType → FixedPairingPathFamily G}
   {I : ObstructionSearchInitialization families Cprime}
 
 namespace ObstructionSearchInitialization
+
+namespace FiniteMixedSideOSExecution
+
+/-- Distinct indices of one literal nonempty execution carry distinct path
+components. -/
+theorem block_path_ne
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : FiniteMixedSideOSExecution I source originalHole)
+    {q r : Fin X.toOrdered.blockCount}
+    (hne : q ≠ r) :
+    Set.range (X.toOrdered.block q).path.vertex ≠
+      Set.range (X.toOrdered.block r).path.vertex := by
+  cases X with
+  | empty hrun => exact Fin.elim0 q
+  | nonempty data =>
+      simpa [FiniteMixedSideOSExecution.toOrdered] using
+        data.literal.trace.path_pairwise hne
+
+/-- Parity transport from one block through the later commuting suffix, stated
+on the exact manuscript final hole of the empty/nonempty execution wrapper. -/
+theorem manuscriptFinalHole_degree_mod_two_eq_of_commuting_suffix
+    {source : I.Node} {originalHole : IndexedInducedHole G}
+    (X : FiniteMixedSideOSExecution I source originalHole)
+    (u : V)
+    (q : Fin X.toOrdered.blockCount)
+    (hcomm : ∀ r : Fin X.toOrdered.blockCount,
+      q.val < r.val → (X.toOrdered.block r).path.CommutesWith u) :
+    X.toOrdered.manuscriptFinalHole.externalDegree u % 2 =
+      (X.toOrdered.block q).finalHole.externalDegree u % 2 := by
+  cases X with
+  | empty hrun => exact Fin.elim0 q
+  | nonempty data =>
+      let trace := data.literal.trace
+      have hcommTrace : ∀ r : Fin trace.blockCount,
+          q.val < r.val → (trace.block r).path.CommutesWith u := by
+        intro r hqr
+        simpa [trace, FiniteMixedSideOSExecution.toOrdered] using
+          hcomm r hqr
+      have hparity :=
+        trace.lastFinalDegree_mod_two_eq_of_commuting_suffix
+          u q hcommTrace
+      let ordered := (FiniteMixedSideOSExecution.nonempty data).toOrdered
+      have hpos : 0 < ordered.blockCount := Nat.zero_lt_of_lt q.isLt
+      have hfinal := ordered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
+      have hindex : ordered.lastBlockIndex hpos = trace.lastBlockIndex := by
+        apply Fin.ext
+        rfl
+      rw [hfinal, hindex]
+      simpa [ordered, trace, FiniteMixedSideOSExecution.toOrdered] using hparity
+
+end FiniteMixedSideOSExecution
 
 /-- Definition 20's literal fact that every initializer belongs to the fixed
 prime-hole carrier. -/
@@ -209,11 +261,12 @@ theorem target_mem_dependentAt_of_anticommutes
       (target : V) ≠
         (A.deformation.step A.firstIndex).introduced := by
     intro hEq
+    have hmemA : (target : V) ∈ Set.range A.path.vertex := by
+      refine ⟨hData.neighborhood.pathOrder.introducedPathIndex A.firstIndex, ?_⟩
+      rw [hData.neighborhood.pathOrder.introduced_eq A.firstIndex]
+      exact hEq.symm
     apply T.target_not_mem_executionPath incoming q
-    change (target : V) ∈ Set.range D.path.vertex
-    refine ⟨hData.neighborhood.pathOrder.introducedPathIndex A.firstIndex, ?_⟩
-    rw [hData.neighborhood.pathOrder.introduced_eq A.firstIndex]
-    simpa [A, D] using hEq.symm
+    simpa [A, D, ConcretePathDeformation.reorient_path] using hmemA
   obtain ⟨s, hs⟩ :=
     A.exists_dependentAt_of_ne_first_of_anticommutes
       hData hclaw (P.node_mem_prime target) hneFirst hantiA
@@ -238,8 +291,13 @@ theorem target_commutes_executionPath
         source).blockCount) :
     ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
       source).block q).path.CommutesWith (target : V) := by
-  rw [IndexedInducedPath.commutesWith_iff_not_anticommutesWith]
-  intro hanti
+  by_contra hnotCommutes
+  have hanti :
+      ((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+        source).block q).path.AnticommutesWith (target : V) :=
+    (((T.execution.toInitializationFiniteMixedSideOSExecutionData.ordered
+      source).block q).path.anticommutesWith_iff_not_commutesWith
+        (target : V)).2 hnotCommutes
   let Y := T.execution.toInitializationFiniteMixedSideOSExecutionData
   let X := Y.ordered source
   obtain ⟨s, hs⟩ :=
@@ -258,91 +316,39 @@ theorem target_commutes_executionPath
   have hlaterCommutes : ∀ r : Fin X.blockCount,
       q.val < r.val → (X.block r).path.CommutesWith (target : V) := by
     intro r hqr
-    rw [IndexedInducedPath.commutesWith_iff_not_anticommutesWith]
-    intro hantiR
+    by_contra hnotCommutesR
+    have hantiR : (X.block r).path.AnticommutesWith (target : V) :=
+      ((X.block r).path.anticommutesWith_iff_not_commutesWith
+        (target : V)).2 hnotCommutesR
     obtain ⟨t, ht⟩ :=
       T.target_mem_dependentAt_of_anticommutes P hclaw incoming r hantiR
+    have hqrNe : q ≠ r := by
+      intro hEq
+      have hval := congrArg Fin.val hEq
+      omega
     have hpathNe :
         Set.range (X.block q).path.vertex ≠
           Set.range (X.block r).path.vertex :=
-      X.path_pairwise (by
-        intro hEq
-        have hval := congrArg Fin.val hEq
-        omega)
+      (Y.execution source).block_path_ne hqrNe
     have hno :=
       (Y.orderedContextAt source q).noSharedDependentAnticommutingWitness
         (Y.orderedContextAt source r) hclaw hpathNe
     exact hno ⟨target, s, t, hs, ht, hanti, hantiR⟩
   have hparity :=
-    (Y.execution source).toTrace.lastFinalDegree_mod_two_eq_of_commuting_suffix
+    (Y.execution source).manuscriptFinalHole_degree_mod_two_eq_of_commuting_suffix
       (target : V) q hlaterCommutes
-  have hlastEven :
-      (X.block X.lastBlockIndex).finalHole.externalDegree (target : V) % 2 = 0 := by
+  have hfinalEven :
+      X.manuscriptFinalHole.externalDegree (target : V) % 2 = 0 := by
     rw [hparity, hfour]
-  have hpos : 0 < X.blockCount := by
-    exact Nat.pos_of_ne_zero (fun hzero => by
-      have : q.val < 0 := by simpa [hzero] using q.isLt
-      omega)
+  have hpos : 0 < X.blockCount := Nat.zero_lt_of_lt q.isLt
   obtain ⟨i, hterminalClone⟩ := E.positive_target_clone hpos
   have hterminalThree :
       X.manuscriptFinalHole.externalDegree (target : V) = 3 :=
     hterminalClone.externalDegree_eq_three
-  have hfinal := X.manuscriptFinalHole_eq_lastBlockFinalHole hpos
-  have hlastThree :
-      (X.block X.lastBlockIndex).finalHole.externalDegree (target : V) = 3 := by
-    simpa [hfinal] using hterminalThree
-  rw [hlastThree] at hlastEven
+  rw [hterminalThree] at hfinalEven
   omega
 
 end InitializationFiniteMixedSideTerminalCoreData
-
-namespace InitializationFiniteMixedSideExecutableTerminalEvent
-
-variable {T : I.InitializationFiniteMixedSideTerminalCoreData}
-
-/-- Convert the literal stopping event to the commuting terminal event, with
-commutation derived by Lemma 11 and Corollary 11. -/
-def toCommutingTerminalEvent
-    (E : InitializationFiniteMixedSideExecutableTerminalEvent T)
-    (P : I.InitializationPrimeVertexData)
-    (hclaw : G.IsClawFree) :
-    InitializationFiniteMixedSideCommutingTerminalEvent T where
-  path := fun target =>
-    { halfLength := (E.component target).sameCount - 1
-      card_eq := by
-        have hpartition := (E.component target).index_partition
-        have hsame := (E.component target).sameIndex_even
-        have hother := (E.component target).otherIndex_odd
-        omega
-      targetPosition := ((E.component target).sameIndex
-        (E.component target).targetCoordinate).val / 2
-      targetPosition_le := by
-        have htargetEven :=
-          (E.component target).sameIndex_even
-            (E.component target).targetCoordinate
-        have hlast := congrArg Fin.val (E.component target).last_eq
-        omega
-      target_eq := by
-        simpa using (E.component target).target_eq }
-  stop := by
-    intro source target incoming
-    let C := E.component target
-    let S := E.stop incoming
-    refine
-      { targetCommutes := ?_
-        linkIndex := S.linkIndex
-        link_center_eq := S.link_center_eq
-        link_toward_target := ?_ }
-    · intro q
-      exact T.target_commutes_executionPath P hclaw incoming S q
-    · intro X
-      have hcanonical := C.targetIndex_eq_canonical incoming
-      have hraw := S.link_toward_target X
-      cases hs : T.currentSlot source target <;>
-        simpa [FiniteMixedSideTerminalPathExecution.targetIndex,
-          hs, hcanonical] using hraw
-
-end InitializationFiniteMixedSideExecutableTerminalEvent
 
 end ObstructionSearchInitialization
 end FixedPairingPathFamily

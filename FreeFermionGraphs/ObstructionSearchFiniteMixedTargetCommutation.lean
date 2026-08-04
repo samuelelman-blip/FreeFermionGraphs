@@ -266,7 +266,8 @@ theorem target_mem_dependentAt_of_anticommutes
       rw [hData.neighborhood.pathOrder.introduced_eq A.firstIndex]
       exact hEq.symm
     apply T.target_not_mem_executionPath incoming q
-    simpa [A, D, ConcretePathDeformation.reorient_path] using hmemA
+    simpa [Y, D, A, FiniteMixedSideOrderedOSExecution.path,
+      ConcretePathDeformation.reorient_path] using hmemA
   obtain ⟨s, hs⟩ :=
     A.exists_dependentAt_of_ne_first_of_anticommutes
       hData hclaw (P.node_mem_prime target) hneFirst hantiA
@@ -306,7 +307,8 @@ theorem target_commutes_executionPath
       (families (I.pairing source)).HasTypedClone .ad
         Y.originalHole (target : V) :=
     (T.stoppingPairing.branch incoming).typedClone_ad hclaw
-  obtain ⟨cloneIndex, hclone, _hpair⟩ := htyped
+  have htypedForExact := htyped
+  obtain ⟨cloneIndex, hclone, _hpair⟩ := htypedForExact
   have horiginal : Y.originalHole.externalDegree (target : V) = 3 :=
     hclone.externalDegree_eq_three
   have hfour :
@@ -337,9 +339,17 @@ theorem target_commutes_executionPath
   have hparity :=
     (Y.execution source).manuscriptFinalHole_degree_mod_two_eq_of_commuting_suffix
       (target : V) q hlaterCommutes
+  have hfourRaw :
+      ((Y.execution source).toOrdered.block q).finalHole.externalDegree
+        (target : V) = 4 := by
+    simpa [X] using hfour
+  have hfinalEvenRaw :
+      (Y.execution source).toOrdered.manuscriptFinalHole.externalDegree
+        (target : V) % 2 = 0 := by
+    rw [hparity, hfourRaw]
   have hfinalEven :
       X.manuscriptFinalHole.externalDegree (target : V) % 2 = 0 := by
-    rw [hparity, hfour]
+    simpa [X] using hfinalEvenRaw
   have hpos : 0 < X.blockCount := Nat.zero_lt_of_lt q.isLt
   obtain ⟨i, hterminalClone⟩ := E.positive_target_clone hpos
   have hterminalThree :

@@ -89,6 +89,7 @@ theorem finalHole_externalDegree_eq_initial_of_targetBalanced
     (hbalanced : D.TargetBalanced u) :
     D.finalHole.externalDegree u = D.initialHole.externalDegree u := by
   have hlast : D.deformation.stepCount - 1 < D.deformation.stepCount := by
+    have hpos := D.nonempty
     omega
   simpa [ConcretePathDeformation.finalHole,
     ConcretePathDeformation.lastIndex] using
@@ -237,10 +238,17 @@ theorem manuscriptFinalHole_externalDegree_eq_original_of_targetBalanced
       have hlast :=
         data.literal.trace.blockFinal_externalDegree_eq_original_through
           u hbalanced last.val last.isLt
-      have hfinal :=
-        data.toOrdered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
+      let ordered := (FiniteMixedSideOSExecution.nonempty data).toOrdered
+      have hfinal := ordered.manuscriptFinalHole_eq_lastBlockFinalHole hpos
+      have hindex : ordered.lastBlockIndex hpos = last := by
+        apply Fin.ext
+        rfl
       rw [hfinal]
-      simpa [FiniteMixedSideOSExecution.toOrdered, last] using hlast
+      change
+        (data.literal.trace.block (ordered.lastBlockIndex hpos)).finalHole.externalDegree u =
+          originalHole.externalDegree u
+      rw [hindex]
+      exact hlast
 
 end FiniteMixedSideOSExecution
 
@@ -349,8 +357,10 @@ def toLabelledOperationalTerminalData
     (E : InitializationFiniteMixedSideBalancedExecutableTerminalEvent T)
     (hclaw : G.IsClawFree) :
     FiniteMixedSideInitializationLabelledOperationalTerminalData T where
-  labels := E.component.toAlternatingLabelData
-  tether := fun incoming => (E.stop incoming).toOperationalTether hclaw
+  labels :=
+    FiniteMixedSideTerminalComponentExecution.toAlternatingLabelData E.component
+  tether := fun {source target} incoming =>
+    (E.stop (source := source) (target := target) incoming).toOperationalTether hclaw
 
 end InitializationFiniteMixedSideBalancedExecutableTerminalEvent
 

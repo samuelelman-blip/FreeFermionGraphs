@@ -166,9 +166,10 @@ theorem survivor_ne_removedSource
     (source : T.Node) :
     R.survivor source ≠ R.removedSource := by
   intro hEq
-  have hmem : (R.removedSource : V) ∈ T.initialization.W := by
+  have hval : (source : V) = (R.removedSource : V) := by
     rw [← R.survivor_value source, hEq]
-    exact source.property
+  have hmem : (R.removedSource : V) ∈ T.initialization.W :=
+    hval ▸ source.property
   exact R.removedSource_not_mem_next hmem
 
 /-- Every new source is an old source distinct from both deleted vertices. -/
@@ -177,9 +178,10 @@ theorem survivor_ne_removedObstruction
     (source : T.Node) :
     R.survivor source ≠ R.removedObstruction := by
   intro hEq
-  have hmem : (R.removedObstruction : V) ∈ T.initialization.W := by
+  have hval : (source : V) = (R.removedObstruction : V) := by
     rw [← R.survivor_value source, hEq]
-    exact source.property
+  have hmem : (R.removedObstruction : V) ∈ T.initialization.W :=
+    hval ▸ source.property
   exact R.removedObstruction_not_mem_next hmem
 
 /-- Equation (C32) forces every path from both parent deformations to occur in
@@ -204,6 +206,23 @@ theorem rerouted_prefix_paths
   rw [R.reroutedOutput_eq,
     SearchDeformation.paths_castFamily] at hresult
   exact hresult
+
+/-- Every new initializer is retained from the preceding set. -/
+theorem next_W_subset
+    (R : ObstructionSearchReroutingTransition S T) :
+    T.initialization.W ⊆ S.initialization.W := by
+  rw [R.next_W]
+  exact Set.diff_subset
+
+/-- The corrective update strictly decreases the initializer set because the
+removed source belonged to the old set and is absent from the new one. -/
+theorem next_W_ne
+    (R : ObstructionSearchReroutingTransition S T) :
+    T.initialization.W ≠ S.initialization.W := by
+  intro hEq
+  apply R.removedSource_not_mem_next
+  rw [hEq]
+  exact R.removedSource.property
 
 end ObstructionSearchReroutingTransition
 

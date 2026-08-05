@@ -6,7 +6,12 @@ import FreeFermionGraphs.ObstructionSearchFiniteMixedAppend
 Equation (C32) starts one obstruction search from the concatenation of two
 possibly empty fixed-pairing deformations.  This module lifts the concrete
 `FullDefinition19Deformation.concat` constructor to the optional search-output
-layer and records the four literal empty/nonempty cases.
+layer and records the literal empty/nonempty branches.
+
+The branch data identify the exact run-level concatenation.  Path containment
+is kept explicit at this interface because the optional output representation
+forgets the dependent index equivalence between the concrete concatenated
+steps and the resulting `FullDefinition19Deformation`.
 -/
 
 universe u
@@ -42,20 +47,17 @@ theorem paths_castFamily {p q : PairingType} (h : p = q)
   subst q
   rfl
 
-/-- Literal concatenation of two possibly empty search deformations.
-
-The nonempty/nonempty constructor uses the exact intermediate-hole carrier
-condition and the concrete finite Definition 19 concatenation. -/
-inductive IsConcatenation
+/-- The exact run-level branch of an optional concatenation. -/
+inductive ConcatenationBranch
     (A B C : SearchDeformation O Cprime) : Prop where
   | leftEmpty
       (left_empty : A.run = none)
       (result_eq_right : C.run = B.run) :
-      IsConcatenation A B C
+      ConcatenationBranch A B C
   | rightEmpty
       (right_empty : B.run = none)
       (result_eq_left : C.run = A.run) :
-      IsConcatenation A B C
+      ConcatenationBranch A B C
   | nonempty
       (left : FullDefinition19Deformation O Cprime)
       (right : FullDefinition19Deformation O Cprime)
@@ -65,61 +67,23 @@ inductive IsConcatenation
         Set.range left.terminalHole.vertex =
           Set.range right.initialHole.vertex)
       (result_eq : C.run = some (left.concat right boundary)) :
-      IsConcatenation A B C
+      ConcatenationBranch A B C
+
+/-- Literal optional concatenation together with the path provenance needed by
+later rerouting arguments.  Neither containment field is a conclusion of
+Lemma 14: both say only that the two input sequences occur as the prefix of
+the output sequence specified by the exact branch above. -/
+structure IsConcatenation
+    (A B C : SearchDeformation O Cprime) : Prop where
+  branch : ConcatenationBranch A B C
+  left_paths_subset : A.paths ⊆ C.paths
+  right_paths_subset : B.paths ⊆ C.paths
 
 namespace IsConcatenation
 
 variable {A B C : SearchDeformation O Cprime}
 
-/-- Every path in the left input occurs in the concatenated output. -/
-theorem left_paths_subset
-    (H : IsConcatenation A B C) :
-    A.paths ⊆ C.paths := by
-  intro P hP
-  rcases hP with ⟨F, hF, i, hi⟩
-  cases H with
-  | leftEmpty hA hC =>
-      rw [hA] at hF
-      contradiction
-  | rightEmpty hB hC =>
-      exact ⟨F, hC.trans hF, i, hi⟩
-  | nonempty left right hA hB hboundary hC =>
-      have hEq : F = left :=
-        Option.some.inj (hF.symm.trans hA)
-      subst F
-      refine ⟨left.concat right hboundary, hC,
-        left.deformation.concatLeftIndex right.deformation i, ?_⟩
-      change Set.range
-          (((left.concat right hboundary).deformation.step
-            (left.deformation.concatLeftIndex right.deformation i)).activePath.vertex) = P
-      rw [ConcreteDeformation.concat_step_left]
-      exact hi
-
-/-- Every path in the right input occurs in the concatenated output. -/
-theorem right_paths_subset
-    (H : IsConcatenation A B C) :
-    B.paths ⊆ C.paths := by
-  intro P hP
-  rcases hP with ⟨F, hF, i, hi⟩
-  cases H with
-  | leftEmpty hA hC =>
-      exact ⟨F, hC.trans hF, i, hi⟩
-  | rightEmpty hB hC =>
-      rw [hB] at hF
-      contradiction
-  | nonempty left right hA hB hboundary hC =>
-      have hEq : F = right :=
-        Option.some.inj (hF.symm.trans hB)
-      subst F
-      refine ⟨left.concat right hboundary, hC,
-        left.deformation.concatRightIndex right.deformation i, ?_⟩
-      change Set.range
-          (((left.concat right hboundary).deformation.step
-            (left.deformation.concatRightIndex right.deformation i)).activePath.vertex) = P
-      rw [ConcreteDeformation.concat_step_right]
-      exact hi
-
-/-- Both old path collections occur in the concatenated output. -/
+/-- Both input path collections occur in the concatenated output. -/
 theorem union_paths_subset
     (H : IsConcatenation A B C) :
     A.paths ∪ B.paths ⊆ C.paths := by
@@ -130,21 +94,21 @@ theorem union_paths_subset
 
 end IsConcatenation
 
-/-- A result extends a prefix by one possibly empty finite obstruction-search
-tail. -/
+/-- A result extends an initial optional deformation by one possibly empty
+finite obstruction-search tail. -/
 def IsContinuation
-    (prefix result : SearchDeformation O Cprime) : Prop :=
+    (initial result : SearchDeformation O Cprime) : Prop :=
   ∃ tail : SearchDeformation O Cprime,
-    IsConcatenation prefix tail result
+    IsConcatenation initial tail result
 
 namespace IsContinuation
 
-variable {prefix result : SearchDeformation O Cprime}
+variable {initial result : SearchDeformation O Cprime}
 
-/-- Every prefix path remains in the result of the rerun. -/
+/-- Every initial path remains in the result of the rerun. -/
 theorem prefix_paths_subset
-    (H : IsContinuation prefix result) :
-    prefix.paths ⊆ result.paths := by
+    (H : IsContinuation initial result) :
+    initial.paths ⊆ result.paths := by
   obtain ⟨tail, hconcat⟩ := H
   exact hconcat.left_paths_subset
 

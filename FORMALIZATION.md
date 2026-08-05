@@ -22,11 +22,16 @@ development is organised by mathematical dependency rather than paper order.
 3. Lemma 14: completed on the literal initialized finite Definition 19/20
    history by
    `InitializationFiniteMixedSideLemma14History.paperLemma14`.
-4. Lemma 15: transport the four Lemma 14 invariants through every corrective
-   obstruction-search rerouting step.
-5. Lemmas 16-18: termination, palindromic deformation, and the final
-   generalized-cycle cancellation.
-6. Deformation closures and generalized-cycle indexing data.
+4. Lemma 15: completed for explicit finite corrective rerouting executions by
+   `ObstructionSearchReroutingProcess.paperLemma15`; each transition records
+   Eqs. (C31) and (C32), and strictly removes the selected source/obstruction
+   pair.
+5. Lemma 16: prove that the strictly decreasing corrective process terminates
+   at an unobstructed deformation and that every unobstructed deformation
+   satisfies Lemma 12's palindromic criterion.
+6. Lemmas 17-18: transfer identities and the final generalized-cycle
+   cancellation.
+7. Deformation closures and generalized-cycle indexing data.
 
 This is the longest purely combinatorial layer and is required for Theorem
 1(iii).

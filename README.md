@@ -24,58 +24,51 @@ lake update
 lake build
 ```
 
-The completed finite Lemma 14 integration can be checked first with:
+The completed finite Lemmas 14 and 15 integration can be checked first with:
 
 ```bash
-lake build FreeFermionGraphs.ObstructionSearchFiniteMixedLemma14History
+lake build FreeFermionGraphs.ObstructionSearchReroutingProcess
 ```
 
 ## Current proof status
 
-The finite Definition 19/20 route now exposes the unqualified theorem
+The finite Definition 19/20 route exposes the unqualified Lemma 14 theorem
 
 ```lean
 InitializationFiniteMixedSideLemma14History.paperLemma14
 ```
 
-with hypotheses
+and the all-steps Lemma 15 theorem
 
 ```lean
-(H : I.InitializationFiniteMixedSideLemma14History)
-(hclaw : G.IsClawFree)
+ObstructionSearchReroutingProcess.paperLemma15
 ```
 
-and conclusion `PaperLemma14Conclusion I`, the exact four-part manuscript
-statement.
+The latter proves `PaperLemma14Conclusion` for every state of an explicit
+finite corrective rerouting execution. Such an execution records the literal
+nondeterministic Definition 19/20 histories at each state and one transition
+for every application of Eqs. (C31) and (C32).
 
-`InitializationFiniteMixedSideLemma14History` is the literal initialized search
-history, not a post-hoc Lemma 14 certificate. It contains the finite execution
-core, the manuscript inclusion `W ⊆ Cprime`, explicit empty/positive stopping
-constructors, local terminal-path alternation, canonical adjacent stopping
-links, and the inductively generated unequal-centre propagation history.
+A transition records:
 
-The four terminal facts are derived as follows:
+- the source and common obstruction removed from the initializer set;
+- the surviving distinguished source and the rerouting initializer;
+- the value-preserving embedding of the new initializer set into the old one;
+- the unchanged outputs, dependent sets, and arcs of Eq. (C31);
+- the exact optional empty/nonempty concatenation used in Eq. (C32);
+- the finite continuation of that concatenated prefix by the rerun obstruction
+  search.
 
-- even/odd terminal coordinates are proved by induction from local colour
-  alternation at consecutive path steps;
-- a positive terminal clone is extracted by case analysis on the literal
-  empty/positive stopping history;
-- target commutation is derived from that clone using finite Lemma 11(a),
-  Corollary 11, and parity through the later execution suffix;
-- exact terminal degree three follows from commutation, even-hole parity, and
-  Lemma 7;
-- clone-to-flank adjacency follows from the canonical adjacent link;
-- unequal-centre propagation witnesses must carry the indexed `IsGenerated`
-  derivation built only by the finite `start` and `snoc` constructors.
+The two removed vertices are proved absent from the next initializer set, the
+survivor embedding is proved injective, the initializer set is proved to
+strictly decrease, and both parent path collections are proved to occur in the
+rerouted output.
 
-The lower-level theorem
-
-```lean
-InitializationFiniteMixedSideExecutableLemma14Data.paperLemma14_of_executableData
-```
-
-remains available as an internal integration bridge. The paper-facing theorem
-is the history-level theorem above.
+No state or transition contains `PaperLemma14Conclusion`, any of its four
+clauses, a terminal endpoint alternative, or a terminal claw. Each state
+contains only the explicit finite history specifying that run of the
+nondeterministic manuscript algorithm. Lemma 15 then applies the completed
+history-level Lemma 14 theorem uniformly at every represented step.
 
 | Manuscript layer | Status |
 |---|---|
@@ -86,14 +79,16 @@ is the history-level theorem above.
 | Corollary 11 | Proved on bounded mixed-side finite histories |
 | Lemmas 12-13 | Implemented on supporting deformation interfaces; statement audit remains |
 | Lemma 14(i)-(iv) | Complete on the literal initialized finite Definition 19/20 history; exact unqualified `paperLemma14` exported |
-| Lemmas 15-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
+| Lemma 15 | Complete for explicit finite corrective rerouting executions; exact all-steps `paperLemma15` exported |
+| Lemmas 16-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
 The next critical path is:
 
-1. formalise the induction of Lemma 15 over obstruction-search rerouting steps;
-2. formalise Lemmas 16-18 and complete the remaining combinatorial route to
+1. formalise termination of the strictly decreasing corrective search and
+   Lemma 16's unobstructed-palindromic conclusion;
+2. formalise Lemmas 17-18 and complete the remaining combinatorial route to
    Theorem 1(iii);
 3. complete the paper-facing constructor audit for Lemma 11(b);
 4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
@@ -117,10 +112,10 @@ Paper-facing results are therefore gated by
   manuscript setup;
 - any remaining constructor or provenance boundary must be recorded explicitly.
 
-For Lemma 14, the manuscript setup is represented by the explicit initialized
-finite history. `InitializationFiniteMixedSideTerminalCoreData` alone is not
-intended to determine a run: it omits the local stopping and propagation choices
-made by the Definition 19/20 search.
+For Lemmas 14 and 15, the nondeterministic manuscript setup is represented by
+explicit finite execution histories. The core search output alone does not
+determine the local stopping, propagation, concatenation, and rerun choices
+made by the Definition 19/20 procedure.
 
 ## Repository layout
 

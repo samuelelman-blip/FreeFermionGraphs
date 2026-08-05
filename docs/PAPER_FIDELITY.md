@@ -87,10 +87,10 @@ The replacement finite layer uses `FiniteMixedSideSearchTrace`, with:
 - exact output-path correspondence;
 - original-hole provenance for removed vertices.
 
-The repository now constructs substantial bounded mixed-side execution data and
-uses it throughout the finite Lemma 11 and Lemma 14 development. Legacy total
-histories remain available internally but are not acceptable final premises for
-an unqualified paper theorem.
+The repository constructs bounded mixed-side execution data and uses it
+throughout the finite Lemma 11 and Lemma 14 developments. Legacy total
+histories remain available internally but are not acceptable final premises
+for an unqualified paper theorem.
 
 ## Lemma 14
 
@@ -104,85 +104,82 @@ an unqualified paper theorem.
 4. every target has at most two incoming arcs and, for two distinct incoming
    arcs, the target is the unique member of exactly one final dependent set.
 
-### Current strongest bridge
+### Paper-facing theorem
 
-The current finite endpoint is
+The finite manuscript endpoint is now
+
+```lean
+InitializationFiniteMixedSideLemma14History.paperLemma14
+```
+
+with hypotheses
+
+```lean
+(H : I.InitializationFiniteMixedSideLemma14History)
+(hclaw : G.IsClawFree)
+```
+
+and conclusion `PaperLemma14Conclusion I`.
+
+`InitializationFiniteMixedSideLemma14History` represents the literal
+initialized Definition 19/20 search history. It is the manuscript setup for the
+lemma, not a structure containing any of the four conclusions.
+
+### Provenance audit
+
+The fields and their classes are:
+
+| Lean data | Manuscript object | Class |
+|---|---|---|
+| `core` | initialized finite deformations, obstruction/dependent outputs, pairing labels, terminal path, nearest-target rule | D |
+| `W_subset_Cprime` | Definition 20 inclusion of initializers in the fixed prime carrier | D |
+| `terminal.alternation` | local `j-k-j-k` colour alternation of the terminal path component | D |
+| `FiniteMixedSideIncomingTerminalHistory.empty` | empty initialized output branch | D |
+| `FiniteMixedSideIncomingTerminalHistory.positive` | positive stopping branch and exact final-hole single-vertex deformation | D |
+| `FiniteMixedSideCanonicalTerminalLink` | adjacent link emitted by the stopping rule | D |
+| generated propagation derivation | finite sequence assembled by the literal `start` and `snoc` propagation constructors | D |
+| even-index labels and odd path cardinality | induction from local alternation | E |
+| target path commutation | finite Lemma 11(a), Corollary 11, and parity contradiction from the raw terminal clone | E |
+| positive terminal degree three | path commutation, even-hole parity, and Lemma 7 | E |
+| two-step clone-to-flank adjacency | induced-path adjacency from the canonical adjacent link | E |
+| final same-centre/distinct-centre contradiction | terminal comparison and generated propagation trace | E |
+
+The generated unequal-centre history is indexed by its resulting trace. A
+witness is accepted only with
+`FiniteMixedSideDistinctPropagationTrace.IsGenerated`, whose constructors are
+the finite zero-hop start and one actual-block `snoc` step. Thus a free-standing
+terminal-claw or endpoint-alternative certificate cannot enter the theorem.
+
+### Boundary and stage checks
+
+- Empty and positive executions are separate constructors.
+- Positive target clones are extracted by case analysis on those constructors.
+- The exact `manuscriptFinalHole` is used at the stopping stage.
+- The first dependent predecessor is tied to block zero, whose initial carrier
+  is proved equal to the initialized original hole.
+- Every propagation hop names an actual finite ordered path block.
+- Same-centre and distinct-centre cases are split by equality of the two actual
+  staged clone centres.
+- `PaperLemma14Conclusion` contains no history or terminal certificate.
+
+### Internal bridges
+
+The lower-level theorem
 
 ```lean
 InitializationFiniteMixedSideExecutableLemma14Data
   .paperLemma14_of_executableData
 ```
 
-with hypotheses
+is retained for modularity. Its data are constructed from
+`InitializationFiniteMixedSideLemma14History` by
+`toExecutableLemma14Data`; it is no longer the paper-facing endpoint.
 
-```lean
-(L : InitializationFiniteMixedSideExecutableLemma14Data T)
-(hclaw : G.IsClawFree)
-```
-
-and conclusion `PaperLemma14Conclusion I`.
-
-The theorem is valid and proves the exact conclusion, but it is conditional on
-`L`. The repository does not yet construct `L` from
-`InitializationFiniteMixedSideTerminalCoreData T` and claw-freeness alone.
-
-### What the current route genuinely derives
-
-The current route removes several direct conclusion certificates:
-
-- terminal parity, endpoint-side membership, and odd path cardinality are
-  derived from coordinates of the form `j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`;
-- target degree is transported through finite block replacement once local
-  target balance is supplied;
-- clone-to-flank adjacency is derived from a tether-link coordinate adjacent to
-  the target;
-- unequal-centre propagation traces must carry an `IsGenerated` proof using
-  only the finite `start` and `snoc` constructors;
-- the final theorem concludes the exact four-part `PaperLemma14Conclusion`.
-
-### Remaining provenance boundary
-
-`InitializationFiniteMixedSideExecutableLemma14Data` still supplies data that
-has not been derived from the literal initialized Definition 19/20 search:
-
-1. the terminal coordinate package, including cardinality and target-position
-   equalities;
-2. one local `TargetBalanced` proof for each incoming execution;
-3. the stopping tether-link index, centre equality, and direction toward the
-   target;
-4. a generated unequal-centre trace whose `start` inputs include the required
-   initial avoidance and adjacency facts;
-5. each propagation `snoc` input's next avoidance and adjacency facts.
-
-`IsGenerated` verifies that the trace has the intended finite constructor
-shape. It does not by itself prove that the search supplies the constructor
-inputs.
-
-Consequently, the repository must not currently expose an unconditional
-`paperLemma14`. The present theorem is correctly named
-`paperLemma14_of_executableData`.
-
-### Acceptance criteria for unconditional Lemma 14
-
-An unqualified theorem may be added only after the repository proves a
-constructor or equivalent theorem of the form
-
-```lean
-InitializationFiniteMixedSideTerminalCoreData T
-  → G.IsClawFree
-  → InitializationFiniteMixedSideExecutableLemma14Data T
-```
-
-or proves `PaperLemma14Conclusion I` directly from the manuscript setup without
-an equivalent additional boundary package.
-
-The proof must derive, rather than assume:
-
-- terminal coordinates and target placement from the stopping component;
-- local target balance from the Definition 19/20 path geometry;
-- the adjacent stopping tether link;
-- every local avoidance and adjacency fact used to start and extend the
-  unequal-centre propagation.
+`InitializationFiniteMixedSideTerminalCoreData` alone intentionally does not
+determine a run of the nondeterministic obstruction search: it omits local
+stopping and propagation choices. Requiring the explicit finite history is
+therefore part of the manuscript algorithm setup, not an additional
+mathematical hypothesis.
 
 ## Current manuscript coverage
 
@@ -194,7 +191,7 @@ The proof must derive, rather than assume:
 | Lemma 11(a)-(b) | Substantial finite/mixed-side proofs; paper-facing constructor audit remains |
 | Corollary 11 | Proved on bounded mixed-side finite histories |
 | Lemmas 12-13 | Supporting implementations exist; final statement audit remains |
-| Lemma 14 | Exact conclusion proved conditionally from executable-data package; unconditional theorem open |
+| Lemma 14 | Exact unqualified theorem proved from the literal initialized finite search history |
 | Lemmas 15-18 | Not complete manuscript-level results |
 | Theorem 1(i)-(iii) | Operator commutator statements absent |
 | Theorem 2 | Transfer/free-fermion reconstruction absent |

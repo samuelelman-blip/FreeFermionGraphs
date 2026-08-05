@@ -18,8 +18,15 @@ development is organised by mathematical dependency rather than paper order.
 ## 2. Generalized-cycle combinatorics
 
 1. Fixed-pairing-type deformations and obstruction graphs.
-2. Lemmas 10-16 and Corollaries 7-12.
-3. Deformation closures and generalized-cycle indexing data.
+2. Lemmas 10-13 and Corollaries 7-12.
+3. Lemma 14: completed on the literal initialized finite Definition 19/20
+   history by
+   `InitializationFiniteMixedSideLemma14History.paperLemma14`.
+4. Lemma 15: transport the four Lemma 14 invariants through every corrective
+   obstruction-search rerouting step.
+5. Lemmas 16-18: termination, palindromic deformation, and the final
+   generalized-cycle cancellation.
+6. Deformation closures and generalized-cycle indexing data.
 
 This is the longest purely combinatorial layer and is required for Theorem
 1(iii).
@@ -62,3 +69,8 @@ Statements proved only under an explicit abstraction or additional hypothesis
 will be marked as such in their theorem names and docstrings. The final paper
 theorems will not be exposed under their paper names until every translation
 assumption is discharged.
+
+For nondeterministic manuscript algorithms, an explicit finite execution
+history is part of the setup. It is acceptable in an unqualified theorem only
+when its constructors contain literal algorithm branches and no field assumes
+the numbered lemma's conclusion.

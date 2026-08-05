@@ -48,9 +48,12 @@ must retain names of the form `paperLemma14_of_...`.
 - **Finiteness check:** a finite Definition 19 prefix must not require data
   outside its declared block count.
 - **Boundary-case check:** empty deformations, first blocks, the initial-tether
-  stopping branch, and later Definition 20 stopping must be covered.
+  stopping branch, later Definition 20 stopping, and empty inputs to a
+  corrective concatenation must be covered.
 - **Dependency check:** a proof of Lemma 14 may use Lemmas 7-13, but it may not
-  consume a field that already assumes a conclusion of Lemma 14(iv).
+  consume a field that already assumes a conclusion of Lemma 14(iv). A proof
+  of Lemma 15 may consume literal histories at successive search states, but no
+  state or transition may contain any of the four Lemma 14 conclusions.
 
 ## Lemma 11(b)
 
@@ -88,9 +91,9 @@ The replacement finite layer uses `FiniteMixedSideSearchTrace`, with:
 - original-hole provenance for removed vertices.
 
 The repository constructs bounded mixed-side execution data and uses it
-throughout the finite Lemma 11 and Lemma 14 developments. Legacy total
-histories remain available internally but are not acceptable final premises
-for an unqualified paper theorem.
+throughout the finite Lemma 11, Lemma 14, and Lemma 15 developments. Legacy
+total histories remain available internally but are not acceptable final
+premises for an unqualified paper theorem.
 
 ## Lemma 14
 
@@ -106,7 +109,7 @@ for an unqualified paper theorem.
 
 ### Paper-facing theorem
 
-The finite manuscript endpoint is now
+The finite manuscript endpoint is
 
 ```lean
 InitializationFiniteMixedSideLemma14History.paperLemma14
@@ -181,6 +184,93 @@ stopping and propagation choices. Requiring the explicit finite history is
 therefore part of the manuscript algorithm setup, not an additional
 mathematical hypothesis.
 
+## Lemma 15
+
+### Manuscript conclusion
+
+The manuscript states that all four conclusions of Lemma 14 hold for
+`{O_j^(i)}_{j ∈ W^(i)}` and `D^(i)` at every corrective search step `i`.
+The Lean proposition
+
+```lean
+ObstructionSearchReroutingProcess.PaperLemma15Conclusion
+```
+
+is exactly
+
+```lean
+∀ i : Fin (P.stepCount + 1),
+  PaperLemma14Conclusion (P.state i).initialization
+```
+
+and therefore preserves all four quantifier structures rather than replacing
+them by a weaker global invariant.
+
+### Paper-facing theorem
+
+The theorem is
+
+```lean
+ObstructionSearchReroutingProcess.paperLemma15
+```
+
+with hypotheses
+
+```lean
+(P : ObstructionSearchReroutingProcess)
+(hclaw : G.IsClawFree)
+```
+
+and conclusion `P.PaperLemma15Conclusion`.
+
+The explicit finite process is the manuscript's nondeterministic corrective
+search execution. It is not an additional graph-theoretic premise.
+
+### State and transition correspondence
+
+| Lean data | Manuscript object | Class |
+|---|---|---|
+| `ObstructionSearchReroutingState.initialization` | `{O_j^(i)}_{j ∈ W^(i)}`, dependent outputs, and `D^(i)` | D |
+| `state.history` | literal finite Definition 19/20 histories specifying all nondeterministic searches at step `i` | D |
+| `removedSource`, `removedObstruction` | the source/obstruction pair removed in the corrective update | D |
+| `next_W` | `W^(i+1) = W^(i) \ {j',j''}` | D |
+| `survivor`, `survivor_value` | inclusion of surviving vertices into the preceding obstruction graph | D |
+| `retained_paths`, `retained_dependent`, `retained_arcs` | unchanged searches of Eq. (C31) | D |
+| `ConcatenationBranch` | the empty/empty, empty/nonempty, or nonempty/nonempty cases of `O_(j',j)^(i)` in Eq. (C32) | D |
+| `reroutingPrefix`, `prefix_is_concatenation` | exact optional concatenation `O_(j',j)^(i)` | D |
+| `rerouted_continuation` | the finite rerun `OS(O_(j',j)^(i),u_(j,f)^(i),W^(i+1)\{j})` | D |
+| survivor injectivity and deleted-vertex exclusion | value preservation and the set equation for `W^(i+1)` | E |
+| `next_W_subset`, `next_W_ne` | strict decrease of the corrective initializer set | E |
+| `rerouted_prefix_paths` | both parent path collections occur in the Eq. (C32) rerun output | E |
+| all four Lemma 14 clauses at every state | application of the audited history-level Lemma 14 theorem | E |
+
+The optional concatenation interface explicitly records path provenance because
+`SearchDeformation` intentionally erases the dependent index equivalence
+between concrete concatenated steps and its optional output. These containment
+facts describe the literal prefix relation of Eq. (C32); they do not assert
+same-pairing disjointness, bipartiteness, indegree bounds, or the dependent-set
+alternative.
+
+### Fidelity checks
+
+- No state or transition contains `PaperLemma14Conclusion` or any one of its
+  four clauses.
+- The next initializer set is exactly the old set with the selected source and
+  obstruction removed.
+- All retained nodes preserve their underlying vertex and pairing label.
+- Eq. (C31) and Eq. (C32) are represented separately.
+- All four optional concatenation boundary cases are covered by the branch
+  representation.
+- The theorem quantifies over every finite state, including state zero.
+- The theorem uses the exact `PaperLemma14Conclusion` at each state.
+- The strict-decrease theorem is available for the subsequent termination
+  argument but is not smuggled into the Lemma 15 conclusion.
+
+The implementation does not claim that `ObstructionSearchInitialization` alone
+deterministically computes the next state. The manuscript search is
+nondeterministic at local selection points, so the explicit finite process and
+its histories specify the chosen run.
+
 ## Current manuscript coverage
 
 | Manuscript layer | Fidelity status |
@@ -192,7 +282,8 @@ mathematical hypothesis.
 | Corollary 11 | Proved on bounded mixed-side finite histories |
 | Lemmas 12-13 | Supporting implementations exist; final statement audit remains |
 | Lemma 14 | Exact unqualified theorem proved from the literal initialized finite search history |
-| Lemmas 15-18 | Not complete manuscript-level results |
+| Lemma 15 | Exact all-steps theorem proved for explicit finite corrective rerouting executions |
+| Lemmas 16-18 | Not complete manuscript-level results |
 | Theorem 1(i)-(iii) | Operator commutator statements absent |
 | Theorem 2 | Transfer/free-fermion reconstruction absent |
 | Theorem 3 and Corollary 1 | Weighted matrix-power and nested-commutator theorem absent |

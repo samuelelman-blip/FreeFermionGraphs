@@ -107,8 +107,8 @@ theorem outsideAnticommutingWitness_of_terminalPathTransport
     T.earlierWitness_outside i hu huOutside hs' hu' hanti' hunique huP
   exact ⟨s', u', hs', hu'Carrier, hantiCarrier, hu'Outside⟩
 
-/-- Every flattened Definition 20 dependent vertex belongs to a unique
-finite path block occurrence represented by the trace. -/
+/-- Every flattened Definition 20 dependent vertex belongs to at least one
+finite path-block occurrence represented by the trace. -/
 theorem exists_block_dependentAt_of_mem_dependentUnion
     (X : FiniteMixedSideSearchTrace S originalHole)
     {u : V} (hu : u ∈ X.flattened.dependentUnion) :
@@ -117,7 +117,7 @@ theorem exists_block_dependentAt_of_mem_dependentUnion
   obtain ⟨k, hk⟩ := X.flattened.mem_dependentUnion_iff.mp hu
   obtain ⟨i, t, hit⟩ := X.stepIndex_surjective k
   have hstep :
-      u ∈ (X.block i).deformation.step t |>.dependentSet := by
+      u ∈ ((X.block i).deformation.step t).dependentSet := by
     rw [← X.step_eq i t, hit]
     exact hk
   refine ⟨i, t.val, ?_⟩

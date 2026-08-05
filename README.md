@@ -24,44 +24,58 @@ lake update
 lake build
 ```
 
-The current finite Lemma 14 bridge can be checked first with:
+The completed finite Lemma 14 integration can be checked first with:
 
 ```bash
-lake build FreeFermionGraphs.ObstructionSearchFiniteMixedExecutablePaperLemma14
+lake build FreeFermionGraphs.ObstructionSearchFiniteMixedLemma14History
 ```
 
 ## Current proof status
 
-The main active proof program is the graph-combinatorial route toward Theorem
-1(iii). The finite terminal-analysis route for manuscript Lemma 14 is imported
-by `FreeFermionGraphs.lean` and exposes the conditional theorem
+The finite Definition 19/20 route now exposes the unqualified theorem
+
+```lean
+InitializationFiniteMixedSideLemma14History.paperLemma14
+```
+
+with hypotheses
+
+```lean
+(H : I.InitializationFiniteMixedSideLemma14History)
+(hclaw : G.IsClawFree)
+```
+
+and conclusion `PaperLemma14Conclusion I`, the exact four-part manuscript
+statement.
+
+`InitializationFiniteMixedSideLemma14History` is the literal initialized search
+history, not a post-hoc Lemma 14 certificate. It contains the finite execution
+core, the manuscript inclusion `W ⊆ Cprime`, explicit empty/positive stopping
+constructors, local terminal-path alternation, canonical adjacent stopping
+links, and the inductively generated unequal-centre propagation history.
+
+The four terminal facts are derived as follows:
+
+- even/odd terminal coordinates are proved by induction from local colour
+  alternation at consecutive path steps;
+- a positive terminal clone is extracted by case analysis on the literal
+  empty/positive stopping history;
+- target commutation is derived from that clone using finite Lemma 11(a),
+  Corollary 11, and parity through the later execution suffix;
+- exact terminal degree three follows from commutation, even-hole parity, and
+  Lemma 7;
+- clone-to-flank adjacency follows from the canonical adjacent link;
+- unequal-centre propagation witnesses must carry the indexed `IsGenerated`
+  derivation built only by the finite `start` and `snoc` constructors.
+
+The lower-level theorem
 
 ```lean
 InitializationFiniteMixedSideExecutableLemma14Data.paperLemma14_of_executableData
 ```
 
-This theorem proves the exact four-part `PaperLemma14Conclusion` from an
-additional `InitializationFiniteMixedSideExecutableLemma14Data` premise and
-claw-freeness. The additional premise is not yet constructed from
-`InitializationFiniteMixedSideTerminalCoreData` alone.
-
-The current route derives several important terminal facts rather than storing
-the final Lemma 14 conclusion:
-
-- terminal parity and endpoint-side facts are derived from coordinates of the
-  form `j₀-k₀-⋯-k_(ℓ-1)-j_ℓ`;
-- external degree is transported through finite `single` and `snoc` executions
-  once local target balance has been supplied for each block;
-- clone-to-flank adjacency is derived from an adjacent tether-link coordinate;
-- unequal-centre traces must carry an `IsGenerated` derivation built from the
-  finite `start` and `snoc` constructors.
-
-The remaining fidelity boundary is substantive. The repository must still
-derive the terminal coordinate package, local target-balance proofs, stopping
-link data, and the propagation constructors' local avoidance and adjacency
-inputs directly from the literal Definition 19/20 obstruction search. Until
-that constructor exists, there is deliberately no unqualified theorem named
-`paperLemma14`.
+remains available as an internal integration bridge. The paper-facing theorem
+is the history-level theorem above.
 
 | Manuscript layer | Status |
 |---|---|
@@ -71,23 +85,19 @@ that constructor exists, there is deliberately no unqualified theorem named
 | Lemma 11(a)-(b) | Substantial finite and mixed-side implementations exist; final statement and constructor audit remains |
 | Corollary 11 | Proved on bounded mixed-side finite histories |
 | Lemmas 12-13 | Implemented on supporting deformation interfaces; statement audit remains |
-| Lemma 14(i)-(iv) | Exact conclusion proved conditionally from `InitializationFiniteMixedSideExecutableLemma14Data`; unconditional manuscript theorem remains open |
+| Lemma 14(i)-(iv) | Complete on the literal initialized finite Definition 19/20 history; exact unqualified `paperLemma14` exported |
 | Lemmas 15-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
 The next critical path is:
 
-1. construct `InitializationFiniteMixedSideExecutableLemma14Data` from the
-   literal initialized Definition 19/20 obstruction-search execution;
-2. derive local target balance and the unequal-centre propagation inputs rather
-   than accepting them in generated-data constructors;
-3. expose an unqualified `paperLemma14` only after that provenance boundary is
-   discharged;
-4. formalise Lemmas 15-16 and complete the remaining combinatorial route to
+1. formalise the induction of Lemma 15 over obstruction-search rerouting steps;
+2. formalise Lemmas 16-18 and complete the remaining combinatorial route to
    Theorem 1(iii);
-5. introduce the Pauli/frustration-graph algebra required for Theorem 1;
-6. formalise the exact free-fermion solution of Theorem 2 and the Krylov
+3. complete the paper-facing constructor audit for Lemma 11(b);
+4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
+5. formalise the exact free-fermion solution of Theorem 2 and the Krylov
    construction of Theorem 3.
 
 ## Manuscript fidelity policy
@@ -107,10 +117,10 @@ Paper-facing results are therefore gated by
   manuscript setup;
 - any remaining constructor or provenance boundary must be recorded explicitly.
 
-This policy is especially important for Definition 19, where one
-fixed-pairing deformation may contain paths from both component families. A
-one-sided or infinitely extended history cannot be used as the final
-representation of the manuscript search.
+For Lemma 14, the manuscript setup is represented by the explicit initialized
+finite history. `InitializationFiniteMixedSideTerminalCoreData` alone is not
+intended to determine a run: it omits the local stopping and propagation choices
+made by the Definition 19/20 search.
 
 ## Repository layout
 

@@ -24,7 +24,7 @@ lake update
 lake build
 ```
 
-The completed finite Lemmas 14 and 15 integration can be checked first with:
+The finite Lemmas 14 and 15 integration can be checked first with:
 
 ```bash
 lake build FreeFermionGraphs.ObstructionSearchReroutingProcess
@@ -32,65 +32,82 @@ lake build FreeFermionGraphs.ObstructionSearchReroutingProcess
 
 ## Current proof status
 
-The finite Definition 19/20 route exposes the unqualified Lemma 14 theorem
+The finite Definition 19/20 route exposes the history-level Lemma 14 theorem
 
 ```lean
 InitializationFiniteMixedSideLemma14History.paperLemma14
 ```
 
-and the all-steps Lemma 15 theorem
+and the all-state Lemma 15 theorem
 
 ```lean
 ObstructionSearchReroutingProcess.paperLemma15
 ```
 
 The latter proves `PaperLemma14Conclusion` for every state of an explicit
-finite corrective rerouting execution. Such an execution records the literal
-nondeterministic Definition 19/20 histories at each state and one transition
-for every application of Eqs. (C31) and (C32).
+finite corrective rerouting execution. Such an execution records the selected
+finite Definition 19/20 history at each state and one transition for every
+application of Eqs. (C31) and (C32).
 
-A transition records:
+A transition records the source/obstruction deletion, the surviving source,
+the value-preserving embedding of the next initializer set, the retained data
+of Eq. (C31), and the optional concatenation and continuation used in Eq.
+(C32). The two removed vertices are absent from the next initializer set, the
+survivor embedding is injective, and the initializer set strictly decreases.
 
-- the source and common obstruction removed from the initializer set;
-- the surviving distinguished source and the rerouting initializer;
-- the value-preserving embedding of the new initializer set into the old one;
-- the unchanged outputs, dependent sets, and arcs of Eq. (C31);
-- the exact optional empty/nonempty concatenation used in Eq. (C32);
-- the finite continuation of that concatenated prefix by the rerun obstruction
-  search.
+No state contains `PaperLemma14Conclusion`, one of its four clauses, a terminal
+endpoint alternative, or a terminal claw. The state history specifies an
+actual run of the nondeterministic manuscript search.
 
-The two removed vertices are proved absent from the next initializer set, the
-survivor embedding is proved injective, the initializer set is proved to
-strictly decrease, and both parent path collections are proved to occur in the
-rerouted output.
+## Fidelity audit
 
-No state or transition contains `PaperLemma14Conclusion`, any of its four
-clauses, a terminal endpoint alternative, or a terminal claw. Each state
-contains only the explicit finite history specifying that run of the
-nondeterministic manuscript algorithm. Lemma 15 then applies the completed
-history-level Lemma 14 theorem uniformly at every represented step.
+A repository-wide manuscript audit was performed against the 14 July 2026
+paper. The complete findings are recorded in
+[`docs/PAPER_FIDELITY_AUDIT_2026-08-05.md`](docs/PAPER_FIDELITY_AUDIT_2026-08-05.md).
+
+The audit does **not** support a blanket claim that every numbered result
+represented in the repository is already an exact formalisation of the printed
+paper. The Lean terms are internally checked, but some earlier numbered files
+are conditional cores or representation-level statements:
+
+- the printed Lemma 8 omits an external-vertex premise used by its proof; Lean
+  formalises the corrected intended statement;
+- Corollaries 7-10 still expose coloring or occurrence information as premises
+  or erase repeated path occurrences by using sets of paths;
+- Lemma 11 still depends on `Lemma11AHistoryContext`;
+- Lemma 12 still depends on `Lemma12Definition19Data`;
+- the Eq. (C32) optional-concatenation interface stores path-containment
+  provenance that should eventually be derived from dependent index transport.
+
+Accordingly, the status table distinguishes exact endpoints from conditional or
+representation-level implementations.
 
 | Manuscript layer | Status |
 |---|---|
-| Finite claw-free graph theory, including Lemmas 6-10 | Lean implementations exist; complete paper-facing audit remains |
-| Token sliding, deformation closures, and generalized-cycle sums | Combinatorial and generic additive definitions exist; operator charges are absent |
+| Lemma 6 | Exact for the finite graph setting |
+| Lemma 7 and Corollaries 2-3 | Exact indexed path/hole statements |
+| Lemma 8 and Corollaries 4-5 | Corrected forms with the required external-vertex premise |
+| Lemma 9 and Corollary 6 | Exact deformation-closure statements |
+| Lemma 10 | Exact on the fixed-pairing component-family interface |
+| Corollaries 7-10 | Conditional or occurrence-erasing cores; exact ordered-path wrappers remain |
+| Lemma 11 and Corollary 11 | Substantial finite implementations; exact constructor audit remains |
+| Lemma 12 | Conditional on `Lemma12Definition19Data` |
+| Lemma 13 | Exact at the complete flattened Definition 19 interface |
+| Lemma 14(i)-(iv) | Exact on explicit initialized finite histories |
+| Lemma 15 | Exact all-state conclusion on an explicit finite rerouting process; Eq. (C32) provenance cleanup remains |
+| Lemmas 16-18 | Not yet formalised at manuscript level |
 | Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
-| Lemma 11(a)-(b) | Substantial finite and mixed-side implementations exist; final statement and constructor audit remains |
-| Corollary 11 | Proved on bounded mixed-side finite histories |
-| Lemmas 12-13 | Implemented on supporting deformation interfaces; statement audit remains |
-| Lemma 14(i)-(iv) | Complete on the literal initialized finite Definition 19/20 history; exact unqualified `paperLemma14` exported |
-| Lemma 15 | Complete for explicit finite corrective rerouting executions; exact all-steps `paperLemma15` exported |
-| Lemmas 16-18 | Not formalised as complete manuscript lemmas; some underlying graph definitions exist |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
 The next critical path is:
 
-1. formalise termination of the strictly decreasing corrective search and
-   Lemma 16's unobstructed-palindromic conclusion;
-2. formalise Lemmas 17-18 and complete the remaining combinatorial route to
-   Theorem 1(iii);
-3. complete the paper-facing constructor audit for Lemma 11(b);
+1. formalise Lemma 16 and the termination consequence of strict initializer
+   decrease, while keeping any remaining Lemma 11/12 provenance boundary
+   explicit in theorem names;
+2. replace the conditional Corollary 7-10, Lemma 11, and Lemma 12 interfaces by
+   constructors from occurrence-indexed Definition 19 data;
+3. formalise Lemmas 17-18 and complete the combinatorial route to Theorem 1(iii);
 4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
 5. formalise the exact free-fermion solution of Theorem 2 and the Krylov
    construction of Theorem 3.
@@ -122,8 +139,9 @@ made by the Definition 19/20 procedure.
 - `FreeFermionGraphs/`: individual definitions, lemmas, and integration modules
 - `FreeFermionGraphs.lean`: root import for the complete development
 - `FORMALIZATION.md`: dependency-oriented proof plan
-- `docs/PAPER_FIDELITY.md`: current manuscript correspondence, provenance, and
-  open proof boundaries
+- `docs/PAPER_FIDELITY.md`: current manuscript correspondence and open proof
+  boundaries
+- `docs/PAPER_FIDELITY_AUDIT_2026-08-05.md`: result-by-result current audit
 - `docs/PAPER_AUDIT_2026-08-01.md`: historical audit at the PR #196 baseline
 
 ## Development workflow

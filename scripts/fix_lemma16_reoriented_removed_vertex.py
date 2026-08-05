@@ -14,18 +14,11 @@ new = '''  have heqD :
       (((X.block i).reorient (X.side i)).deformation.step sD).introduced =
         (((X.block i).reorient (X.side i)).deformation.step tD).before.vertex
           (((X.block i).reorient (X.side i)).deformation.step tD).removedIndex := by
-    calc
-      (((X.block i).reorient (X.side i)).deformation.step sD).introduced =
-          ((X.block i).deformation.step s).introduced := by
-        simpa [sD] using
-          ((X.block i).deformation.step s).reorient_introduced (X.side i)
-      _ = ((X.block i).deformation.step t).before.vertex
-          ((X.block i).deformation.step t).removedIndex := heq
-      _ = (((X.block i).reorient (X.side i)).deformation.step tD).before.vertex
-          (((X.block i).reorient (X.side i)).deformation.step tD).removedIndex := by
-        symm
-        simpa [tD] using
-          ((X.block i).deformation.step t).reorient_removedVertex (X.side i)
+    cases hside : X.side i <;>
+      simpa [sD, tD, hside, FiniteMixedSideSearchTrace.orientedBlock,
+        ConcretePathDeformation.reorient,
+        ConcreteDeformation.reorient,
+        ConcreteDeformationStep.reorient] using heq
 '''
 
 if old not in text:

@@ -1,4 +1,5 @@
 import FreeFermionGraphs.ObstructionSearchFiniteMixedLemma14History
+import FreeFermionGraphs.ObstructionSearchReroutingConcat
 
 /-!
 # Finite corrective obstruction-search rerouting
@@ -13,8 +14,8 @@ This module records that literal finite process.  Every state carries the
 Definition 19/20 execution history used to specify its nondeterministic search
 runs, rather than any clause of Lemma 14.  The transition data record the
 source/obstruction deletion, the embedding of the new initializer set into the
-old one, the retained Eq. (C31) outputs, and the concatenated path prefix of the
-Eq. (C32) rerun.
+old one, the retained Eq. (C31) outputs, and the exact optional concatenation
+and continuation of the Eq. (C32) rerun.
 -/
 
 universe u
@@ -50,8 +51,9 @@ end ObstructionSearchReroutingState
 `removedObstruction` is the common obstruction `j''`.  `oldRerouted` is the
 surviving source `j`.  The map `survivor` identifies every new node with the
 same underlying vertex in the old state.  Sources other than `rerouted` obey
-Eq. (C31); the distinguished source contains both old parent path collections
-as the prefix of its Eq. (C32) rerun.
+Eq. (C31).  For Eq. (C32), `reroutingPrefix` is the exact optional
+concatenation of the deleted and surviving parent searches, and
+`reroutedOutput` is a finite continuation of that prefix.
 -/
 structure ObstructionSearchReroutingTransition
     (S T : ObstructionSearchReroutingState
@@ -90,6 +92,9 @@ structure ObstructionSearchReroutingTransition
       S.initialization.pairing (survivor source)
   rerouted : T.Node
   rerouted_source_eq : survivor rerouted = oldRerouted
+  rerouted_pairing_eq :
+    T.initialization.pairing rerouted =
+      S.initialization.pairing oldRerouted
   rerouteInitializer_not_mem_searchSet :
     rerouteInitializer ∉
       T.initialization.W \ {(rerouted : V)}
@@ -106,10 +111,26 @@ structure ObstructionSearchReroutingTransition
       (T.initialization.graph.Arc source target ↔
         S.initialization.graph.Arc
           (survivor source) (survivor target))
-  rerouted_prefix_paths :
-    (S.initialization.output removedSource).paths ∪
-        (S.initialization.output oldRerouted).paths ⊆
-      (T.initialization.output rerouted).paths
+  reroutingPrefix :
+    SearchDeformation
+      (families (S.initialization.pairing oldRerouted)) Cprime
+  prefix_is_concatenation :
+    SearchDeformation.IsConcatenation
+      (SearchDeformation.castFamily
+        (families := families) parent_pairing_eq
+        (S.initialization.output removedSource))
+      (S.initialization.output oldRerouted)
+      reroutingPrefix
+  reroutedOutput :
+    SearchDeformation
+      (families (S.initialization.pairing oldRerouted)) Cprime
+  reroutedOutput_eq :
+    reroutedOutput =
+      SearchDeformation.castFamily
+        (families := families) rerouted_pairing_eq
+        (T.initialization.output rerouted)
+  rerouted_continuation :
+    SearchDeformation.IsContinuation reroutingPrefix reroutedOutput
 
 namespace ObstructionSearchReroutingTransition
 
@@ -160,6 +181,29 @@ theorem survivor_ne_removedObstruction
     rw [← R.survivor_value source, hEq]
     exact source.property
   exact R.removedObstruction_not_mem_next hmem
+
+/-- Equation (C32) forces every path from both parent deformations to occur in
+the rerouted output.  This is derived from the exact optional concatenation and
+continuation, rather than stored as a transition field. -/
+theorem rerouted_prefix_paths
+    (R : ObstructionSearchReroutingTransition S T) :
+    (S.initialization.output R.removedSource).paths ∪
+        (S.initialization.output R.oldRerouted).paths ⊆
+      (T.initialization.output R.rerouted).paths := by
+  intro P hP
+  have hparent :
+      P ∈ R.reroutingPrefix.paths := by
+    apply R.prefix_is_concatenation.union_paths_subset
+    rcases hP with hleft | hright
+    · left
+      rw [SearchDeformation.paths_castFamily]
+      exact hleft
+    · exact Or.inr hright
+  have hresult : P ∈ R.reroutedOutput.paths :=
+    R.rerouted_continuation.prefix_paths_subset hparent
+  rw [R.reroutedOutput_eq,
+    SearchDeformation.paths_castFamily] at hresult
+  exact hresult
 
 end ObstructionSearchReroutingTransition
 

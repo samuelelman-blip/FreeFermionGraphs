@@ -66,8 +66,10 @@ theorem exists_later_introduced_of_not_mem_after_of_mem_terminal
           rw [hchain]
           exact hxBefore
         exact ih hnPrev (by simpa [previous] using hxPrevious)
+  have hpos : 0 < F.deformation.stepCount := F.nonempty
   have hlast : F.deformation.stepCount - 1 < F.deformation.stepCount := by
     omega
+  have hiLt : i.val < F.deformation.stepCount := i.isLt
   have hiLast : i.val ≤ F.deformation.stepCount - 1 := by
     omega
   exact (habsent (F.deformation.stepCount - 1) hlast hiLast)
@@ -121,7 +123,9 @@ theorem dependent_exactlyOne_in_oriented_family
       ((X.side i).family O).Cd := by
   let D := X.orientedBlock i
   have huD : u ∈ D.dependentAt s := by
-    simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu
+    change u ∈ ((X.block i).reorient (X.side i)).dependentAt s
+    rw [(X.block i).reorient_dependentAt (X.side i) s]
+    exact hu
   have huOutsideD : u ∉ Set.range D.path.vertex := by
     simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using huOutside
   exact (X.localData i).neighborhood.mechanical.dependent_exactlyOne_of_outside
@@ -142,7 +146,6 @@ theorem laterPath_eq_uniqueBDPath
     (hunique : ((X.side i).family O).IsUniqueContainingBDPath u P)
     (huLater : u ∈ Set.range (X.block g).path.vertex) :
     Set.range (X.block g).path.vertex = P := by
-  have hlaterFamily := X.path_mem_selectedSide g
   have hnotBoth := hexact.not_mem_ac_and_bd
   have hsideNe : X.side g ≠ X.side i := by
     intro hEq
@@ -181,15 +184,17 @@ theorem dependent_mem_cc_not_ca_of_opposite_side
       u ∉ ((X.side g).family O).Ca := by
   let D := X.orientedBlock i
   have huD : u ∈ D.dependentAt s := by
-    simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu
+    change u ∈ ((X.block i).reorient (X.side i)).dependentAt s
+    rw [(X.block i).reorient_dependentAt (X.side i) s]
+    exact hu
   have huCd : u ∈ ((X.side i).family O).Cd :=
     (X.localData i).neighborhood.mechanical.dependent_mem_cd huD
   have huPrime : u ∈ Cprime := by
     have hstep := D.mem_step_dependentSet_of_mem_dependentAt huD
-    exact (ConcreteDeformationStep.mem_dependentSet _).1 hstep |>.1
-  have huNotCb : u ∉ ((X.side i).family O).Cb :=
-    ((X.localData i).neighborhood.overlapColoring
-      .not_mem_cb_cc_of_mem_cd huPrime huCd).1
+    exact ((ConcreteDeformationStep.mem_dependentSet _).1 hstep).1
+  have huNotCb : u ∉ ((X.side i).family O).Cb := by
+    exact (PrimeCarrierOverlapColored.not_mem_cb_cc_of_mem_cd
+      (X.localData i).neighborhood.overlapColoring huPrime huCd).1
   cases hi : X.side i <;>
     cases hg : X.side g <;>
     simp_all [DeformationSide.family, D]
@@ -205,29 +210,46 @@ theorem exists_introduced_of_mem_opposite_path
     (hu : u ∈ (X.block i).dependentAt s)
     (huPath : u ∈ Set.range (X.block g).path.vertex) :
     ∃ t : Fin (X.block g).deformation.stepCount,
-      (X.block g).deformation.step t |>.introduced = u := by
+      ((X.block g).deformation.step t).introduced = u := by
   let Dg := X.orientedBlock g
   obtain ⟨q, hqu⟩ : ∃ q : Fin Dg.path.card, Dg.path.vertex q = u := by
     simpa [Dg, FiniteMixedSideSearchTrace.orientedBlock] using huPath
-  obtain ⟨huCc, huNotCa⟩ :=
+  obtain ⟨_huCc, huNotCa⟩ :=
     X.dependent_mem_cc_not_ca_of_opposite_side i g hside hu
   rcases Dg.pathIndex_introduced_or_removed
       (X.localData g).neighborhood.pathOrder
       (X.localData g).path_card_eq q with hintroduced | hremoved
   · obtain ⟨t, hq⟩ := hintroduced
+    have hpath := (X.localData g).neighborhood.pathOrder.introduced_eq t
+    have hDg : (Dg.deformation.step t).introduced = u := by
+      calc
+        (Dg.deformation.step t).introduced =
+            Dg.path.vertex
+              ((X.localData g).neighborhood.pathOrder.introducedPathIndex t) :=
+          hpath.symm
+        _ = Dg.path.vertex q := by rw [hq]
+        _ = u := hqu
     refine ⟨t, ?_⟩
-    have h := (X.localData g).neighborhood.pathOrder.introduced_eq t
-    rw [← hqu, hq, h]
-    rfl
+    simpa [Dg, FiniteMixedSideSearchTrace.orientedBlock] using hDg
   · obtain ⟨t, hq⟩ := hremoved
-    have h := (X.localData g).neighborhood.pathOrder.removed_eq t
+    have hpath := (X.localData g).neighborhood.pathOrder.removed_eq t
     have hremovedCa :
         ((Dg.deformation.step t).before.vertex
           (Dg.deformation.step t).removedIndex) ∈
             ((X.side g).family O).Ca :=
       ((X.localData g).neighborhood.mechanical.stepGeometry t).removed_ca
-    apply (huNotCa)
-    rw [← hqu, hq, h]
+    have huEq :
+        u = (Dg.deformation.step t).before.vertex
+          (Dg.deformation.step t).removedIndex := by
+      calc
+        u = Dg.path.vertex q := hqu.symm
+        _ = Dg.path.vertex
+              ((X.localData g).neighborhood.pathOrder.removedPathIndex t) := by
+            rw [hq]
+        _ = (Dg.deformation.step t).before.vertex
+              (Dg.deformation.step t).removedIndex := hpath
+    apply huNotCa
+    rw [huEq]
     exact hremovedCa
 
 /-- The Corollaries 9--10 occurrence argument from Lemma 16: the earlier
@@ -251,7 +273,7 @@ theorem earlierWitness_not_mem_terminal
   have hu'Oriented : u' ∈ D.dependentAt s' := by simpa [D] using hu'
   have hu'Prime : u' ∈ Cprime := by
     have hstep := D.mem_step_dependentSet_of_mem_dependentAt hu'Oriented
-    exact (ConcreteDeformationStep.mem_dependentSet _).1 hstep |>.1
+    exact ((ConcreteDeformationStep.mem_dependentSet _).1 hstep).1
   have hmembership :=
     (D.lemma11a_membership_iff_ne_first_and_degree
       (X.localData i) hclaw hu'Prime hanti').mp
@@ -260,23 +282,24 @@ theorem earlierWitness_not_mem_terminal
     (X.localData i).anticommuting_not_mem_path
       hu'Prime hmembership.1 hanti'
   have hu'NotFinal : u' ∉ Set.range D.finalHole.vertex :=
-    (X.localData i).neighborhood.mechanical
-      .dependent_not_mem_finalHole_of_outside
-        (X.localData i).neighborhood.overlapColoring
-        hu'Oriented hu'OutsidePath
+    (X.localData i).neighborhood.mechanical.dependent_not_mem_finalHole_of_outside
+      (X.localData i).neighborhood.overlapColoring
+      hu'Oriented hu'OutsidePath
+  have hu'NotFinalRaw :
+      u' ∉ Set.range (X.block i).finalHole.vertex := by
+    simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu'NotFinal
   intro hu'Terminal
   let si : Fin (X.block i).deformation.stepCount := (X.block i).lastIndex
   let ki : Fin X.flattened.deformation.stepCount := X.stepIndex i si
   have hu'NotAfter :
       u' ∉ Set.range (X.flattened.deformation.step ki).after.vertex := by
     rw [X.step_eq i si]
-    simpa [D, si, ConcretePathDeformation.finalHole,
-      ConcretePathDeformation.reorient_finalHole] using hu'NotFinal
-  obtain ⟨kLater, hik, hkIntro⟩ :=
+    simpa [si, ConcretePathDeformation.finalHole] using hu'NotFinalRaw
+  obtain ⟨kLater, _hik, hkIntro⟩ :=
     X.flattened.exists_later_introduced_of_not_mem_after_of_mem_terminal
       ki hu'NotAfter hu'Terminal
   obtain ⟨g, t, hgt⟩ := X.stepIndex_surjective kLater
-  have hu'Intro : (X.block g).deformation.step t |>.introduced = u' := by
+  have hu'Intro : ((X.block g).deformation.step t).introduced = u' := by
     have hstep := X.step_eq g t
     rw [hgt] at hstep
     simpa [hkIntro] using congrArg ConcreteDeformationStep.introduced hstep
@@ -305,7 +328,8 @@ theorem earlierWitness_not_mem_terminal
       ((X.side i).family O).Ca ((X.side i).family O).Cb
       ((X.side i).family O).Cc ((X.side i).family O).Cd := by
     have hu'Raw : u' ∈ (X.block i).dependentAt s' := by
-      simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu'Oriented
+      rw [← (X.block i).reorient_dependentAt (X.side i) s']
+      exact hu'Oriented
     have hu'OutsideRaw : u' ∉ Set.range (X.block i).path.vertex := by
       simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu'OutsidePath
     exact X.dependent_exactlyOne_in_oriented_family i hu'Raw hu'OutsideRaw
@@ -334,12 +358,12 @@ theorem earlierWitness_not_mem_terminal
       (X.flattened.deformation.step kg).introduced ∉
         Set.range X.flattened.terminalHole.vertex := by
     simpa [huIntroGlobal] using huOutsideTerminal
-  obtain ⟨kRemove, hgk, hkRemove⟩ :=
+  obtain ⟨kRemove, _hgk, hkRemove⟩ :=
     X.flattened.exists_later_removed_of_introduced_not_mem_terminal
       kg huNotTerminalGlobal
   obtain ⟨h, r, hhr⟩ := X.stepIndex_surjective kRemove
   have huRemovedH :
-      (X.block h).deformation.step r |>.before.vertex
+      ((X.block h).deformation.step r).before.vertex
           ((X.block h).deformation.step r).removedIndex = u := by
     have hstep := X.step_eq h r
     rw [hhr] at hstep
@@ -412,7 +436,7 @@ theorem earlierWitness_not_mem_terminal
 
 /-- The terminal occurrence transport required by the conditional Lemma 16
 bridge is a theorem of the finite trace. -/
-def terminalPathTransportData
+theorem terminalPathTransportData
     (X : FiniteMixedSideSearchTrace S originalHole)
     (hclaw : G.IsClawFree) :
     X.Lemma16TerminalPathTransportData where

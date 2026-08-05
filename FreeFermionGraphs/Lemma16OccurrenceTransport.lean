@@ -96,6 +96,31 @@ theorem path_mem_oriented_family
   | bd =>
       simpa [hside, DeformationSide.family] using X.path_mem_family j
 
+/-- A block belongs to the `acPaths` family after it is reoriented by its
+own side tag. -/
+theorem path_mem_own_oriented_ac
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (i : Fin X.blockCount) :
+    Set.range (X.block i).path.vertex ∈
+      ((X.side i).family O).acPaths := by
+  rcases X.path_mem_selectedSide i with hi | hi
+  · simpa [hi.1, DeformationSide.family] using hi.2
+  · simpa [hi.1, DeformationSide.family, swapSides] using hi.2
+
+/-- A block on the opposite side belongs to `bdPaths` in the current
+block's oriented family. -/
+theorem path_mem_opposite_oriented_bd
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    {i g : Fin X.blockCount}
+    (hside : X.side g ≠ X.side i) :
+    Set.range (X.block g).path.vertex ∈
+      ((X.side i).family O).bdPaths := by
+  rcases X.path_mem_selectedSide g with hg | hg
+  · cases hi : X.side i <;>
+      simp_all [DeformationSide.family, swapSides]
+  · cases hi : X.side i <;>
+      simp_all [DeformationSide.family, swapSides]
+
 /-- A later global flattened step cannot be carried by an earlier block. -/
 theorem not_block_lt_of_stepIndex_lt
     (X : FiniteMixedSideSearchTrace S originalHole)
@@ -107,6 +132,67 @@ theorem not_block_lt_of_stepIndex_lt
   intro hji
   have hreverse := X.stepIndex_order j i t s (Or.inl hji)
   omega
+
+/-- The introduced vertex of a raw trace step lies on that block's path. -/
+theorem introduced_mem_path
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (i : Fin X.blockCount)
+    (s : Fin (X.block i).deformation.stepCount) :
+    ((X.block i).deformation.step s).introduced ∈
+      Set.range (X.block i).path.vertex := by
+  let D := X.orientedBlock i
+  let sD : Fin D.deformation.stepCount :=
+    ⟨s.val, by
+      simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using s.isLt⟩
+  have hmem :
+      (D.deformation.step sD).introduced ∈ Set.range D.path.vertex :=
+    ⟨(X.localData i).neighborhood.pathOrder.introducedPathIndex sD,
+      (X.localData i).neighborhood.pathOrder.introduced_eq sD⟩
+  simpa [D, sD, FiniteMixedSideSearchTrace.orientedBlock] using hmem
+
+/-- The removed vertex of a raw trace step lies on that block's path. -/
+theorem removed_mem_path
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (i : Fin X.blockCount)
+    (s : Fin (X.block i).deformation.stepCount) :
+    ((X.block i).deformation.step s).before.vertex
+        ((X.block i).deformation.step s).removedIndex ∈
+      Set.range (X.block i).path.vertex := by
+  let D := X.orientedBlock i
+  let sD : Fin D.deformation.stepCount :=
+    ⟨s.val, by
+      simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using s.isLt⟩
+  have hmem :
+      (D.deformation.step sD).before.vertex
+          (D.deformation.step sD).removedIndex ∈
+        Set.range D.path.vertex :=
+    ⟨(X.localData i).neighborhood.pathOrder.removedPathIndex sD,
+      (X.localData i).neighborhood.pathOrder.removed_eq sD⟩
+  simpa [D, sD, FiniteMixedSideSearchTrace.orientedBlock] using hmem
+
+/-- Introduced and removed coordinates of one trace block name distinct
+vertices. -/
+theorem introduced_ne_removed
+    (X : FiniteMixedSideSearchTrace S originalHole)
+    (i : Fin X.blockCount)
+    (s t : Fin (X.block i).deformation.stepCount) :
+    ((X.block i).deformation.step s).introduced ≠
+      ((X.block i).deformation.step t).before.vertex
+        ((X.block i).deformation.step t).removedIndex := by
+  let D := X.orientedBlock i
+  let sD : Fin D.deformation.stepCount :=
+    ⟨s.val, by
+      simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using s.isLt⟩
+  let tD : Fin D.deformation.stepCount :=
+    ⟨t.val, by
+      simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using t.isLt⟩
+  intro heq
+  apply D.introducedPathIndex_ne_removedPathIndex
+    (X.localData i).neighborhood.pathOrder sD tD
+  apply D.path.injective
+  rw [(X.localData i).neighborhood.pathOrder.introduced_eq sD,
+    (X.localData i).neighborhood.pathOrder.removed_eq tD]
+  simpa [D, sD, tD, FiniteMixedSideSearchTrace.orientedBlock] using heq
 
 /-- A dependent vertex outside one block's active path has exact colouring
 in that block's oriented family. -/
@@ -152,9 +238,8 @@ theorem laterPath_eq_uniqueBDPath
     have hLaterAC :
         Set.range (X.block g).path.vertex ∈
           ((X.side i).family O).acPaths := by
-      cases hi : X.side i <;>
-        cases hg : X.side g <;>
-        simp_all [DeformationSide.family]
+      have hown := X.path_mem_own_oriented_ac g
+      simpa [hEq] using hown
     have huAC :
         u ∈ ((X.side i).family O).Ca ∪
           ((X.side i).family O).Cc :=
@@ -166,10 +251,8 @@ theorem laterPath_eq_uniqueBDPath
     exact hnotBoth ⟨huAC, huBD⟩
   have hLaterBD :
       Set.range (X.block g).path.vertex ∈
-        ((X.side i).family O).bdPaths := by
-    cases hi : X.side i <;>
-      cases hg : X.side g <;>
-      simp_all [DeformationSide.family]
+        ((X.side i).family O).bdPaths :=
+    X.path_mem_opposite_oriented_bd hsideNe
   exact hunique.2.2 hLaterBD huLater
 
 /-- In the family opposite to block `i`, a current dependent vertex is in
@@ -229,8 +312,11 @@ theorem exists_introduced_of_mem_opposite_path
           hpath.symm
         _ = Dg.path.vertex q := by rw [hq]
         _ = u := hqu
-    refine ⟨t, ?_⟩
-    simpa [Dg, FiniteMixedSideSearchTrace.orientedBlock] using hDg
+    let traw : Fin (X.block g).deformation.stepCount :=
+      ⟨t.val, by
+        simpa [Dg, FiniteMixedSideSearchTrace.orientedBlock] using t.isLt⟩
+    refine ⟨traw, ?_⟩
+    simpa [Dg, traw, FiniteMixedSideSearchTrace.orientedBlock] using hDg
   · obtain ⟨t, hq⟩ := hremoved
     have hpath := (X.localData g).neighborhood.pathOrder.removed_eq t
     have hremovedCa :
@@ -248,9 +334,10 @@ theorem exists_introduced_of_mem_opposite_path
             rw [hq]
         _ = (Dg.deformation.step t).before.vertex
               (Dg.deformation.step t).removedIndex := hpath
-    apply huNotCa
-    rw [huEq]
-    exact hremovedCa
+    have huCa : u ∈ ((X.side g).family O).Ca := by
+      rw [huEq]
+      exact hremovedCa
+    exact (huNotCa huCa).elim
 
 /-- The Corollaries 9--10 occurrence argument from Lemma 16: the earlier
 anticommuting witness supplied by Lemma 11(b) cannot reappear in the terminal
@@ -302,7 +389,11 @@ theorem earlierWitness_not_mem_terminal
   have hu'Intro : ((X.block g).deformation.step t).introduced = u' := by
     have hstep := X.step_eq g t
     rw [hgt] at hstep
-    simpa [hkIntro] using congrArg ConcreteDeformationStep.introduced hstep
+    calc
+      ((X.block g).deformation.step t).introduced =
+          (X.flattened.deformation.step kLater).introduced :=
+        (congrArg ConcreteDeformationStep.introduced hstep).symm
+      _ = u' := hkIntro.symm
   have hnotGLtI : ¬g.val < i.val := by
     intro hgi
     have hreverse := X.stepIndex_order g i t si (Or.inl hgi)
@@ -311,19 +402,19 @@ theorem earlierWitness_not_mem_terminal
   have hgne : g ≠ i := by
     intro hEq
     subst g
+    have hu'RawPath : u' ∈ Set.range (X.block i).path.vertex := by
+      rw [← hu'Intro]
+      exact X.introduced_mem_path i t
     apply hu'OutsidePath
-    refine ⟨(X.localData i).neighborhood.pathOrder.introducedPathIndex t, ?_⟩
-    rw [(X.localData i).neighborhood.pathOrder.introduced_eq t]
-    simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu'Intro
+    simpa [D, FiniteMixedSideSearchTrace.orientedBlock] using hu'RawPath
   have hig : i.val < g.val := by
     have hneVal : g.val ≠ i.val := by
       intro hval
       exact hgne (Fin.ext hval)
     omega
   have hu'PathG : u' ∈ Set.range (X.block g).path.vertex := by
-    refine ⟨(X.localData g).neighborhood.pathOrder.introducedPathIndex t, ?_⟩
-    rw [(X.localData g).neighborhood.pathOrder.introduced_eq t]
-    simpa using hu'Intro
+    rw [← hu'Intro]
+    exact X.introduced_mem_path g t
   have hexactU' : ExactlyOneOfFour u'
       ((X.side i).family O).Ca ((X.side i).family O).Cb
       ((X.side i).family O).Cc ((X.side i).family O).Cd := by
@@ -340,12 +431,14 @@ theorem earlierWitness_not_mem_terminal
     exact huP
   have hsideNe : X.side g ≠ X.side i := by
     intro hside
-    have hGAC : Set.range (X.block g).path.vertex ∈
-        ((X.side i).family O).acPaths := by
-      cases hi : X.side i <;> cases hg : X.side g <;>
-        simp_all [DeformationSide.family]
-    have huAC := ((X.side i).family O).ac_subset _ hGAC hu'PathG
-    have huBD := ((X.side i).family O).bd_subset P hunique.1 hunique.2.1
+    have hGAC : P ∈ ((X.side i).family O).acPaths := by
+      rw [← hPathG]
+      have hown := X.path_mem_own_oriented_ac g
+      simpa [hside] using hown
+    have huAC :=
+      ((X.side i).family O).ac_subset P hGAC hunique.2.1
+    have huBD :=
+      ((X.side i).family O).bd_subset P hunique.1 hunique.2.1
     exact hexactU'.not_mem_ac_and_bd ⟨huAC, huBD⟩
   obtain ⟨tg, huIntroG⟩ :=
     X.exists_introduced_of_mem_opposite_path i g hsideNe hu huPathG
@@ -353,7 +446,11 @@ theorem earlierWitness_not_mem_terminal
   have huIntroGlobal :
       (X.flattened.deformation.step kg).introduced = u := by
     have hstep := X.step_eq g tg
-    simpa [kg, huIntroG] using congrArg ConcreteDeformationStep.introduced hstep
+    calc
+      (X.flattened.deformation.step kg).introduced =
+          ((X.block g).deformation.step tg).introduced := by
+        simpa [kg] using congrArg ConcreteDeformationStep.introduced hstep
+      _ = u := huIntroG
   have huNotTerminalGlobal :
       (X.flattened.deformation.step kg).introduced ∉
         Set.range X.flattened.terminalHole.vertex := by
@@ -370,7 +467,14 @@ theorem earlierWitness_not_mem_terminal
     have hremoved := congrArg
       (fun z : ConcreteDeformationStep O Cprime =>
         z.before.vertex z.removedIndex) hstep
-    simpa [hkRemove, huIntroGlobal] using hremoved
+    calc
+      ((X.block h).deformation.step r).before.vertex
+          ((X.block h).deformation.step r).removedIndex =
+          (X.flattened.deformation.step kRemove).before.vertex
+            (X.flattened.deformation.step kRemove).removedIndex :=
+        hremoved.symm
+      _ = (X.flattened.deformation.step kg).introduced := hkRemove.symm
+      _ = u := huIntroGlobal
   have hnotHLtG : ¬h.val < g.val := by
     intro hhg
     have hreverse := X.stepIndex_order h g r tg (Or.inl hhg)
@@ -379,24 +483,16 @@ theorem earlierWitness_not_mem_terminal
   have hhne : h ≠ g := by
     intro hEq
     subst h
-    let Dg := X.orientedBlock g
-    have hIntroPath := (X.localData g).neighborhood.pathOrder.introduced_eq tg
-    have hRemovePath := (X.localData g).neighborhood.pathOrder.removed_eq r
-    apply Dg.introducedPathIndex_ne_removedPathIndex
-      (X.localData g).neighborhood.pathOrder tg r
-    apply Dg.path.injective
-    rw [hIntroPath, hRemovePath]
-    simpa [Dg, FiniteMixedSideSearchTrace.orientedBlock,
-      huIntroG, huRemovedH]
+    exact (X.introduced_ne_removed g tg r)
+      (huIntroG.trans huRemovedH.symm)
   have hgh : g.val < h.val := by
     have hneVal : h.val ≠ g.val := by
       intro hval
       exact hhne (Fin.ext hval)
     omega
   have huPathH : u ∈ Set.range (X.block h).path.vertex := by
-    refine ⟨(X.localData h).neighborhood.pathOrder.removedPathIndex r, ?_⟩
-    rw [(X.localData h).neighborhood.pathOrder.removed_eq r]
-    simpa using huRemovedH
+    rw [← huRemovedH]
+    exact X.removed_mem_path h r
   by_cases huCurrentPath : u ∈ Set.range (X.block i).path.vertex
   · have hiNeG : i ≠ g := by
       intro hEq
@@ -423,8 +519,9 @@ theorem earlierWitness_not_mem_terminal
     · exact X.path_pairwise hgNeH hEq
   · have hexactU := X.dependent_exactlyOne_in_oriented_family
       i hu huCurrentPath
-    have huniqueU := ((X.side i).family O)
-      .atMostOneContainingPath_of_exactlyOne hexactU
+    have huniqueU :=
+      FixedPairingPathFamily.atMostOneContainingPath_of_exactlyOne
+        ((X.side i).family O) hexactU
     have hEq := huniqueU
       ⟨X.path_mem_oriented_family i g, huPathG⟩
       ⟨X.path_mem_oriented_family i h, huPathH⟩

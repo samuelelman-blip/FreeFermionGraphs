@@ -3,21 +3,26 @@ import FreeFermionGraphs.ObstructionSearchTerminalPredecessorAnticommutation
 /-!
 # Paper-facing fidelity gates
 
-This module states the manuscript-facing content separately from the internal
-certificate structures used while constructing the proofs.
+This module states manuscript-facing target propositions separately from the
+internal certificate structures used while constructing the proofs.
 
-The purpose is not to duplicate proofs.  It fixes the mathematical target at
+The purpose is not to duplicate proofs. It fixes the mathematical target at
 an integration boundary so that later refactors cannot silently change the
 hole stage, weaken a conclusion, or hide part of a manuscript lemma in an
 unqualified theorem name.
 
-At present Lemma 11(b) is exported conditionally from the concrete history
-interface.  That interface still contains endpoint nonadjacency fields whose
-construction from literal Definition 19/20 data has not been integrated.
-Lemma 14 is likewise exported only conditionally, because the long two-search
-terminal argument has not yet been constructed from the initialized
-executions.  There are deliberately no unconditional theorems named
-`paperLemma11b` or `paperLemma14` in this module.
+Lemma 11(b) is still exported here only through the explicitly conditional
+`paperLemma11b_of_historyContext` bridge. Its history context has not yet been
+constructed from the literal ordered Definition 19/20 path-block data.
+
+The lower-level Lemma 14 bridge in this file is also explicitly conditional.
+The completed exact history-level theorem is defined downstream as
+`InitializationFiniteMixedSideLemma14History.paperLemma14`; importing that
+module here would create an import cycle because the later terminal analysis
+uses `PaperLemma14Conclusion` from this file.
+
+The repository-wide status, including corrected-versus-literal manuscript
+statements, is recorded in `docs/PAPER_FIDELITY.md` and the dated audit.
 -/
 
 universe u
@@ -37,7 +42,7 @@ variable {O : FixedPairingPathFamily G} {Cprime : Set V}
 /-- The paper-facing conclusion of Lemma 11(b) for one dependent vertex.
 
 The degree is stated directly on `D.finalHole`, corresponding to the
-manuscript hole `C^(r)`.  This avoids routing the public statement through the
+manuscript hole `C^(r)`. This avoids routing the public statement through the
 step-insensitive implementation abbreviation `finalDegree`.
 -/
 def PaperLemma11BConclusion
@@ -46,13 +51,13 @@ def PaperLemma11BConclusion
     O.EarlierAnticommutingWitnessInUniqueBDPath
       D.dependentAt D.path.AnticommutesWith s u
 
-/-- Conditional bridge to Paper Lemma 11(b), with the final-hole stage made
-explicit.
+/-- Conditional bridge to manuscript Lemma 11(b), with the final-hole stage
+made explicit.
 
 For `u ∈ U^(r,s)` commuting with the path operator, the manuscript concludes
 that `Delta_(C^(r))(u) = 4` and that an earlier dependent anticommuting vertex
-lies in the same fixed-pairing path component.  The theorem name records the
-additional `Lemma11AHistoryContext` premise.  In particular, its nested
+lies in the same fixed-pairing path component. The theorem name records the
+additional `Lemma11AHistoryContext` premise. In particular, its nested
 `FullDefinition19NeighborhoodData` still carries
 `BaseOppositeEndpointNonadjacency`, so this result must not be exposed as an
 unconditional paper theorem until that field and the remaining path-history
@@ -84,7 +89,7 @@ variable {I : ObstructionSearchInitialization families Cprime}
 
 /-- Exact four-part conclusion of manuscript Lemma 14 at initialization.
 
-This proposition contains no terminal-claw or propagation certificate.  Such
+This proposition contains no terminal-claw or propagation certificate. Such
 certificates may appear only as premises of explicitly conditional bridge
 theorems proving this proposition.
 -/
@@ -119,7 +124,7 @@ variable {T : I.InitializationTerminalCoreData}
 /-- Stage check used by the reviewed Lemma 14 distinct-clone reduction.
 
 Both the supplied degree-three fact and the degree-four contradiction from
-Lemma 11(b) refer to the final hole of the same concrete path block.  The
+Lemma 11(b) refer to the final hole of the same concrete path block. The
 anticommutation conclusion is therefore not obtained by comparing degrees on
 different deformation stages.
 -/
@@ -136,12 +141,12 @@ end FirstBlockPredecessorDegreeOccurrence
 
 namespace InitializationTerminalCoreData
 
-/-- Conditional bridge to the exact paper statement.
+/-- Historical conditional bridge to the exact Lemma 14 target.
 
-The theorem name records the remaining non-paper premise.  It must not be
-renamed to an unconditional `paperLemma14` until
-`TwoIncomingTerminalPredecessorDegreeAnalysis` has itself been constructed
-from the literal initialized obstruction-search executions.
+The theorem name records its additional terminal predecessor analysis premise.
+The exact history-level theorem is the downstream theorem
+`InitializationFiniteMixedSideLemma14History.paperLemma14`, which constructs
+the required terminal argument from explicit finite execution histories.
 -/
 theorem paperLemma14_of_terminalPredecessorDegreeAnalysis
     (T : I.InitializationTerminalCoreData)

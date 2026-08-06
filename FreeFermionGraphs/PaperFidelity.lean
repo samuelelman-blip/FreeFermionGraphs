@@ -21,6 +21,12 @@ The completed exact history-level theorem is defined downstream as
 module here would create an import cycle because the later terminal analysis
 uses `PaperLemma14Conclusion` from this file.
 
+The exact Lemma 16 endpoint is likewise defined downstream as
+`FiniteMixedSideSearchTrace.PaperLemma16Trace.paperLemma16`. It derives both
+the occurrence transport and `Lemma12Definition19Data` from literal completed
+trace data. It is root-imported through `Lemma16Paper` rather than imported
+here, avoiding a cycle through the Lemma 14 fidelity proposition.
+
 The repository-wide status, including corrected-versus-literal manuscript
 statements, is recorded in `docs/PAPER_FIDELITY.md` and the dated audit.
 -/

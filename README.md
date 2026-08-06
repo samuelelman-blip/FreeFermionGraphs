@@ -24,10 +24,11 @@ lake update
 lake build
 ```
 
-The finite Lemmas 14 and 15 integration can be checked first with:
+The finite Lemmas 14-16 integration can be checked first with:
 
 ```bash
 lake build FreeFermionGraphs.ObstructionSearchReroutingProcess
+lake build FreeFermionGraphs.Lemma16Paper
 ```
 
 ## Current proof status
@@ -44,10 +45,21 @@ and the all-state Lemma 15 theorem
 ObstructionSearchReroutingProcess.paperLemma15
 ```
 
-The latter proves `PaperLemma14Conclusion` for every state of an explicit
-finite corrective rerouting execution. Such an execution records the selected
-finite Definition 19/20 history at each state and one transition for every
-application of Eqs. (C31) and (C32).
+The paper-facing Lemma 16 theorem is
+
+```lean
+FiniteMixedSideSearchTrace.PaperLemma16Trace.paperLemma16
+```
+
+It derives the occurrence-level Corollaries 9-10 transport and constructs the
+`Lemma12Definition19Data` certificate from an explicit completed finite trace.
+For an unobstructed deformation it proves both
+`dependentUnion ⊆ terminalHole` and the palindromic reverse run of Lemma 12.
+
+The Lemma 15 theorem proves `PaperLemma14Conclusion` for every state of an
+explicit finite corrective rerouting execution. Such an execution records the
+selected finite Definition 19/20 history at each state and one transition for
+every application of Eqs. (C31) and (C32).
 
 A transition records the source/obstruction deletion, the surviving source,
 the value-preserving embedding of the next initializer set, the retained data
@@ -72,10 +84,12 @@ are conditional cores or representation-level statements:
 
 - the printed Lemma 8 omits an external-vertex premise used by its proof; Lean
   formalises the corrected intended statement;
-- Corollaries 7-10 still expose coloring or occurrence information as premises
-  or erase repeated path occurrences by using sets of paths;
+- the generic Corollaries 7-10 interfaces still expose some coloring or
+  occurrence information as premises, although Lemma 16 now derives its
+  required occurrence-level Corollaries 9-10 transport from the finite trace;
 - Lemma 11 still depends on `Lemma11AHistoryContext`;
-- Lemma 12 still depends on `Lemma12Definition19Data`;
+- the general Lemma 12 theorem still consumes `Lemma12Definition19Data`, while
+  Lemma 16 now constructs that data from `PaperLemma16Trace`;
 - the Eq. (C32) optional-concatenation interface stores path-containment
   provenance that should eventually be derived from dependent index transport.
 
@@ -95,18 +109,18 @@ representation-level implementations.
 | Lemma 13 | Exact at the complete flattened Definition 19 interface |
 | Lemma 14(i)-(iv) | Exact on explicit initialized finite histories |
 | Lemma 15 | Exact all-state conclusion on an explicit finite rerouting process; Eq. (C32) provenance cleanup remains |
-| Lemmas 16-18 | Not yet formalised at manuscript level |
+| Lemma 16 | Exact on an explicit completed finite Definition 19 trace |
+| Lemmas 17-18 | Not yet formalised at manuscript level |
 | Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
 
 The next critical path is:
 
-1. formalise Lemma 16 and the termination consequence of strict initializer
-   decrease, while keeping any remaining Lemma 11/12 provenance boundary
-   explicit in theorem names;
-2. replace the conditional Corollary 7-10, Lemma 11, and Lemma 12 interfaces by
-   constructors from occurrence-indexed Definition 19 data;
+1. connect strict initializer decrease to the terminal unobstructed state of
+   the corrective process;
+2. replace the remaining generic conditional Corollary 7-10, Lemma 11, and
+   Lemma 12 interfaces by occurrence-indexed constructors;
 3. formalise Lemmas 17-18 and complete the combinatorial route to Theorem 1(iii);
 4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
 5. formalise the exact free-fermion solution of Theorem 2 and the Krylov

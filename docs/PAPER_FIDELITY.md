@@ -271,6 +271,56 @@ deterministically computes the next state. The manuscript search is
 nondeterministic at local selection points, so the explicit finite process and
 its histories specify the chosen run.
 
+
+## Lemma 16
+
+### Manuscript conclusion
+
+For an unobstructed fixed-pairing deformation, every Definition 20 dependent
+vertex belongs to the terminal hole. The exact Lemma 12 criterion therefore
+holds and supplies the palindromic reverse deformation.
+
+### Paper-facing theorem
+
+The theorem is
+
+```lean
+FiniteMixedSideSearchTrace.PaperLemma16Trace.paperLemma16
+```
+
+with hypotheses
+
+```lean
+(Y : X.PaperLemma16Trace)
+(hclaw : G.IsClawFree)
+(hunobstructed : X.IsUnobstructed)
+```
+
+and conclusion `Y.PaperLemma16Conclusion`.
+
+`PaperLemma16Trace` contains only literal completed Definition 19 execution
+data: an indexed presentation of the fixed prime hole, preservation of
+consecutiveness by the local-to-flattened step map, and terminal component
+maximality for each path block. It contains neither `dependentUnion ⊆
+terminalHole`, a terminal outside-witness transport certificate, a
+`Lemma12Definition19Data` value, nor a reverse run.
+
+### Derived provenance
+
+- `terminalPathTransportData` proves the Corollaries 9-10 occurrence argument
+  from the actual finite block occurrences, side tags, path-family uniqueness,
+  and pairwise path distinctness.
+- `toLemma12Definition19Data` derives original-hole removal provenance, active
+  path containment in the flattened boundary, and the endpoint-or-continuation
+  alternative from the same trace.
+- `dependentUnion_subset_terminal_of_unobstructed` combines the derived
+  occurrence transport with Lemma 11(b) and unobstructedness.
+- `FullDefinition19Deformation.lemma12` then constructs the reverse run.
+
+The older theorem `paperLemma16_of_terminalPathTransport` remains an explicitly
+conditional internal bridge. The unqualified theorem does not take its
+transport or Lemma 12 certificates as premises.
+
 ## Current manuscript coverage
 
 | Manuscript layer | Fidelity status |
@@ -280,10 +330,11 @@ its histories specify the chosen run.
 | Definition 15 | Combinatorial deformation closure only; operator symmetry absent |
 | Lemma 11(a)-(b) | Substantial finite/mixed-side proofs; paper-facing constructor audit remains |
 | Corollary 11 | Proved on bounded mixed-side finite histories |
-| Lemmas 12-13 | Supporting implementations exist; final statement audit remains |
+| Lemmas 12-13 | General supporting interfaces remain, with the Lemma 12 data constructor completed for Lemma 16 traces |
 | Lemma 14 | Exact unqualified theorem proved from the literal initialized finite search history |
 | Lemma 15 | Exact all-steps theorem proved for explicit finite corrective rerouting executions |
-| Lemmas 16-18 | Not complete manuscript-level results |
+| Lemma 16 | Exact unqualified theorem on an explicit completed finite Definition 19 trace |
+| Lemmas 17-18 | Not complete manuscript-level results |
 | Theorem 1(i)-(iii) | Operator commutator statements absent |
 | Theorem 2 | Transfer/free-fermion reconstruction absent |
 | Theorem 3 and Corollary 1 | Weighted matrix-power and nested-commutator theorem absent |

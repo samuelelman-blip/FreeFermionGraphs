@@ -63,9 +63,9 @@ structure PaperLemma16Trace
     ∀ (i : Fin X.blockCount) {v : V},
       v ∈ Cprime →
       G.Adj
-        ((X.block i).deformation.step (X.block i).lastIndex).before.vertex
+        (((X.block i).deformation.step (X.block i).lastIndex).before.vertex
           ((X.block i).deformation.step
-            (X.block i).lastIndex).removedIndex
+            (X.block i).lastIndex).removedIndex)
         v →
       v ∈ Set.range (X.block i).path.vertex
 
@@ -103,12 +103,16 @@ theorem pathVertex_eq_introduced_or_removed
         D.path.vertex qD = (D.deformation.step sD).introduced := by
       rw [hq]
       exact (X.localData i).neighborhood.pathOrder.introduced_eq sD
-    cases hside : X.side i <;>
-      simpa [D, qD, s, hside,
-        FiniteMixedSideSearchTrace.orientedBlock,
-        ConcretePathDeformation.reorient,
-        ConcreteDeformation.reorient,
-        ConcreteDeformationStep.reorient] using hD
+    have hOriented :
+        (X.block i).path.vertex q =
+          (((X.block i).reorient (X.side i)).deformation.step s).introduced := by
+      simpa [D, qD, s, FiniteMixedSideSearchTrace.orientedBlock] using hD
+    calc
+      (X.block i).path.vertex q =
+          (((X.block i).reorient (X.side i)).deformation.step s).introduced :=
+        hOriented
+      _ = ((X.block i).deformation.step s).introduced :=
+        (X.block i).reorient_step_introduced (X.side i) s
   · obtain ⟨sD, hq⟩ := hremoved
     let s : Fin (X.block i).deformation.stepCount :=
       ⟨sD.val, by
@@ -121,12 +125,19 @@ theorem pathVertex_eq_introduced_or_removed
             (D.deformation.step sD).removedIndex := by
       rw [hq]
       exact (X.localData i).neighborhood.pathOrder.removed_eq sD
-    cases hside : X.side i <;>
-      simpa [D, qD, s, hside,
-        FiniteMixedSideSearchTrace.orientedBlock,
-        ConcretePathDeformation.reorient,
-        ConcreteDeformation.reorient,
-        ConcreteDeformationStep.reorient] using hD
+    have hOriented :
+        (X.block i).path.vertex q =
+          (((X.block i).reorient (X.side i)).deformation.step s).before.vertex
+            (((X.block i).reorient (X.side i)).deformation.step s).removedIndex := by
+      simpa [D, qD, s, FiniteMixedSideSearchTrace.orientedBlock] using hD
+    calc
+      (X.block i).path.vertex q =
+          (((X.block i).reorient (X.side i)).deformation.step s).before.vertex
+            (((X.block i).reorient (X.side i)).deformation.step s).removedIndex :=
+        hOriented
+      _ = ((X.block i).deformation.step s).before.vertex
+          ((X.block i).deformation.step s).removedIndex :=
+        reorient_step_removedVertex_eq (X.block i) (X.side i) s
 
 /-- Every flattened active path is contained in the actual deformation
 boundary. -/
@@ -139,7 +150,7 @@ theorem activePath_subset_boundary
   obtain ⟨i, s, his⟩ := X.stepIndex_surjective k
   subst k
   have hxPath : x ∈ Set.range (X.block i).path.vertex := by
-    rw [X.step_eq i s, X.block i |>.activePath_eq s] at hx
+    rw [X.step_eq i s, (X.block i).activePath_eq s] at hx
     exact hx
   obtain ⟨q, hqx⟩ := hxPath
   rcases Y.pathVertex_eq_introduced_or_removed i q with
@@ -166,6 +177,65 @@ theorem activePath_subset_boundary
           (fun z : ConcreteDeformationStep O Cprime =>
             z.before.vertex z.removedIndex) hstep).symm
 
+/-- The first local replacement in the first path block. -/
+def firstLocalStepIndex
+    (X : FiniteMixedSideSearchTrace S originalHole) :
+    Fin (X.block X.firstIndex).deformation.stepCount :=
+  (X.block X.firstIndex).firstIndex
+
+/-- The first local replacement is the first flattened replacement. -/
+theorem stepIndex_first_eq
+    (X : FiniteMixedSideSearchTrace S originalHole) :
+    X.stepIndex X.firstIndex (firstLocalStepIndex X) =
+      ⟨0, X.flattened.nonempty⟩ := by
+  obtain ⟨i, s, his⟩ :=
+    X.stepIndex_surjective
+      (⟨0, X.flattened.nonempty⟩ :
+        Fin X.flattened.deformation.stepCount)
+  have hiVal : i.val = 0 := by
+    by_contra hi
+    have hiPos : 0 < i.val := Nat.pos_of_ne_zero hi
+    have horder := X.stepIndex_order X.firstIndex i
+      (firstLocalStepIndex X) s (Or.inl (by
+        simpa [FiniteMixedSideSearchTrace.firstIndex] using hiPos))
+    rw [his] at horder
+    exact (Nat.not_lt_zero _ horder).elim
+  have hiEq : i = X.firstIndex := by
+    apply Fin.ext
+    simpa [FiniteMixedSideSearchTrace.firstIndex] using hiVal
+  subst i
+  have hsVal : s.val = 0 := by
+    by_contra hs
+    have hsPos : 0 < s.val := Nat.pos_of_ne_zero hs
+    have horder := X.stepIndex_order X.firstIndex X.firstIndex
+      (firstLocalStepIndex X) s (Or.inr ⟨rfl, by
+        simpa [firstLocalStepIndex,
+          ConcretePathDeformation.firstIndex] using hsPos⟩)
+    rw [his] at horder
+    exact (Nat.not_lt_zero _ horder).elim
+  have hsEq : s = (firstLocalStepIndex X) := by
+    apply Fin.ext
+    simpa [firstLocalStepIndex,
+      ConcretePathDeformation.firstIndex] using hsVal
+  subst s
+  exact his
+
+/-- The first flattened hole is the initial hole of the first literal block. -/
+theorem initialHole_range_eq_firstBlock_initialHole
+    (X : FiniteMixedSideSearchTrace S originalHole) :
+    Set.range X.flattened.initialHole.vertex =
+      Set.range (X.block X.firstIndex).initialHole.vertex := by
+  change
+    Set.range
+        (X.flattened.deformation.step
+          (⟨0, X.flattened.nonempty⟩ :
+            Fin X.flattened.deformation.stepCount)).before.vertex =
+      Set.range
+        ((X.block X.firstIndex).deformation.step
+          (firstLocalStepIndex X)).before.vertex
+  rw [← stepIndex_first_eq X]
+  rw [X.step_eq]
+
 /-- Every flattened removed vertex belongs to the fixed original hole. -/
 theorem removed_mem_original
     (Y : X.PaperLemma16Trace) :
@@ -176,48 +246,19 @@ theorem removed_mem_original
   intro k
   obtain ⟨i, s, his⟩ := X.stepIndex_surjective k
   subst k
-  have hraw := X.removed_mem_original i s
-  have hinitial :
-      Set.range X.flattened.initialHole.vertex =
-        Set.range originalHole.vertex := by
-    calc
-      Set.range X.flattened.initialHole.vertex =
-          Set.range (X.block X.firstIndex).initialHole.vertex := by
-        rw [FullDefinition19Deformation.initialHole]
-        have hfirst := X.stepIndex_surjective
-          (⟨0, X.flattened.nonempty⟩ :
-            Fin X.flattened.deformation.stepCount)
-        obtain ⟨j, t, hjt⟩ := hfirst
-        have hzero : (X.stepIndex j t).val = 0 := by simpa [hjt]
-        have hj : j = X.firstIndex := by
-          apply Fin.ext
-          by_contra hne
-          have hpos : 0 < j.val := by omega
-          have horder := X.stepIndex_order X.firstIndex j
-            (X.block X.firstIndex).firstIndex t (Or.inl hpos)
-          have hfirstNonneg :=
-            (X.stepIndex X.firstIndex
-              (X.block X.firstIndex).firstIndex).isLt
-          omega
-        subst j
-        have ht : t = (X.block X.firstIndex).firstIndex := by
-          apply Fin.ext
-          by_contra hne
-          have htpos : 0 < t.val := by
-            have htLt := t.isLt
-            dsimp [ConcretePathDeformation.firstIndex]
-            omega
-          have horder := X.stepIndex_order X.firstIndex X.firstIndex
-            (X.block X.firstIndex).firstIndex t
-            (Or.inr ⟨rfl, htpos⟩)
-          omega
-        subst t
-        rw [X.step_eq]
-        rfl
-      _ = Set.range originalHole.vertex := X.originalHole_eq
-  rw [hinitial]
-  have hstep := X.step_eq i s
-  simpa only [hstep] using hraw
+  rw [initialHole_range_eq_firstBlock_initialHole X]
+  have hremovedEq :
+      (X.flattened.deformation.step (X.stepIndex i s)).before.vertex
+          (X.flattened.deformation.step (X.stepIndex i s)).removedIndex =
+        ((X.block i).deformation.step s).before.vertex
+          ((X.block i).deformation.step s).removedIndex :=
+    congrArg
+      (fun z : ConcreteDeformationStep O Cprime =>
+        z.before.vertex z.removedIndex)
+      (X.step_eq i s)
+  rw [hremovedEq]
+  simpa [FiniteMixedSideSearchTrace.firstIndex, X.originalHole_eq] using
+    X.removed_mem_original i s
 
 /-- Consecutive local steps of one block give the exact continuation data
 used in the interior branch of Lemma 12. -/
@@ -248,7 +289,8 @@ def continuation
     rw [L.removed_eq s, L.introduced_eq t] at hpath
     rw [reorient_step_removedVertex_eq,
       (X.block i).reorient_step_introduced] at hpath
-    simpa only [X.step_eq i s, X.step_eq i t] using hpath
+    rw [X.step_eq i s, X.step_eq i t]
+    exact hpath
   introduced_ne_nextIntroduced := by
     intro heq
     let A := (X.block i).reorient (X.side i)
@@ -259,7 +301,8 @@ def continuation
       rw [L.introduced_eq s, L.introduced_eq t,
         (X.block i).reorient_step_introduced,
         (X.block i).reorient_step_introduced]
-      simpa only [X.step_eq i s, X.step_eq i t] using heq
+      rw [X.step_eq i s, X.step_eq i t] at heq
+      exact heq
     have hindex := A.path.injective hpathEq
     have hval := congrArg Fin.val hindex
     rw [L.introduced_index_val, L.introduced_index_val] at hval
@@ -274,7 +317,8 @@ def continuation
       rw [L.introduced_eq s, L.removed_eq t,
         (X.block i).reorient_step_introduced,
         reorient_step_removedVertex_eq]
-      simpa only [X.step_eq i s, X.step_eq i t] using heq
+      rw [X.step_eq i s, X.step_eq i t] at heq
+      exact heq
     have hindex := A.path.injective hpathEq
     have hval := congrArg Fin.val hindex
     rw [L.introduced_index_val, L.removed_index_val] at hval
@@ -290,7 +334,8 @@ def continuation
       rw [L.introduced_eq s, L.introduced_eq t,
         (X.block i).reorient_step_introduced,
         (X.block i).reorient_step_introduced]
-      simpa only [X.step_eq i s, X.step_eq i t] using hadj
+      rw [X.step_eq i s, X.step_eq i t] at hadj
+      exact hadj
     have hindices := (A.path.adj_iff _ _).1 hpathAdj
     rw [L.introduced_index_val, L.introduced_index_val] at hindices
     omega
@@ -305,7 +350,8 @@ def continuation
       rw [L.introduced_eq s, L.removed_eq t,
         (X.block i).reorient_step_introduced,
         reorient_step_removedVertex_eq]
-      simpa only [X.step_eq i s, X.step_eq i t] using hadj
+      rw [X.step_eq i s, X.step_eq i t] at hadj
+      exact hadj
     have hindices := (A.path.adj_iff _ _).1 hpathAdj
     rw [L.introduced_index_val, L.removed_index_val] at hindices
     omega
@@ -335,11 +381,12 @@ theorem endpoint_or_continuation
       omega
     have hrawAdj :
         G.Adj
-          ((X.block i).deformation.step (X.block i).lastIndex).before.vertex
+          (((X.block i).deformation.step (X.block i).lastIndex).before.vertex
             ((X.block i).deformation.step
-              (X.block i).lastIndex).removedIndex v := by
+              (X.block i).lastIndex).removedIndex) v := by
       rw [← hsLast]
-      simpa only [X.step_eq i s] using hadj
+      rw [X.step_eq i s] at hadj
+      exact hadj
     have hvPath := Y.terminalEndpointMaximal i hv hrawAdj
     rw [X.step_eq i s, (X.block i).activePath_eq s]
     exact hvPath
@@ -390,7 +437,8 @@ theorem paperLemma16
     X.dependentUnion_subset_terminal_of_unobstructed
       T hclaw hunobstructed
   refine ⟨hcriterion, ?_⟩
-  simpa [L] using X.flattened.lemma12 L hclaw hcriterion
+  have hrun := X.flattened.lemma12 L hclaw hcriterion
+  simpa [L, toLemma12Definition19Data] using hrun
 
 end PaperLemma16Trace
 end FiniteMixedSideSearchTrace

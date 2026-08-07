@@ -36,6 +36,7 @@ theorem independent_clique_filter_card_le_one
     {G : SimpleGraph V} {S : Finset V} {K : Set V}
     (hS : G.IsIndepSet (S : Set V)) (hK : G.IsClique K) :
     (S.filter fun v => v ∈ K).card ≤ 1 := by
+  classical
   rw [Finset.card_le_one]
   intro j hj k hk
   simp only [Finset.mem_filter] at hj hk

@@ -92,18 +92,24 @@ theorem isIndepSet_insert_of_avoids_closedNeighborhood
     G.IsIndepSet ((insert j T : Finset V) : Set V) := by
   intro a ha b hb hab
   simp only [Finset.mem_coe, Finset.mem_insert] at ha hb
-  rcases ha with rfl | haT
-  · rcases hb with rfl | hbT
-    · exact (hab rfl).elim
+  rcases ha with haJ | haT
+  · rcases hb with hbJ | hbT
+    · exact (hab (haJ.trans hbJ.symm)).elim
     · intro hadj
       apply havoid b hbT
+      have hadj' : G.Adj j b := by
+        simpa [haJ] using hadj
       exact Set.mem_insert_iff.mpr
-        (Or.inr ((G.mem_neighborSet j b).mpr hadj))
-  · rcases hb with rfl | hbT
+        (Or.inr ((G.mem_neighborSet j b).mpr hadj'))
+  · rcases hb with hbJ | hbT
     · intro hadj
       apply havoid a haT
+      have hadj' : G.Adj j a := by
+        have : G.Adj a j := by
+          simpa [hbJ] using hadj
+        exact this.symm
       exact Set.mem_insert_iff.mpr
-        (Or.inr ((G.mem_neighborSet j a).mpr hadj.symm))
+        (Or.inr ((G.mem_neighborSet j a).mpr hadj'))
     · exact hT haT hbT hab
 
 end SimpleGraph

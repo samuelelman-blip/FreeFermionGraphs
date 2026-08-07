@@ -31,16 +31,24 @@ theorem independent_clique_mem_eq
   by_contra hjk
   exact (hS hjS hkS hjk) (hK hjK hkK hjk)
 
-theorem independent_clique_filter_card_le_one
-    [DecidableEq V]
+/-- An independent set intersects a clique in at most one vertex.
+
+The finite representative `verticesOfSet K` avoids requiring a decidable
+membership predicate for the arbitrary set `K` in the theorem statement. -/
+theorem independent_clique_inter_card_le_one
+    [Fintype V] [DecidableEq V]
     {G : SimpleGraph V} {S : Finset V} {K : Set V}
     (hS : G.IsIndepSet (S : Set V)) (hK : G.IsClique K) :
-    (S.filter fun v => v ∈ K).card ≤ 1 := by
-  classical
+    (S ∩ verticesOfSet K).card ≤ 1 := by
   rw [Finset.card_le_one]
   intro j hj k hk
-  simp only [Finset.mem_filter] at hj hk
-  exact independent_clique_mem_eq hS hK hj.1 hj.2 hk.1 hk.2
+  have hjS : j ∈ S := (Finset.mem_inter.mp hj).1
+  have hjK : j ∈ K := by
+    exact mem_verticesOfSet.mp (Finset.mem_inter.mp hj).2
+  have hkS : k ∈ S := (Finset.mem_inter.mp hk).1
+  have hkK : k ∈ K := by
+    exact mem_verticesOfSet.mp (Finset.mem_inter.mp hk).2
+  exact independent_clique_mem_eq hS hK hjS hjK hkS hkK
 
 theorem card_erase_eq_of_card_succ
     [DecidableEq V]
@@ -68,7 +76,7 @@ theorem erase_avoids_closedNeighborhood
   have hvne : v ≠ j := by
     intro hvj
     subst v
-    simpa using hvErase
+    simp at hvErase
   rcases Set.mem_insert_iff.mp hvClosed with hvj | hvNeighbor
   · exact hvne hvj
   · have hadj : G.Adj j v := (G.mem_neighborSet j v).mp hvNeighbor

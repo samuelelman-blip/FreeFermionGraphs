@@ -82,4 +82,28 @@ theorem erase_avoids_closedNeighborhood
   · have hadj : G.Adj j v := (G.mem_neighborSet j v).mp hvNeighbor
     exact (hS hj hvS hvne.symm) hadj
 
+/-- Conversely, an independent set avoiding `Γ[j]` remains independent after
+inserting `j`. This is the inverse combinatorial step in Eq. (50). -/
+theorem isIndepSet_insert_of_avoids_closedNeighborhood
+    [DecidableEq V]
+    {G : SimpleGraph V} {T : Finset V} {j : V}
+    (hT : G.IsIndepSet (T : Set V))
+    (havoid : ∀ v ∈ T, v ∉ G.closedNeighborhood j) :
+    G.IsIndepSet ((insert j T : Finset V) : Set V) := by
+  intro a ha b hb hab
+  simp only [Finset.mem_coe, Finset.mem_insert] at ha hb
+  rcases ha with rfl | haT
+  · rcases hb with rfl | hbT
+    · exact (hab rfl).elim
+    · intro hadj
+      apply havoid b hbT
+      exact Set.mem_insert_iff.mpr
+        (Or.inr ((G.mem_neighborSet j b).mpr hadj))
+  · rcases hb with rfl | hbT
+    · intro hadj
+      apply havoid a haT
+      exact Set.mem_insert_iff.mpr
+        (Or.inr ((G.mem_neighborSet j a).mpr hadj.symm))
+    · exact hT haT hbT hab
+
 end SimpleGraph

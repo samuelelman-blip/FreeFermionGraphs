@@ -94,7 +94,7 @@ theorem closedNeighborhood_eq_union_lemma17CliqueAt
     · by_cases hvj : v = j
       · subst v
         simp [closedNeighborhood]
-      · have hadj : G.Adj j v := hKs.isClique hj hvKs hvj.symm
+      · have hadj : G.Adj j v := hKs.isClique hj hvKs (Ne.symm hvj)
         exact Set.mem_insert_iff.mpr (Or.inr ((G.mem_neighborSet j v).mpr hadj))
     · exact hvKj.1
 

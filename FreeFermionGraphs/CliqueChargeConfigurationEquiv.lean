@@ -98,7 +98,7 @@ noncomputable def eraseContainingEquiv
             T.independent hAvoidClosed
         avoids := ?_
         contains := Finset.mem_insert_self j T.carrier }
-    · rw [Finset.card_insert_of_not_mem hjNotT, T.card_eq]
+    · simp [hjNotT, T.card_eq]
     · intro v hv
       rw [Finset.mem_insert] at hv
       rcases hv with rfl | hvT

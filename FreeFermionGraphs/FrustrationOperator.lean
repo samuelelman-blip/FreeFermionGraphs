@@ -37,9 +37,12 @@ namespace SimpleGraph
 
 `independentProduct S` is the manuscript operator `h_S`.  The left and right
 insertion laws record the order-independence of this product when the inserted
-vertex commutes with every vertex already in `S`. -/
+vertex commutes with every vertex already in `S`.
+
+The finite-set insertion operation is computational, so the model carries the
+same `DecidableEq V` assumption used by the finite charge sums below. -/
 structure FrustrationOperatorModel
-    (G : SimpleGraph V) (A : Type w) [Ring A] where
+    (G : SimpleGraph V) (A : Type w) [Ring A] [DecidableEq V] where
   term : V → A
   independentProduct : Finset V → A
   independentProduct_empty : independentProduct ∅ = 1
@@ -66,7 +69,7 @@ structure FrustrationOperatorModel
 
 namespace FrustrationOperatorModel
 
-variable {G : SimpleGraph V} {A : Type w} [Ring A]
+variable {G : SimpleGraph V} {A : Type w} [Ring A] [DecidableEq V]
 
 /-- The term operators anticommute on every frustration edge. -/
 theorem anticommute

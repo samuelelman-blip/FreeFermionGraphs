@@ -30,7 +30,15 @@ theorem mem_independentFinsetsContaining
     S ∈ G.independentFinsetsContaining j k ↔
       S.card = k + 1 ∧ G.IsIndepSet (S : Set V) ∧ j ∈ S := by
   classical
-  simp [independentFinsetsContaining]
+  rw [independentFinsetsContaining, Finset.mem_filter,
+    mem_independentFinsetsOfCardAvoid]
+  constructor
+  · intro h
+    exact ⟨h.1.1, h.1.2.1, h.2⟩
+  · intro h
+    refine ⟨⟨h.1, h.2.1, ?_⟩, h.2.2⟩
+    intro v hvS hvEmpty
+    exact hvEmpty
 
 /-- Fixed-vertex reindexing used in Eq. (50).
 

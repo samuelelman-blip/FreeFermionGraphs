@@ -1,7 +1,7 @@
 # Paper-fidelity audit, 2026-08-05
 
-This audit compares the root-imported Lean development at commit
-`fcc564bda8ddcb7982830b7b13908ed552641a99` with the manuscript
+This audit compares the Lean development through the paper-facing Lemma 16
+commit `2c67d9580c61c8cf91b6a9327238f278751b955c` with the manuscript
 *A Unified Graph-Theoretic Framework for Free-Fermion Solvability* dated
 14 July 2026.
 
@@ -12,9 +12,10 @@ name and documentation. A successful build alone is not a fidelity result.
 
 ## Static integrity
 
-Repository-wide code search found no occurrence of `sorry`, `admit`, project
-`axiom`, or `opaque`. Lean CI run 1404 passed the complete root project at the
-exact head of PR #266 before merge.
+The reviewed Lemma 16 modules contain no `sorry`, `admit`, project `axiom`,
+or `opaque`. The exact paper-facing source at commit
+`2c67d9580c61c8cf91b6a9327238f278751b955c` passed a complete local
+`lake build` of 1457 jobs.
 
 ## Audit conclusion
 
@@ -48,11 +49,12 @@ some names or comments overstate the correspondence with the printed result.
 | Corollary 10 | `FixedPairingPathFamily.corollary10` | Conditional core. The coloring-class facts proved in the manuscript are explicit premises. |
 | Lemma 11 | `ConcretePathDeformation.lemma11` | Conditional integration. It requires `Lemma11AHistoryContext`; the paper-facing file correctly exports only `paperLemma11b_of_historyContext`. |
 | Corollary 11 | finite mixed-side history theorems | Proved on explicit bounded histories, but a single audited occurrence-level paper endpoint remains outstanding. |
-| Lemma 12 | `FullDefinition19Deformation.lemma12` | Conditional on `Lemma12Definition19Data`. Its endpoint/continuation fields are intended Definition 19 facts but are not yet constructed from the current flattened deformation object. |
+| Lemma 12 | `FullDefinition19Deformation.lemma12` | The general theorem remains conditional on `Lemma12Definition19Data`. For Lemma 16, `PaperLemma16Trace.toLemma12Definition19Data` now constructs those fields from the literal completed trace. |
 | Lemma 13 | `FullDefinition19Deformation.lemma13` | Exact at the `FullDefinition19Deformation` interface, whose successor field records the alternating Definition 19 order. |
 | Lemma 14 | `InitializationFiniteMixedSideLemma14History.paperLemma14` | Exact on an explicit finite Definition 19/20 execution history. |
 | Lemma 15 | `ObstructionSearchReroutingProcess.paperLemma15` | Exact all-state conclusion on an explicit finite process whose states contain their actual search histories. The optional Eq. (C32) interface still stores path-containment provenance instead of deriving it from dependent index transport; that field is not used in the theorem but remains an implementation-fidelity cleanup. |
-| Lemmas 16-18 | none | Not yet formalised at manuscript level. |
+| Lemma 16 | `FiniteMixedSideSearchTrace.PaperLemma16Trace.paperLemma16` | Exact on an explicit completed finite Definition 19 trace. The occurrence transport and Lemma 12 data are derived rather than accepted as theorem premises. |
+| Lemmas 17-18 | none | Not yet formalised at manuscript level. |
 | Theorems 1-3 and Corollary 1 | none at operator level | Not formalised. The Pauli/Hamiltonian layer is absent. |
 
 ## Printed Lemma 8 discrepancy
@@ -78,16 +80,16 @@ statement, not the literal printed statement.
    boundary.
 3. Construct `Lemma11AHistoryContext` from literal finite Definition 19/20
    histories and export exact paper-facing Lemma 11 and Corollary 11 endpoints.
-4. Construct `Lemma12Definition19Data` from the ordered path-block object and
-   then reserve the unqualified paper name for that wrapper.
+4. Generalise the Lemma 16 construction of `Lemma12Definition19Data` to the
+   remaining standalone Lemma 12 interfaces.
 5. Derive the Eq. (C32) path-containment facts from the concrete concatenation
    index equivalence rather than storing them in `IsConcatenation`.
-6. Continue with Lemma 16 only with theorem names that state any remaining
-   execution or provenance boundary.
+6. Connect strict initializer decrease to the terminal unobstructed state used
+   by the subsequent corrective-process argument.
 
 ## Operational rule
 
 Until the remediation items above are complete, the repository may claim that
-its Lean terms are internally checked and that Lemmas 14-15 have exact explicit
+its Lean terms are internally checked and that Lemmas 14-16 have exact explicit
 history-level endpoints. It must not claim that every numbered result currently
 represented is already an exact formalisation of the printed manuscript.

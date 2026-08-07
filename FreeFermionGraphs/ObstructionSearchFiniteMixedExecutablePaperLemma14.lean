@@ -1,6 +1,6 @@
 import FreeFermionGraphs.ObstructionSearchFiniteMixedLemma14History
 import FreeFermionGraphs.ObstructionSearchReroutingProcess
-import FreeFermionGraphs.Lemma16Unobstructed
+import FreeFermionGraphs.Lemma16OccurrenceTransport
 
 /-!
 # Executable finite Lemma 14--16 bridges
@@ -13,10 +13,9 @@ The finite corrective search process and the all-steps theorem
 `ObstructionSearchReroutingProcess.paperLemma15` are defined in
 `ObstructionSearchReroutingProcess`.
 
-The exact unobstructedness definition, Lemma 16 criterion reduction, and the
-conditional bridge `paperLemma16_of_terminalPathTransport` are defined in
-`Lemma16Unobstructed`. The theorem name records the remaining occurrence-level
-Corollaries 9--10 transport boundary.
+The exact unobstructedness definition and criterion reduction are defined in
+`Lemma16Unobstructed`.  The occurrence-level Corollaries 9--10 transport is
+derived from the literal finite block trace in `Lemma16OccurrenceTransport`.
 
 This compatibility module preserves the established root import and focused
 build target.

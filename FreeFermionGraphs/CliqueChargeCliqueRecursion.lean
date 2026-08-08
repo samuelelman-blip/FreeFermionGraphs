@@ -63,7 +63,7 @@ theorem operatorIndependentSetCharge_finsetClique
           (W ∪ ({j} : Set V)) ∪ (K : Set V) =
             W ∪ ((insert j K : Finset V) : Set V) := by
         ext v
-        simp [or_assoc, or_left_comm, or_comm]
+        simp [or_left_comm, or_comm]
       have hNeighborhoodDeletion :
           ∀ l ∈ K,
             (W ∪ ({j} : Set V)) ∪ G.closedNeighborhood l =
@@ -130,9 +130,12 @@ theorem operatorIndependentSetCharge_clique
             G.operatorIndependentSetCharge M
               (G.closedNeighborhood j) k := by
   classical
+  have hVertices : (((verticesOfSet K : Finset V) : Set V)) = K := by
+    ext v
+    simp
   have hFiniteClique : G.IsClique (((verticesOfSet K : Finset V) : Set V)) := by
-    intro a ha b hb hab
-    exact hK (mem_verticesOfSet.mp ha) (mem_verticesOfSet.mp hb) hab
+    rw [hVertices]
+    exact hK
   have hAvoid : ∀ j ∈ verticesOfSet K, j ∉ (∅ : Set V) := by
     intro j hj
     simp
@@ -140,6 +143,7 @@ theorem operatorIndependentSetCharge_clique
     operatorIndependentSetCharge_finsetClique
       M (W := (∅ : Set V)) (verticesOfSet K)
         hFiniteClique hAvoid k
+  rw [hVertices] at h
   simpa [operatorIndependentSetChargeFull] using h
 
 end SimpleGraph

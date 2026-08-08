@@ -40,7 +40,10 @@ theorem independentFinsetsOfCardAvoid_eq_union_singleVertex
       intro v hvS hvUnion
       rcases hvUnion with hvW | hvj
       · exact hS.2.2 v hvS hvW
-      · exact hjS (by simpa using hvj)
+      · have hvEq : v = j := by
+          simpa using hvj
+        apply hjS
+        simpa [hvEq] using hvS
   · intro hS
     rw [Finset.mem_union] at hS
     rcases hS with hNo | hYes
@@ -88,5 +91,6 @@ theorem operatorIndependentSetCharge_singleVertex
   rw [independentFinsetsOfCardAvoid_eq_union_singleVertex k]
   rw [Finset.sum_union (independentFinsets_singleVertex_disjoint k)]
   rw [sum_independentFinsetsContainingAvoid_eq_term_mul_charge M hjW k]
+  rfl
 
 end SimpleGraph

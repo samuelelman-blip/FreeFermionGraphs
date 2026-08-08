@@ -135,8 +135,8 @@ theorem deform_first_endpoint (P : IndexedInducedPath G) {s : V}
       P.vertex ⟨0, P.nonempty⟩ := by
   apply deform_vertex_away
   intro hzero
-  have := congrArg Fin.val hzero
-  exact (Nat.ne_of_lt h.internal_left) this.symm
+  have hval := congrArg Fin.val hzero
+  omega
 
 /-- A Definition 10 path deformation does not alter the last endpoint. -/
 theorem deform_last_endpoint (P : IndexedInducedPath G) {s : V}
@@ -146,7 +146,7 @@ theorem deform_last_endpoint (P : IndexedInducedPath G) {s : V}
   apply deform_vertex_away
   intro hlast
   have hval := congrArg Fin.val hlast
-  exact (by omega : False)
+  omega
 
 end IndexedInducedPath
 

@@ -135,17 +135,24 @@ theorem deform_first_endpoint (P : IndexedInducedPath G) {s : V}
       P.vertex ⟨0, P.nonempty⟩ := by
   apply deform_vertex_away
   intro hzero
-  have hval := congrArg Fin.val hzero
+  have hval : 0 = i.val := congrArg Fin.val hzero
+  have hi : 0 < i.val := h.internal_left
   omega
 
 /-- A Definition 10 path deformation does not alter the last endpoint. -/
 theorem deform_last_endpoint (P : IndexedInducedPath G) {s : V}
     {i : Fin P.card} (h : P.SingleVertexDeformation s i) :
-    (P.deform h).vertex ⟨P.card - 1, by omega⟩ =
-      P.vertex ⟨P.card - 1, by omega⟩ := by
+    (P.deform h).vertex
+        ⟨P.card - 1, by
+          change P.card - 1 < P.card
+          exact Nat.sub_lt P.nonempty (by decide)⟩ =
+      P.vertex
+        ⟨P.card - 1, Nat.sub_lt P.nonempty (by decide)⟩ := by
   apply deform_vertex_away
   intro hlast
-  have hval := congrArg Fin.val hlast
+  have hval : P.card - 1 = i.val := congrArg Fin.val hlast
+  have hi : i.val + 1 < P.card := h.internal_right
+  have hcard : 0 < P.card := P.nonempty
   omega
 
 end IndexedInducedPath

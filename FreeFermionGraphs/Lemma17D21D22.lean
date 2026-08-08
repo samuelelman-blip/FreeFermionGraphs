@@ -75,7 +75,7 @@ theorem lemma17CliqueAt_union_diff_singleton
     · by_cases hvj : v = j
       · subst v
         exact Or.inl (mem_lemma17CliqueAt_self hj)
-      · exact Or.inr ⟨hvKs, by simpa [hvj]⟩
+      · exact Or.inr ⟨hvKs, by simp [hvj]⟩
     · exact Or.inl hvKj
 
 /-- Manuscript equation (D22), again with the degree shifted to avoid natural
@@ -139,7 +139,19 @@ theorem lemma17_D22
       exact this
     rw [closedNeighborhood_eq_union_lemma17CliqueAt hKs hlRest.1]
     ext v
-    simp [or_left_comm, or_comm]
+    constructor
+    · intro hv
+      rcases hv with hvKj | hvRest
+      · exact Or.inl (Or.inr hvKj)
+      · rcases hvRest with hvKs | hvKl
+        · exact Or.inl (Or.inl hvKs)
+        · exact Or.inr hvKl
+    · intro hv
+      rcases hv with hvFirst | hvKl
+      · rcases hvFirst with hvKs | hvKj
+        · exact Or.inr (Or.inl hvKs)
+        · exact Or.inl hvKj
+      · exact Or.inr (Or.inr hvKl)
   rw [hFinalDeletion] at h
   have hsum :
       (∑ l ∈ Krest,

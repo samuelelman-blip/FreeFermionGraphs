@@ -4,11 +4,11 @@ Lean 4 formalisation effort for the graph-theoretic results in
 *A Unified Graph-Theoretic Framework for Free-Fermion Solvability* by Adrian
 Chapman, Samuel J. Elman, and Ryan L. Mann.
 
-The checked-in development currently concentrates on finite claw-free graph
-theory, hole deformations, token sliding, and the Definition 19 obstruction
-search. It does not yet contain the Pauli/Hamiltonian operator algebra needed
-to state or prove the manuscript's charge commutators, transfer-operator
-identities, free-fermion reconstruction, or operator-Krylov formula.
+The checked-in development concentrates on finite claw-free graph theory, hole
+deformations, token sliding, the Definition 19 obstruction search, and now the
+operator-valued independent-set charge recursion of Lemma 17. The broader
+operator commutators, transfer-operator identities, free-fermion reconstruction,
+and operator-Krylov formula remain future targets.
 
 ## Toolchain
 
@@ -24,11 +24,12 @@ lake update
 lake build
 ```
 
-The finite Lemmas 14-16 integration can be checked first with:
+The finite Lemmas 14-17 integration can be checked first with:
 
 ```bash
 lake build FreeFermionGraphs.ObstructionSearchReroutingProcess
 lake build FreeFermionGraphs.Lemma16Paper
+lake build FreeFermionGraphs.Lemma17Paper
 ```
 
 ## Current proof status
@@ -71,11 +72,26 @@ No state contains `PaperLemma14Conclusion`, one of its four clauses, a terminal
 endpoint alternative, or a terminal claw. The state history specifies an
 actual run of the nondeterministic manuscript search.
 
+The paper-facing Lemma 17 theorem is
+
+```lean
+SimpleGraph.PauliFrustrationRepresentation.paperLemma17
+```
+
+It starts from the Hamiltonian term map and the frustration-graph
+commutation/anticommutation relations. The independent-set product `h_S` is
+constructed canonically with `Finset.noncommProd`; Eq. (50), D21-D25, and the
+ordered-pair cancellation are all derived internally. The detailed provenance
+audit is in [`docs/LEMMA17_FIDELITY.md`](docs/LEMMA17_FIDELITY.md).
+
 ## Fidelity audit
 
 A repository-wide manuscript audit was performed against the 14 July 2026
-paper. The complete findings are recorded in
+paper. The complete findings at that snapshot are recorded in
 [`docs/PAPER_FIDELITY_AUDIT_2026-08-05.md`](docs/PAPER_FIDELITY_AUDIT_2026-08-05.md).
+Current paper-facing acceptance rules remain in
+[`docs/PAPER_FIDELITY.md`](docs/PAPER_FIDELITY.md), with the completed Lemma 17
+provenance recorded in [`docs/LEMMA17_FIDELITY.md`](docs/LEMMA17_FIDELITY.md).
 
 The audit does **not** support a blanket claim that every numbered result
 represented in the repository is already an exact formalisation of the printed
@@ -110,7 +126,8 @@ representation-level implementations.
 | Lemma 14(i)-(iv) | Exact on explicit initialized finite histories |
 | Lemma 15 | Exact all-state conclusion on an explicit finite rerouting process; Eq. (C32) provenance cleanup remains |
 | Lemma 16 | Exact on an explicit completed finite Definition 19 trace |
-| Lemmas 17-18 | Not yet formalised at manuscript level |
+| Lemma 17 | Exact positive-degree charge recursion at the Pauli/frustration-graph boundary |
+| Lemma 18 | Not yet formalised at manuscript level |
 | Theorem 1(i)-(iii) | Not formalised at manuscript operator level |
 | Theorem 2 | Not formalised |
 | Theorem 3 and Corollary 1 | Not formalised |
@@ -121,8 +138,9 @@ The next critical path is:
    the corrective process;
 2. replace the remaining generic conditional Corollary 7-10, Lemma 11, and
    Lemma 12 interfaces by occurrence-indexed constructors;
-3. formalise Lemmas 17-18 and complete the combinatorial route to Theorem 1(iii);
-4. introduce the Pauli/frustration-graph algebra required for Theorem 1;
+3. formalise Lemma 18 and complete the combinatorial route to Theorem 1(iii);
+4. extend the Pauli/frustration-graph algebra from Lemma 17 to the charge
+   commutators required for Theorem 1;
 5. formalise the exact free-fermion solution of Theorem 2 and the Krylov
    construction of Theorem 3.
 
@@ -148,6 +166,10 @@ explicit finite execution histories. The core search output alone does not
 determine the local stopping, propagation, concatenation, and rerun choices
 made by the Definition 19/20 procedure.
 
+For Lemma 17, the paper-facing Pauli representation does not accept an
+independent-product coherence certificate. The product over an independent set
+and its insertion laws are derived from pairwise commutation.
+
 ## Repository layout
 
 - `FreeFermionGraphs/`: individual definitions, lemmas, and integration modules
@@ -155,7 +177,8 @@ made by the Definition 19/20 procedure.
 - `FORMALIZATION.md`: dependency-oriented proof plan
 - `docs/PAPER_FIDELITY.md`: current manuscript correspondence and open proof
   boundaries
-- `docs/PAPER_FIDELITY_AUDIT_2026-08-05.md`: result-by-result current audit
+- `docs/LEMMA17_FIDELITY.md`: detailed paper-facing provenance for Lemma 17
+- `docs/PAPER_FIDELITY_AUDIT_2026-08-05.md`: result-by-result historical audit
 - `docs/PAPER_AUDIT_2026-08-01.md`: historical audit at the PR #196 baseline
 
 ## Development workflow

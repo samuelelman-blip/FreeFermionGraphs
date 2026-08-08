@@ -264,3 +264,4 @@ import FreeFermionGraphs.ObstructionSearchReroutingProcess
 import FreeFermionGraphs.Lemma16Unobstructed
 import FreeFermionGraphs.Lemma16OccurrenceTransport
 import FreeFermionGraphs.Lemma16Paper
+import FreeFermionGraphs.Lemma17Paper

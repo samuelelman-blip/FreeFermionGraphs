@@ -31,12 +31,8 @@ theorem mem_lemma17OrderedPairs
     p ∈ lemma17OrderedPairs Ks ↔
       p.1 ∈ Ks ∧ p.2 ∈ Ks ∧ p.1 ≠ p.2 := by
   classical
-  rw [lemma17OrderedPairs, Finset.mem_filter, Finset.mem_product]
-  constructor
-  · rintro ⟨⟨hp1, hp2⟩, hpne⟩
-    exact ⟨mem_verticesOfSet.mp hp1, mem_verticesOfSet.mp hp2, hpne⟩
-  · rintro ⟨hp1, hp2, hpne⟩
-    exact ⟨⟨mem_verticesOfSet.mpr hp1, mem_verticesOfSet.mpr hp2⟩, hpne⟩
+  rcases p with ⟨j, k⟩
+  simp [lemma17OrderedPairs, and_assoc]
 
 /-- The ordered-pair contribution appearing in the third term of (D24). -/
 noncomputable def lemma17OrderedPairContribution

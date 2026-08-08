@@ -106,7 +106,7 @@ theorem operatorIndependentSetCharge_finsetClique
         rw [hNeighborhoodDeletion l hl]
       rw [hsum]
       simp [Finset.sum_insert, hjK]
-      abel
+      ac_rfl
 
 /-- Manuscript Eq. (50), specialized to a set-valued clique `K`.
 
@@ -125,20 +125,20 @@ theorem operatorIndependentSetCharge_clique
     (k : Nat) :
     G.operatorIndependentSetChargeFull M (k + 1) =
       G.operatorIndependentSetCharge M K (k + 1) +
-        ∑ j ∈ G.verticesOfSet K,
+        ∑ j ∈ verticesOfSet K,
           M.term j *
             G.operatorIndependentSetCharge M
               (G.closedNeighborhood j) k := by
   classical
-  have hFiniteClique : G.IsClique ((G.verticesOfSet K : Finset V) : Set V) := by
+  have hFiniteClique : G.IsClique (((verticesOfSet K : Finset V) : Set V)) := by
     intro a ha b hb hab
     exact hK (mem_verticesOfSet.mp ha) (mem_verticesOfSet.mp hb) hab
-  have hAvoid : ∀ j ∈ G.verticesOfSet K, j ∉ (∅ : Set V) := by
+  have hAvoid : ∀ j ∈ verticesOfSet K, j ∉ (∅ : Set V) := by
     intro j hj
     simp
   have h :=
     operatorIndependentSetCharge_finsetClique
-      M (W := (∅ : Set V)) (G.verticesOfSet K)
+      M (W := (∅ : Set V)) (verticesOfSet K)
         hFiniteClique hAvoid k
   simpa [operatorIndependentSetChargeFull] using h
 

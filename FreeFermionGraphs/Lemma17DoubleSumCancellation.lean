@@ -32,7 +32,17 @@ theorem mem_lemma17OrderedPairs
       p.1 ∈ Ks ∧ p.2 ∈ Ks ∧ p.1 ≠ p.2 := by
   classical
   rcases p with ⟨j, k⟩
-  simp [lemma17OrderedPairs, and_assoc]
+  simp only [lemma17OrderedPairs, Finset.mem_filter]
+  constructor
+  · rintro ⟨hp, hne⟩
+    have hp' : j ∈ verticesOfSet Ks ∧ k ∈ verticesOfSet Ks := by
+      simpa using hp
+    exact ⟨mem_verticesOfSet.mp hp'.1, mem_verticesOfSet.mp hp'.2, hne⟩
+  · rintro ⟨hj, hk, hne⟩
+    refine ⟨?_, hne⟩
+    simpa using
+      (show j ∈ verticesOfSet Ks ∧ k ∈ verticesOfSet Ks from
+        ⟨mem_verticesOfSet.mpr hj, mem_verticesOfSet.mpr hk⟩)
 
 /-- The ordered-pair contribution appearing in the third term of (D24). -/
 noncomputable def lemma17OrderedPairContribution

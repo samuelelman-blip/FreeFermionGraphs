@@ -31,6 +31,8 @@ import FreeFermionGraphs.CliqueInducedPathTree
 import FreeFermionGraphs.BubbleWand
 import FreeFermionGraphs.DirectedHoppingGraph
 import FreeFermionGraphs.BubbleWandHoppingArc
+import FreeFermionGraphs.InducedPathDeformation
+import FreeFermionGraphs.InducedPathDeformationReverse
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

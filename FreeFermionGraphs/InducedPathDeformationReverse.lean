@@ -55,8 +55,15 @@ theorem SingleVertexDeformation.reverse
       have hi : (P.deform h).vertex i = s :=
         deform_vertex_at P h
       rw [haway, hi]
-      have hs := h.adj_iff q
-      simpa [hqi] using hs.symm
+      constructor
+      · intro hiq
+        exact Or.inr ((h.adj_iff q).2 (Or.inr hiq))
+      · intro hq
+        rcases hq with hqi' | hsq
+        · exact (hqi hqi').elim
+        · rcases (h.adj_iff q).1 hsq with hqi' | hiq
+          · exact (hqi hqi').elim
+          · exact hiq
 
 end IndexedInducedPath
 

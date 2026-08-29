@@ -33,6 +33,7 @@ import FreeFermionGraphs.DirectedHoppingGraph
 import FreeFermionGraphs.BubbleWandHoppingArc
 import FreeFermionGraphs.InducedPathDeformation
 import FreeFermionGraphs.InducedPathDeformationReverse
+import FreeFermionGraphs.WeightedHoppingMatrix
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

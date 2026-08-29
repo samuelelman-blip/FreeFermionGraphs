@@ -65,6 +65,44 @@ theorem SingleVertexDeformation.reverse
           · exact (hqi hqi').elim
           · exact hiq
 
+/-- Applying the reverse deformation at the same index recovers the original
+indexed path, including its ordering. -/
+theorem SingleVertexDeformation.deform_reverse_eq
+    (P : IndexedInducedPath G) {s : V} {i : Fin P.card}
+    (h : P.SingleVertexDeformation s i) :
+    (P.deform h).deform h.reverse = P := by
+  cases P with
+  | mk card nonempty vertex injective adj_iff =>
+    simp only [deform]
+    congr 1
+    funext q
+    by_cases hqi : q = i
+    · subst q
+      simp [replaceVertex]
+    · simp [replaceVertex, hqi]
+
 end IndexedInducedPath
+
+/-- A generator step of the induced-path deformation closure can be traversed
+in the opposite direction. -/
+theorem InducedPathDeformationStep.symm
+    {P Q : IndexedInducedPath G}
+    (h : InducedPathDeformationStep G P Q) :
+    InducedPathDeformationStep G Q P := by
+  rcases h with ⟨s, i, hdef, rfl⟩
+  exact
+    ⟨P.vertex i, i, hdef.reverse,
+      (hdef.deform_reverse_eq P).symm⟩
+
+/-- Definition 12 deformation closure is symmetric because each of its
+single-vertex generators is reversible. -/
+theorem InInducedPathDeformationClosure.symm
+    {P Q : IndexedInducedPath G}
+    (h : InInducedPathDeformationClosure G P Q) :
+    InInducedPathDeformationClosure G Q P := by
+  induction h with
+  | refl => exact InInducedPathDeformationClosure.refl P
+  | tail hPQ hQR ih =>
+      exact hQR.symm.inClosure.trans ih
 
 end SimpleGraph

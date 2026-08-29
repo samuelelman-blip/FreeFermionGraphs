@@ -37,6 +37,7 @@ import FreeFermionGraphs.InducedPathDeformationPrefixes
 import FreeFermionGraphs.WeightedHoppingMatrix
 import FreeFermionGraphs.InducedPathDeformationPrefixWeights
 import FreeFermionGraphs.InducedPathDeformationBubbleWand
+import FreeFermionGraphs.InducedPathDeformationLocalWeights
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

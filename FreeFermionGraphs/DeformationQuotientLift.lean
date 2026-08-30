@@ -1,25 +1,110 @@
 import Mathlib.Data.Matrix.Mul
 
 /-!
-# Lifting a deformation-quotient transition matrix
+# Deformation-class invariant transition matrices
 
 The printed proof of manuscript Lemma 18 attempts to replace the suffix of
 each individual walk after its last crossing of the deformation index.  That
 replacement is not defined for walks which leave the displayed prefix chain.
 
-This file records a different, global route.  If the transition matrix is
-constructed on deformation classes and then lifted to paths, its columns
-depend only on the target class.  Every positive matrix power therefore has
-the same property.  The zeroth power has it as well when the source belongs
-to a singleton class, as the adjoined root path does.
+This file records a different, global route.  It is enough that right
+multiplication by the transition matrix preserve row functions which are
+constant on deformation classes.  Induction then gives the amplitude identity
+at every matrix power.  A literal matrix lifted from the quotient is one
+sufficient special case, but the general preservation criterion also allows
+different raw columns whose contributions agree only after class aggregation.
 
-The theorem below is purely linear algebra.  It does not claim that the
-specific Eq. (E1) matrix is such a lift; proving the operator transition
-factors through deformation classes is the remaining graph/operator
-obligation.
+The theorems below are purely linear algebra.  They do not claim that the
+specific Eq. (E1) matrix satisfies the preservation criterion; proving that
+global graph/operator fact is the remaining Lemma 18 obligation.
 -/
 
 universe u v w
+
+/-- A row-valued function is constant on the fibres of `classOf`. -/
+def ClassConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    (classOf : X → C) (f : X → R) : Prop :=
+  ∀ ⦃x y : X⦄, classOf x = classOf y → f x = f y
+
+/-- The right action of a square matrix on a row-valued function. -/
+noncomputable def matrixRightAction
+    {X : Type u} {R : Type w}
+    [Fintype X] [Semiring R]
+    (A : Matrix X X R) (f : X → R) : X → R :=
+  fun y ⇒ ∑ x : X, f x * A x y
+
+/-- The global condition needed by the corrected Lemma 18 argument: one
+transition sends every row which is constant on deformation classes to
+another row which is constant on those classes.
+
+This condition is strictly weaker than equality of individual matrix
+columns.  It allows contributions from different paths in one deformation
+class to cancel or combine before the class comparison is made. -/
+def MatrixPreservesClassConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    [Fintype X] [Semiring R]
+    (classOf : X → C) (A : Matrix X X R) : Prop :=
+  ∀ f : X → R, ClassConstant classOf f →
+    ClassConstant classOf (matrixRightAction A f)
+
+/-- If the source fibre is a singleton, the zeroth-power row at that source
+is constant on classes. -/
+theorem matrixOneRow_classConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    [DecidableEq X] [Semiring R]
+    (classOf : X → C) (source : X)
+    (hsource : ∀ x, classOf x = classOf source → x = source) :
+    ClassConstant classOf (fun y ⇒ (1 : Matrix X X R) source y) := by
+  intro y z hyz
+  rw [Matrix.one_apply, Matrix.one_apply]
+  by_cases hsy : source = y
+  · have hsz : source = z := by
+      apply hsource z
+      rw [← hyz, ← hsy]
+    simp [hsy, hsz]
+  · have hsz : source ≠ z := by
+      intro h
+      apply hsy
+      apply hsource y
+      rw [hyz, ← h]
+    simp [hsy, hsz]
+
+/-- A class-preserving transition makes every matrix-power row from a
+singleton source constant on classes.  This is the abstract induction which
+replaces the manuscript's non-total last-crossing walk substitution. -/
+theorem matrixPow_row_classConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    [Fintype X] [DecidableEq X] [Semiring R]
+    (classOf : X → C) (A : Matrix X X R)
+    (hA : MatrixPreservesClassConstant classOf A)
+    (source : X)
+    (hsource : ∀ x, classOf x = classOf source → x = source)
+    (n : Nat) :
+    ClassConstant classOf (fun y ⇒ (A ^ n) source y) := by
+  induction n with
+  | zero =>
+      simpa only [pow_zero] using
+        matrixOneRow_classConstant classOf source hsource
+  | succ n ih =>
+      have hstep := hA (fun y ⇒ (A ^ n) source y) ih
+      intro y z hyz
+      simpa only [matrixRightAction, pow_succ, Matrix.mul_apply] using
+        hstep hyz
+
+/-- Paper-shaped consequence of the global transition criterion: targets in
+the same class have equal amplitudes at every nonnegative power. -/
+theorem matrixPow_apply_eq_of_preservesClassConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    [Fintype X] [DecidableEq X] [Semiring R]
+    (classOf : X → C) (A : Matrix X X R)
+    (hA : MatrixPreservesClassConstant classOf A)
+    {source y z : X}
+    (hsource : ∀ x, classOf x = classOf source → x = source)
+    (hyz : classOf y = classOf z)
+    (n : Nat) :
+    (A ^ n) source y = (A ^ n) source z :=
+  matrixPow_row_classConstant classOf A hA source hsource n hyz
 
 /-- Lift a matrix on quotient classes to the underlying finite index type.
 
@@ -45,6 +130,21 @@ theorem quotientLiftMatrix_column_eq
     quotientLiftMatrix classOf B x y =
       quotientLiftMatrix classOf B x z := by
   simp [quotientLiftMatrix, hyz]
+
+/-- A literal quotient lift satisfies the global class-preservation
+criterion.  The criterion above also applies to less rigid matrices whose
+individual columns are not equal. -/
+theorem quotientLiftMatrix_preservesClassConstant
+    {X : Type u} {C : Type v} {R : Type w}
+    [Fintype X] [Semiring R]
+    (classOf : X → C) (B : Matrix C C R) :
+    MatrixPreservesClassConstant classOf
+      (quotientLiftMatrix classOf B) := by
+  intro f _ y z hyz
+  simp only [matrixRightAction, quotientLiftMatrix]
+  apply Finset.sum_congr rfl
+  intro x _
+  rw [hyz]
 
 /-- If two columns of a square matrix agree, then the corresponding entries
 of every positive power agree, for every source. -/

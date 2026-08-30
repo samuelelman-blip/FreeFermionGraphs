@@ -62,6 +62,7 @@ import FreeFermionGraphs.PauliCliqueHamiltonianResolvedSupport
 import FreeFermionGraphs.PauliCliqueHamiltonianTerminalContraction
 import FreeFermionGraphs.PauliCliqueHamiltonianResolvedAction
 import FreeFermionGraphs.IndexedInducedHoleEvenLabeling
+import FreeFermionGraphs.BubbleWandHoop
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

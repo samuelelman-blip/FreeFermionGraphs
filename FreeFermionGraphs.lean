@@ -58,6 +58,7 @@ import FreeFermionGraphs.IndexedPathClosure
 import FreeFermionGraphs.PauliCliqueHamiltonianRootHoop
 import FreeFermionGraphs.PauliCliqueHamiltonianBubbleWand
 import FreeFermionGraphs.PauliCliqueHamiltonianResolvedGeometry
+import FreeFermionGraphs.PauliCliqueHamiltonianResolvedSupport
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

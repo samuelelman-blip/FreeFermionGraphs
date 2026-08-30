@@ -42,7 +42,9 @@ inductive ResolvedExternalKrylovGeometryCase
   | bubbleWand
       (B : BubbleWand G)
       (source : P.originalCarrier = Set.range B.path.vertex)
-      (bubble : B.bubble = j) :
+      (bubble : B.bubble = j)
+      (ordered : ∃ htail : 2 ≤ P.path.card,
+        B.path = P.originalTail htail) :
       ResolvedExternalKrylovGeometryCase P j
 
 /-- Resolve an endpoint plus an ordered adjacent pair. -/
@@ -162,7 +164,7 @@ theorem resolve_ordered_endpoint_pair
           apply Fin.ext
           dsimp [terminalIndex]
           omega
-        obtain ⟨B, hsource, hbubble⟩ :=
+        obtain ⟨B, hsource, hbubble, hordered⟩ :=
           P.exists_bubbleWand_of_positive_pair_terminal hjOutside
             hleftPos horder hgap hjLeft hjRight
             (by rw [← hendpointEq]; exact hjEndpoint)
@@ -172,7 +174,7 @@ theorem resolve_ordered_endpoint_pair
               · exact Or.inr (Or.inr (hqe.trans hendpointEq))
               · exact Or.inl hql
               · exact Or.inr (Or.inl hqr))
-        exact .bubbleWand B hsource hbubble
+        exact .bubbleWand B hsource hbubble hordered
       · exact .deformation right
           (P.path.singleVertexDeformation_of_inducedPathTriple
             (left := left) (center := right) (right := endpoint) hjOutside

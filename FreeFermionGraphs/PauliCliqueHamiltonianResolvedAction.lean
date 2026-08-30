@@ -58,7 +58,9 @@ inductive ResolvedOneTermActionCase
   | bubbleWand
       (B : BubbleWand G)
       (source : P.originalCarrier = Set.range B.path.vertex)
-      (bubble : B.bubble = j) :
+      (bubble : B.bubble = j)
+      (ordered : ∃ htail : 2 ≤ P.path.card,
+        B.path = P.originalTail htail) :
       ResolvedOneTermActionCase H P j
 
 /-- Complete one-term refinement of the exact anticommuting support. -/
@@ -76,7 +78,7 @@ theorem resolvedOneTermActionCase
       ⟨q, hjq, hqEndpoint, hexact⟩ |
       ⟨i, hdeformation⟩ |
       ⟨C, hcarrier⟩ |
-      ⟨B, hsource, hbubble⟩
+      ⟨B, hsource, hbubble, hordered⟩
     · obtain ⟨Q, hPQ, hcommutator⟩ :=
         H.exists_extension_commutator_of_uniqueOriginalEndpoint
           P hK.isClique houtside hjq hqEndpoint hexact
@@ -85,7 +87,7 @@ theorem resolvedOneTermActionCase
       exact H.operator.pathOperator_deformation_add_eq_zero
         P.path hdeformation
     · exact .rootHoop C hcarrier
-    · exact .bubbleWand B hsource hbubble
+    · exact .bubbleWand B hsource hbubble hordered
 
 end PauliCliqueHamiltonianRepresentation
 

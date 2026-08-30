@@ -23,18 +23,24 @@ The current repository already contains substantial structural ingredients:
 
 The existing deformation-closure relation is presently specialized to even holes. Lemma 18 instead needs the deformation closure of induced paths from Definition 12, with fixed endpoints and path length.
 
-## Required new layers
+## Implementation status
 
-1. Define single-vertex deformations and finite deformation closure for indexed induced paths, preserving their endpoints and length.
-2. Define the Eq. (E1) weighted adjacency matrix on `directedHoppingGraphAtClique`.
-3. Prove the tree-arc weights for one-vertex extensions and contractions.
-4. Represent the generalized-cycle/bubble-wand arc weight and its normalization at the algebraic interface needed by Lemma 18.
-5. For a single-vertex deformation `P → P̃`, define the prefix families `P_m` and `P̃_m` of Eqs. (E3)-(E4).
-6. Prove the corresponding arcs among the affected prefixes have equal weights.
-7. Extend the local correspondence to a weight-preserving bijection of arbitrary finite directed walks from the root singleton.
-8. Convert weighted-walk equality to matrix-power equality.
-9. Lift along finite deformation sequences to every `P̃ ∈ ⟨P⟩`.
-10. Export `paperLemma18` with no walk-bijection or amplitude-invariance certificate among its premises.
+Completed on this branch:
+
+1. Single-vertex deformations and finite reversible deformation closure for indexed induced paths, preserving endpoints and length.
+2. The literal Eq. (E1) weighted adjacency matrix on `directedHoppingGraphAtClique`.
+3. Tree-arc weights for one-vertex extensions and contractions.
+4. An algebraic interface for generalized-cycle/bubble-wand arc weights and their normalization.
+5. The prefix families `P_m` and `P̃_m` of Eqs. (E3)-(E4).
+6. Equality of the corresponding local prefix-transition weights under the stated deformation-compatibility condition.
+7. Finite path indexing and the equality between weighted-walk sums and matrix powers.
+8. Generic class-constant, quotient-lift, equal-column, and commuting-intertwiner criteria which each imply matrix-power amplitude equality when their hypotheses hold.
+
+Still required for a paper-facing theorem:
+
+1. Construct a global spectral equivalence or commuting intertwiner for the concrete Eq. (E1) transition, or derive the required transition directly from the operator commutator quotient.
+2. Lift that construction along finite deformation sequences to every `P̃ ∈ ⟨P⟩`.
+3. Export `paperLemma18` with no walk-bijection, spectral-equivalence, or amplitude-invariance certificate among its premises.
 
 ## Audit of the printed last-crossing proof
 
@@ -52,6 +58,13 @@ function which is constant on chosen classes.  The generic theorem
 matrix-power row starting at a singleton source is constant on target
 classes, including power zero.  A literal quotient lift satisfies this
 criterion, but is only a strong special case.
+
+An alternative sufficient condition is a commuting matrix `S`.  The theorem
+`matrixPow_apply_eq_of_intertwiner` proves the desired equality whenever `S`
+commutes with the transition, fixes the source row, and maps the chosen target
+column to the comparison target.  Unlike a path permutation, such an
+intertwiner may mix path states and can therefore express a genuinely spectral
+equivalence.
 
 The concrete Eq. (E1) transition does **not** preserve the partition by the
 literal internal path-deformation closure in general.  The prefix ending at

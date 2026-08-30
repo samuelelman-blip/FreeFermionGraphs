@@ -60,14 +60,12 @@ theorem matrixOneRow_classConstant
   rw [Matrix.one_apply, Matrix.one_apply]
   by_cases hsy : source = y
   · have hsz : source = z := by
-      apply hsource z
-      rw [← hyz, ← hsy]
+      exact (hsource z (by rw [← hyz, ← hsy])).symm
     simp [hsy, hsz]
   · have hsz : source ≠ z := by
       intro h
       apply hsy
-      apply hsource y
-      rw [hyz, ← h]
+      exact (hsource y (by rw [hyz, ← h])).symm
     simp [hsy, hsz]
 
 /-- A class-preserving transition makes every matrix-power row from a
@@ -177,14 +175,12 @@ theorem quotientLiftMatrix_pow_apply_eq
       rw [pow_zero, pow_zero, Matrix.one_apply, Matrix.one_apply]
       by_cases hsy : source = y
       · have hsz : source = z := by
-          apply hsource z
-          rw [← hyz, ← hsy]
+          exact (hsource z (by rw [← hyz, ← hsy])).symm
         simp [hsy, hsz]
       · have hsz : source ≠ z := by
           intro h
           apply hsy
-          apply hsource y
-          rw [hyz, ← h]
+          exact (hsource y (by rw [hyz, ← h])).symm
         simp [hsy, hsz]
   | succ n =>
       exact matrixPow_apply_eq_of_column_eq

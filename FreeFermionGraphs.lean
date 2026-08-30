@@ -44,6 +44,7 @@ import FreeFermionGraphs.DeformationQuotientLift
 import FreeFermionGraphs.KrylovMatrixRealization
 import FreeFermionGraphs.PauliPathOperator
 import FreeFermionGraphs.PauliPathOperatorExtension
+import FreeFermionGraphs.PauliCliqueHamiltonian
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

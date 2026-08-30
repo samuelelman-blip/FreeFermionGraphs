@@ -36,7 +36,9 @@ theorem exists_bubbleWand_of_positive_pair_terminal
       (G.adjoinRootAt K).Adj (some j) (P.path.vertex q) →
         q = left ∨ q = right ∨ q = P.terminalIndex) :
     ∃ B : BubbleWand G,
-      P.originalCarrier = Set.range B.path.vertex ∧ B.bubble = j := by
+      P.originalCarrier = Set.range B.path.vertex ∧
+      B.bubble = j ∧
+      ∃ htail : 2 ≤ P.path.card, B.path = P.originalTail htail := by
   let htail : 2 ≤ P.path.card := by omega
   let T := P.originalTail htail
   let split : Fin T.card := ⟨left.val - 1, by
@@ -101,8 +103,8 @@ theorem exists_bubbleWand_of_positive_pair_terminal
               omega
             rw [hindex]
             exact hjTerminal }
-  refine ⟨B, ?_, rfl⟩
-  exact P.originalCarrier_eq_range_originalTail htail
+  refine ⟨B, P.originalCarrier_eq_range_originalTail htail, rfl,
+    htail, rfl⟩
 
 end RootedInducedPath
 

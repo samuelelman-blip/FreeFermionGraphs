@@ -36,6 +36,26 @@ The existing deformation-closure relation is presently specialized to even holes
 9. Lift along finite deformation sequences to every `P̃ ∈ ⟨P⟩`.
 10. Export `paperLemma18` with no walk-bijection or amplitude-invariance certificate among its premises.
 
+## Audit of the printed last-crossing proof
+
+The last-crossing substitution in the manuscript is not defined on every
+contributing walk.  After the final traversal of `P_(i-1) -> P_i`, a walk may
+enter a non-prefix branch and return without crossing that edge again.  A
+replacement of the changed vertex need not be an induced path on that branch.
+Accordingly, local equality of the displayed prefix weights does not yet
+produce the claimed global walk bijection.
+
+The replacement route is to construct the Krylov transition on deformation
+classes and lift it to path indices.  The generic linear-algebra theorem
+`quotientLiftMatrix_pow_apply_eq` proves that all matrix-power amplitudes of
+such a lift are constant on target classes, including power zero when the
+source class is a singleton.  It remains to prove at the operator boundary
+that the commutator transition factors through the deformation quotient.
+
+Eq. (E1) also requires a canonical normalization construction.  Its printed
+sum rule alone does not imply pointwise equality of corresponding bubble-arc
+weights.
+
 ## Fidelity constraints
 
 The final theorem must quantify over every nonnegative matrix power and every induced path in the deformation closure, exactly as in the manuscript. Eq. (E1) weights must either be represented literally or related to the formal weights by a proved equality. Intermediate walk correspondences are derived proof objects, not public hypotheses.

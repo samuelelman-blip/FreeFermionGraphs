@@ -15,8 +15,11 @@ sufficient special case, but the general preservation criterion also allows
 different raw columns whose contributions agree only after class aggregation.
 
 The theorems below are purely linear algebra.  They do not claim that the
-specific Eq. (E1) matrix satisfies the preservation criterion; proving that
-global graph/operator fact is the remaining Lemma 18 obligation.
+specific Eq. (E1) matrix satisfies the preservation criterion.  In fact, the
+literal partition by internal path deformations need not be preserved: the
+prefix ending at the changed vertex is not itself related by an internal
+deformation.  Applying this criterion therefore requires a richer spectral
+class relation or a transition constructed directly on an operator quotient.
 -/
 
 universe u v w
@@ -34,7 +37,7 @@ noncomputable def matrixRightAction
     (A : Matrix X X R) (f : X → R) : X → R :=
   fun y ⇒ ∑ x : X, f x * A x y
 
-/-- The global condition needed by the corrected Lemma 18 argument: one
+/-- A global sufficient condition for a corrected Lemma 18 argument: one
 transition sends every row which is constant on deformation classes to
 another row which is constant on those classes.
 
@@ -69,8 +72,9 @@ theorem matrixOneRow_classConstant
     simp [hsy, hsz]
 
 /-- A class-preserving transition makes every matrix-power row from a
-singleton source constant on classes.  This is the abstract induction which
-replaces the manuscript's non-total last-crossing walk substitution. -/
+singleton source constant on classes.  This is the abstract induction for a
+possible replacement of the manuscript's non-total last-crossing walk
+substitution. -/
 theorem matrixPow_row_classConstant
     {X : Type u} {C : Type v} {R : Type w}
     [Fintype X] [DecidableEq X] [Semiring R]

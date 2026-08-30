@@ -42,6 +42,7 @@ import FreeFermionGraphs.InducedPathFintype
 import FreeFermionGraphs.WeightedWalkSum
 import FreeFermionGraphs.DeformationQuotientLift
 import FreeFermionGraphs.KrylovMatrixRealization
+import FreeFermionGraphs.PauliPathOperator
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

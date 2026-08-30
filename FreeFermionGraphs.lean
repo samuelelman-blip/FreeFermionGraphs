@@ -47,6 +47,7 @@ import FreeFermionGraphs.PauliPathOperatorExtension
 import FreeFermionGraphs.PauliCliqueHamiltonian
 import FreeFermionGraphs.PauliCliqueHamiltonianExtension
 import FreeFermionGraphs.PauliPathOperatorCancellation
+import FreeFermionGraphs.PauliPathOperatorWeightedCancellation
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

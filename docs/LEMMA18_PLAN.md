@@ -45,12 +45,15 @@ replacement of the changed vertex need not be an induced path on that branch.
 Accordingly, local equality of the displayed prefix weights does not yet
 produce the claimed global walk bijection.
 
-The replacement route is to construct the Krylov transition on deformation
-classes and lift it to path indices.  The generic linear-algebra theorem
-`quotientLiftMatrix_pow_apply_eq` proves that all matrix-power amplitudes of
-such a lift are constant on target classes, including power zero when the
-source class is a singleton.  It remains to prove at the operator boundary
-that the commutator transition factors through the deformation quotient.
+The replacement route is global rather than walk-by-walk.  The exact
+sufficient condition is that one Krylov transition preserve every row
+function which is constant on deformation classes.  The generic theorem
+`matrixPow_apply_eq_of_preservesClassConstant` then proves that every
+matrix-power row starting at a singleton source is constant on target
+classes, including power zero.  A literal quotient lift satisfies this
+criterion, but is only a strong special case.  It remains to prove that the
+concrete Eq. (E1) transition has this class-preservation property, or to
+derive an equivalent transition directly at the operator boundary.
 
 Eq. (E1) also requires a canonical normalization construction.  Its printed
 sum rule alone does not imply pointwise equality of corresponding bubble-arc

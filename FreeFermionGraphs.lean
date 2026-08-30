@@ -54,6 +54,7 @@ import FreeFermionGraphs.PauliCliqueHamiltonianOddSupportGeometry
 import FreeFermionGraphs.IndexedPathAppend
 import FreeFermionGraphs.PauliCliqueHamiltonianEndpointExtension
 import FreeFermionGraphs.CliqueRootedPathOriginalTail
+import FreeFermionGraphs.IndexedPathClosure
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

@@ -66,6 +66,7 @@ import FreeFermionGraphs.BubbleWandHoop
 import FreeFermionGraphs.PauliCliqueHamiltonianBubbleWandArc
 import FreeFermionGraphs.PauliCliqueHamiltonianResolvedParity
 import FreeFermionGraphs.BubbleWandArcEvent
+import FreeFermionGraphs.CanonicalBubbleWandNormalization
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

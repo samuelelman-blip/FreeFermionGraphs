@@ -51,6 +51,7 @@ import FreeFermionGraphs.PauliPathOperatorWeightedCancellation
 import FreeFermionGraphs.PauliCliqueHamiltonianKrylovStep
 import FreeFermionGraphs.PauliCliqueHamiltonianOddSupport
 import FreeFermionGraphs.PauliCliqueHamiltonianOddSupportGeometry
+import FreeFermionGraphs.IndexedPathAppend
 import FreeFermionGraphs.FixedPairingPaths
 import FreeFermionGraphs.Corollary7
 import FreeFermionGraphs.Corollary8

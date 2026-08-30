@@ -35,7 +35,7 @@ noncomputable def matrixRightAction
     {X : Type u} {R : Type w}
     [Fintype X] [Semiring R]
     (A : Matrix X X R) (f : X → R) : X → R :=
-  fun y ⇒ ∑ x : X, f x * A x y
+  fun y => ∑ x : X, f x * A x y
 
 /-- A global sufficient condition for a corrected Lemma 18 argument: one
 transition sends every row which is constant on deformation classes to
@@ -58,13 +58,15 @@ theorem matrixOneRow_classConstant
     [DecidableEq X] [Semiring R]
     (classOf : X → C) (source : X)
     (hsource : ∀ x, classOf x = classOf source → x = source) :
-    ClassConstant classOf (fun y ⇒ (1 : Matrix X X R) source y) := by
+    ClassConstant classOf
+      (fun y => if source = y then (1 : R) else (0 : R)) := by
   intro y z hyz
-  rw [Matrix.one_apply, Matrix.one_apply]
   by_cases hsy : source = y
   · have hsz : source = z := by
       exact (hsource z (by rw [← hyz, ← hsy])).symm
-    simp [hsy, hsz]
+    subst y
+    subst z
+    rfl
   · have hsz : source ≠ z := by
       intro h
       apply hsy
@@ -83,13 +85,13 @@ theorem matrixPow_row_classConstant
     (source : X)
     (hsource : ∀ x, classOf x = classOf source → x = source)
     (n : Nat) :
-    ClassConstant classOf (fun y ⇒ (A ^ n) source y) := by
+    ClassConstant classOf (fun y => (A ^ n) source y) := by
   induction n with
   | zero =>
-      simpa only [pow_zero] using
-        matrixOneRow_classConstant classOf source hsource
+      simpa only [pow_zero, Matrix.one_apply] using
+        matrixOneRow_classConstant (R := R) classOf source hsource
   | succ n ih =>
-      have hstep := hA (fun y ⇒ (A ^ n) source y) ih
+      have hstep := hA (fun y => (A ^ n) source y) ih
       intro y z hyz
       simpa only [matrixRightAction, pow_succ, Matrix.mul_apply] using
         hstep hyz
@@ -107,6 +109,37 @@ theorem matrixPow_apply_eq_of_preservesClassConstant
     (n : Nat) :
     (A ^ n) source y = (A ^ n) source z :=
   matrixPow_row_classConstant classOf A hA source hsource n hyz
+
+/-- A second global route to equal amplitudes uses an intertwining symmetry.
+If `S` commutes with the transition, fixes the source row, and sends the
+chosen target basis column to the comparison target, then all matrix powers
+have equal source-to-target entries.
+
+Unlike a permutation symmetry, `S` may mix path states.  This is the natural
+linear-algebra interface for the spectral equivalence suggested by the
+weighted induced-path-tree examples. -/
+theorem matrixPow_apply_eq_of_intertwiner
+    {X : Type u} {R : Type w}
+    [Fintype X] [DecidableEq X] [Semiring R]
+    (A S : Matrix X X R) (hAS : Commute A S)
+    {source y z : X}
+    (hsource : ∀ x, S source x = if source = x then 1 else 0)
+    (htarget : ∀ x, S x y = if x = z then 1 else 0)
+    (n : Nat) :
+    (A ^ n) source y = (A ^ n) source z := by
+  have hleft : (S * A ^ n) source y = (A ^ n) source y := by
+    rw [Matrix.mul_apply]
+    simp_rw [hsource]
+    simp
+  have hright : (A ^ n * S) source y = (A ^ n) source z := by
+    rw [Matrix.mul_apply]
+    simp_rw [htarget]
+    simp
+  calc
+    (A ^ n) source y = (S * A ^ n) source y := hleft.symm
+    _ = (A ^ n * S) source y := by
+      rw [← (hAS.pow_left n).eq]
+    _ = (A ^ n) source z := hright
 
 /-- Lift a matrix on quotient classes to the underlying finite index type.
 
@@ -157,7 +190,7 @@ theorem matrixPow_apply_eq_of_column_eq
     (hcol : ∀ x, A x y = A x z)
     (n : Nat) (source : X) :
     (A ^ (n + 1)) source y = (A ^ (n + 1)) source z := by
-  rw [pow_succ, pow_succ, Matrix.mul_apply, Matrix.mul_apply]
+  rw [pow_succ, Matrix.mul_apply, Matrix.mul_apply]
   apply Finset.sum_congr rfl
   intro x _
   rw [hcol x]
@@ -176,11 +209,13 @@ theorem quotientLiftMatrix_pow_apply_eq
       (quotientLiftMatrix classOf B ^ n) source z := by
   cases n with
   | zero =>
-      rw [pow_zero, pow_zero, Matrix.one_apply, Matrix.one_apply]
+      rw [pow_zero, Matrix.one_apply, Matrix.one_apply]
       by_cases hsy : source = y
       · have hsz : source = z := by
           exact (hsource z (by rw [← hyz, ← hsy])).symm
-        simp [hsy, hsz]
+        subst y
+        subst z
+        rfl
       · have hsz : source ≠ z := by
           intro h
           apply hsy

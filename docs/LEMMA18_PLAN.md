@@ -45,15 +45,22 @@ replacement of the changed vertex need not be an induced path on that branch.
 Accordingly, local equality of the displayed prefix weights does not yet
 produce the claimed global walk bijection.
 
-The replacement route is global rather than walk-by-walk.  The exact
+One possible replacement route is global rather than walk-by-walk.  A
 sufficient condition is that one Krylov transition preserve every row
-function which is constant on deformation classes.  The generic theorem
+function which is constant on chosen classes.  The generic theorem
 `matrixPow_apply_eq_of_preservesClassConstant` then proves that every
 matrix-power row starting at a singleton source is constant on target
 classes, including power zero.  A literal quotient lift satisfies this
-criterion, but is only a strong special case.  It remains to prove that the
-concrete Eq. (E1) transition has this class-preservation property, or to
-derive an equivalent transition directly at the operator boundary.
+criterion, but is only a strong special case.
+
+The concrete Eq. (E1) transition does **not** preserve the partition by the
+literal internal path-deformation closure in general.  The prefix ending at
+the changed vertex is not internally deformable, and incoming branch weights
+need not agree class-by-class.  Thus the generic theorem is a diagnostic
+linear-algebra layer, not yet a proof of Lemma 18.  A successful replacement
+must instead construct the richer spectral equivalence of the weighted
+induced-path tree, or derive an equivalent class transition directly from the
+operator commutator.
 
 Eq. (E1) also requires a canonical normalization construction.  Its printed
 sum rule alone does not imply pointwise equality of corresponding bubble-arc

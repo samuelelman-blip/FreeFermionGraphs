@@ -366,3 +366,4 @@ import FreeFermionGraphs.ModeSectorPositivity
 import FreeFermionGraphs.HamiltonianReconstruction
 import FreeFermionGraphs.SectorCharacteristicPolynomial
 import FreeFermionGraphs.KrylovRowClosedFormHoles
+import FreeFermionGraphs.Theorem3

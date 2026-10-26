@@ -373,3 +373,5 @@ import FreeFermionGraphs.CrossSectorRelations
 import FreeFermionGraphs.CrossSectorRelationsExample
 import FreeFermionGraphs.FreeFermionSolution
 import FreeFermionGraphs.FreeFermionSolutionExample
+import FreeFermionGraphs.Corollary1Sector
+import FreeFermionGraphs.Lemma18Paper

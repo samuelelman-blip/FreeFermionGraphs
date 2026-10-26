@@ -377,3 +377,6 @@ import FreeFermionGraphs.Corollary1Sector
 import FreeFermionGraphs.Lemma18Paper
 import FreeFermionGraphs.Theorem3Sectors
 import FreeFermionGraphs.Theorem3SectorsExample
+import FreeFermionGraphs.T3HoleClassRun
+import FreeFermionGraphs.T3ToggleProduct
+import FreeFermionGraphs.TheoremOneIIIExpansion

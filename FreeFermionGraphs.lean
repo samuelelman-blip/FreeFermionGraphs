@@ -369,3 +369,7 @@ import FreeFermionGraphs.KrylovRowClosedFormHoles
 import FreeFermionGraphs.Theorem3
 import FreeFermionGraphs.CycleSymmetrySectors
 import FreeFermionGraphs.CycleSymmetrySectorsExample
+import FreeFermionGraphs.CrossSectorRelations
+import FreeFermionGraphs.CrossSectorRelationsExample
+import FreeFermionGraphs.FreeFermionSolution
+import FreeFermionGraphs.FreeFermionSolutionExample

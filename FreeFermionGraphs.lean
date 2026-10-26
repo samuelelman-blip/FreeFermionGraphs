@@ -332,3 +332,4 @@ import FreeFermionGraphs.PolynomialHelpers
 import FreeFermionGraphs.SimplicialModeHamiltonian
 import FreeFermionGraphs.TransferOperator
 import FreeFermionGraphs.WeightedIndependencePolynomial
+import FreeFermionGraphs.ObstructionGraphPigeonhole

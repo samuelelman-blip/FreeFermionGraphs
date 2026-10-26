@@ -359,3 +359,5 @@ import FreeFermionGraphs.Definition19TraceDegeneracyAudit
 import FreeFermionGraphs.HoleOperatorTransport
 import FreeFermionGraphs.PauliShiftModel
 import FreeFermionGraphs.HoleOperatorTransportExample
+import FreeFermionGraphs.EvenHoleFamilies
+import FreeFermionGraphs.GeneralizedCharacteristicPolynomial

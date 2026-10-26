@@ -375,3 +375,5 @@ import FreeFermionGraphs.FreeFermionSolution
 import FreeFermionGraphs.FreeFermionSolutionExample
 import FreeFermionGraphs.Corollary1Sector
 import FreeFermionGraphs.Lemma18Paper
+import FreeFermionGraphs.Theorem3Sectors
+import FreeFermionGraphs.Theorem3SectorsExample

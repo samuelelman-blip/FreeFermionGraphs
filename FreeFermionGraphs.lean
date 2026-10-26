@@ -367,3 +367,5 @@ import FreeFermionGraphs.HamiltonianReconstruction
 import FreeFermionGraphs.SectorCharacteristicPolynomial
 import FreeFermionGraphs.KrylovRowClosedFormHoles
 import FreeFermionGraphs.Theorem3
+import FreeFermionGraphs.CycleSymmetrySectors
+import FreeFermionGraphs.CycleSymmetrySectorsExample

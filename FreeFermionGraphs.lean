@@ -380,3 +380,10 @@ import FreeFermionGraphs.Theorem3SectorsExample
 import FreeFermionGraphs.T3HoleClassRun
 import FreeFermionGraphs.T3ToggleProduct
 import FreeFermionGraphs.TheoremOneIIIExpansion
+import FreeFermionGraphs.T3BlockStep
+import FreeFermionGraphs.T3FixedPairing
+import FreeFermionGraphs.T3FixedPairingExample
+import FreeFermionGraphs.T3FrameSign
+import FreeFermionGraphs.T3OddBlock
+import FreeFermionGraphs.T3PairingIndex
+import FreeFermionGraphs.T3PairingIndexCount

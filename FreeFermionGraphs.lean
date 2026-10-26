@@ -361,3 +361,7 @@ import FreeFermionGraphs.PauliShiftModel
 import FreeFermionGraphs.HoleOperatorTransportExample
 import FreeFermionGraphs.EvenHoleFamilies
 import FreeFermionGraphs.GeneralizedCharacteristicPolynomial
+import FreeFermionGraphs.DiagonalRelation
+import FreeFermionGraphs.ModeSectorPositivity
+import FreeFermionGraphs.HamiltonianReconstruction
+import FreeFermionGraphs.SectorCharacteristicPolynomial

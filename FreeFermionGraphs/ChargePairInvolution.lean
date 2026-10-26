@@ -8,14 +8,14 @@ This module formalises the pairing step in the proof of Theorem 1(i) of the
 manuscript (arXiv 2305.15625 v1, "Independent Set Charges", proof at
 L882-902).
 
-For a pair `(S, S')` of vertex sets let `𝒬(S, S')` (`SimpleGraph.oddComponents`)
+For a pair `(S, S')` of vertex sets let `𝒬(S, S')` (`SimpleGraph.oddCrossComponents`)
 be the set of components `Q` of `G[S ⊕ S']` with `c(S ∩ Q, S' ∩ Q)` odd, where
 `c(X, Y) = #{(x, y) ∈ X × Y : x ~ y}` is `SimpleGraph.crossCount`.  v1 L895
 chooses, for each term `(S, S')` of the commutator expansion with `|E[S ⊕ S']|`
 odd, "a path `P` of `G[S ⊕ S']` of odd length"; the odd path components are
 exactly the elements of `𝒬(S, S')`.
 
-* `oddComponents_symmDiff` (v1 L897-899, the pairing is well defined): for
+* `oddCrossComponents_symmDiff` (v1 L897-899, the pairing is well defined): for
   `Q ∈ 𝒬(S, S')` the toggled pair `(S ⊕ Q, S' ⊕ Q)` has the same symmetric
   difference, the same components, and the same odd ones, i.e.
   `𝒬(S ⊕ Q, S' ⊕ Q) = 𝒬(S, S')`.  No independence and no claw-freeness is used:
@@ -23,7 +23,7 @@ exactly the elements of `𝒬(S, S')`.
   see `S ⊕ Q` and `S' ⊕ Q` as `S` and `S'`, and on `Q` the two arguments are
   swapped while `c` is symmetric.
 * `chosenOddComponent` is a fixed choice of an element of `𝒬(S, S')`, made
-  as a function of the set `𝒬(S, S')` alone.  By `oddComponents_symmDiff` it is
+  as a function of the set `𝒬(S, S')` alone.  By `oddCrossComponents_symmDiff` it is
   unchanged when `(S, S')` is replaced by `(S ⊕ Q, S' ⊕ Q)` for `Q` the chosen
   component; this is v1 L899-902, "for a collection of such terms ... with fixed
   symmetric difference `S ⊕ S'`, we fix a path component of `G[S ⊕ S']` by which
@@ -87,26 +87,26 @@ theorem disjoint_of_isInducedComponent_of_ne {U Q Q' : Set V}
 (v1 L895, the "path component of odd length" along which the pairing of
 Theorem 1(i) is performed; for independent `S, S'` the parity of `c(S ∩ Q, S' ∩ Q)`
 is the parity of the number of edges of `G[Q]`). -/
-noncomputable def oddComponents [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+noncomputable def oddCrossComponents [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     (S S' : Finset V) : Finset (Finset V) := by
   classical
   exact Finset.univ.filter fun Q =>
     G.IsInducedComponent ↑(symmDiff S S') ↑Q ∧ Odd (G.crossCount (S ∩ Q) (S' ∩ Q))
 
 /-- Membership in `𝒬(S, S')`. -/
-theorem mem_oddComponents [Fintype V] [DecidableEq V] {S S' Q : Finset V} :
-    Q ∈ G.oddComponents S S' ↔
+theorem mem_oddCrossComponents [Fintype V] [DecidableEq V] {S S' Q : Finset V} :
+    Q ∈ G.oddCrossComponents S S' ↔
       G.IsInducedComponent ↑(symmDiff S S') ↑Q ∧ Odd (G.crossCount (S ∩ Q) (S' ∩ Q)) := by
   classical
-  unfold oddComponents
+  unfold oddCrossComponents
   simp only [Finset.mem_filter, Finset.mem_univ, true_and]
 
 /-- `𝒬(S, S')` is symmetric in `S` and `S'`: the symmetric difference is
 symmetric and so is the cross count. -/
-theorem oddComponents_comm [Fintype V] [DecidableEq V] (S S' : Finset V) :
-    G.oddComponents S' S = G.oddComponents S S' := by
+theorem oddCrossComponents_comm [Fintype V] [DecidableEq V] (S S' : Finset V) :
+    G.oddCrossComponents S' S = G.oddCrossComponents S S' := by
   ext Q
-  rw [mem_oddComponents, mem_oddComponents, symmDiff_comm S' S,
+  rw [mem_oddCrossComponents, mem_oddCrossComponents, symmDiff_comm S' S,
     crossCount_comm (S' ∩ Q) (S ∩ Q)]
 
 /-- A component of `G[S ⊕ S']` is a subset of `S ⊕ S'`: every vertex lies in
@@ -127,16 +127,16 @@ S ⊕ S'`; a component `Q' ≠ Q` is disjoint from `Q`, so `(S ⊕ Q) ∩ Q' = S
 `(S' ⊕ Q) ∩ Q' = S' ∩ Q'`; on `Q` itself `(S ⊕ Q) ∩ Q = S' ∩ Q` and
 `(S' ⊕ Q) ∩ Q = S ∩ Q`, so the parity is preserved by symmetry of the cross
 count. -/
-theorem oddComponents_symmDiff [Fintype V] [DecidableEq V] {S S' Q : Finset V}
-    (hQ : Q ∈ G.oddComponents S S') :
-    G.oddComponents (symmDiff S Q) (symmDiff S' Q) = G.oddComponents S S' := by
+theorem oddCrossComponents_symmDiff [Fintype V] [DecidableEq V] {S S' Q : Finset V}
+    (hQ : Q ∈ G.oddCrossComponents S S') :
+    G.oddCrossComponents (symmDiff S Q) (symmDiff S' Q) = G.oddCrossComponents S S' := by
   have hU : symmDiff (symmDiff S Q) (symmDiff S' Q) = symmDiff S S' := by
     ext v
     simp only [Finset.mem_symmDiff]
     tauto
-  obtain ⟨hQc, -⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, -⟩ := mem_oddCrossComponents.mp hQ
   ext Q'
-  rw [mem_oddComponents, mem_oddComponents, hU]
+  rw [mem_oddCrossComponents, mem_oddCrossComponents, hU]
   refine and_congr_right fun hQ'c => ?_
   by_cases hQQ' : Q = Q'
   · subst hQQ'
@@ -199,19 +199,19 @@ theorem oddComponents_symmDiff [Fintype V] [DecidableEq V] {S S' Q : Finset V}
 component of `G[S ⊕ S']` by which corresponding terms are paired" of v1 L899-902. -/
 noncomputable def chosenOddComponent [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     (S S' : Finset V) : Finset V :=
-  if h : (G.oddComponents S S').Nonempty then h.choose else ∅
+  if h : (G.oddCrossComponents S S').Nonempty then h.choose else ∅
 
 /-- The chosen odd component lies in `𝒬(S, S')` whenever that set is nonempty. -/
 theorem chosenOddComponent_mem [Fintype V] [DecidableEq V] {S S' : Finset V}
-    (h : (G.oddComponents S S').Nonempty) :
-    G.chosenOddComponent S S' ∈ G.oddComponents S S' := by
+    (h : (G.oddCrossComponents S S').Nonempty) :
+    G.chosenOddComponent S S' ∈ G.oddCrossComponents S S' := by
   unfold chosenOddComponent
   rw [dif_pos h]
   exact h.choose_spec
 
 /-- The chosen component only depends on the set `𝒬(S, S')`. -/
 theorem chosenOddComponent_congr [Fintype V] [DecidableEq V] {S S' T T' : Finset V}
-    (h : G.oddComponents S S' = G.oddComponents T T') :
+    (h : G.oddCrossComponents S S' = G.oddCrossComponents T T') :
     G.chosenOddComponent S S' = G.chosenOddComponent T T' := by
   unfold chosenOddComponent
   simp only [h]
@@ -220,31 +220,31 @@ theorem chosenOddComponent_congr [Fintype V] [DecidableEq V] {S S' T T' : Finset
 component `Q` in both arguments: the toggled term is paired by the same component
 (v1 L899-902). -/
 theorem chosenOddComponent_symmDiff [Fintype V] [DecidableEq V] {S S' Q : Finset V}
-    (hQ : Q ∈ G.oddComponents S S') :
+    (hQ : Q ∈ G.oddCrossComponents S S') :
     G.chosenOddComponent (symmDiff S Q) (symmDiff S' Q) = G.chosenOddComponent S S' :=
-  chosenOddComponent_congr (oddComponents_symmDiff hQ)
+  chosenOddComponent_congr (oddCrossComponents_symmDiff hQ)
 
 /-- The chosen component is symmetric in the two arguments. -/
 theorem chosenOddComponent_comm [Fintype V] [DecidableEq V] (S S' : Finset V) :
     G.chosenOddComponent S' S = G.chosenOddComponent S S' :=
-  chosenOddComponent_congr (oddComponents_comm S S')
+  chosenOddComponent_congr (oddCrossComponents_comm S S')
 
 /-- For independent `S, S'` with `c(S, S')` odd the set `𝒬(S, S')` is nonempty
 (v1 L895: some component of `G[S ⊕ S']` has an odd number of edges; this is
 `exists_isInducedComponent_odd`, which does not need claw-freeness). -/
-theorem oddComponents_nonempty_of_odd [Fintype V] [DecidableEq V] {S S' : Finset V}
+theorem oddCrossComponents_nonempty_of_odd [Fintype V] [DecidableEq V] {S S' : Finset V}
     (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
-    (hodd : Odd (G.crossCount S S')) : (G.oddComponents S S').Nonempty := by
+    (hodd : Odd (G.crossCount S S')) : (G.oddCrossComponents S S').Nonempty := by
   obtain ⟨Q, hQ, hQodd⟩ := exists_isInducedComponent_odd hS hS' hodd
-  exact ⟨Q, mem_oddComponents.mpr ⟨hQ, hQodd⟩⟩
+  exact ⟨Q, mem_oddCrossComponents.mpr ⟨hQ, hQodd⟩⟩
 
 /-- For independent `S, S'` with `c(S, S')` odd, the chosen component is an odd
 component of `G[S ⊕ S']`. -/
 theorem chosenOddComponent_mem_of_odd [Fintype V] [DecidableEq V] {S S' : Finset V}
     (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
     (hodd : Odd (G.crossCount S S')) :
-    G.chosenOddComponent S S' ∈ G.oddComponents S S' :=
-  chosenOddComponent_mem (oddComponents_nonempty_of_odd hS hS' hodd)
+    G.chosenOddComponent S S' ∈ G.oddCrossComponents S S' :=
+  chosenOddComponent_mem (oddCrossComponents_nonempty_of_odd hS hS' hodd)
 
 /-! ### Pairwise cancellation of independent-set products -/
 
@@ -263,10 +263,10 @@ With `T = S ∩ Q` and `T' = S' ∩ Q` one has `h_S = h_{S∖Q} h_T`,
 theorem independentProduct_toggle_add_eq_zero [Fintype V] [DecidableEq V]
     (H : G.PauliFrustrationRepresentation A) {S S' Q : Finset V}
     (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
-    (hQ : Q ∈ G.oddComponents S S') :
+    (hQ : Q ∈ G.oddCrossComponents S S') :
     H.independentProduct S * H.independentProduct S' +
       H.independentProduct (symmDiff S Q) * H.independentProduct (symmDiff S' Q) = 0 := by
-  obtain ⟨hQc, hodd⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, hodd⟩ := mem_oddCrossComponents.mp hQ
   have hQc' : G.IsInducedComponent ↑(symmDiff S' S) ↑Q := by
     rwa [symmDiff_comm S' S]
   have hSQ : G.IsIndepSet ((symmDiff S Q : Finset V) : Set V) :=
@@ -369,10 +369,10 @@ product exchanged: `h_{S'} h_S + h_{S' ⊕ Q} h_{S ⊕ Q} = 0` for `Q ∈ 𝒬(S
 theorem independentProduct_toggle_add_eq_zero_swap [Fintype V] [DecidableEq V]
     (H : G.PauliFrustrationRepresentation A) {S S' Q : Finset V}
     (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
-    (hQ : Q ∈ G.oddComponents S S') :
+    (hQ : Q ∈ G.oddCrossComponents S S') :
     H.independentProduct S' * H.independentProduct S +
       H.independentProduct (symmDiff S' Q) * H.independentProduct (symmDiff S Q) = 0 :=
-  H.independentProduct_toggle_add_eq_zero hS' hS ((oddComponents_comm (G := G) S S').symm ▸ hQ)
+  H.independentProduct_toggle_add_eq_zero hS' hS ((oddCrossComponents_comm (G := G) S S').symm ▸ hQ)
 
 /-- Commutator form (v1 L897-899): for `Q ∈ 𝒬(S, S')`,
 `[h_S, h_{S'}] + [h_{S ⊕ Q}, h_{S' ⊕ Q}] = 0`.  Both summands of the sum of the
@@ -381,7 +381,7 @@ sign-reversing pairing of Theorem 1(i) uses. -/
 theorem independentProduct_toggle_commutator_add_eq_zero [Fintype V] [DecidableEq V]
     (H : G.PauliFrustrationRepresentation A) {S S' Q : Finset V}
     (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
-    (hQ : Q ∈ G.oddComponents S S') :
+    (hQ : Q ∈ G.oddCrossComponents S S') :
     (H.independentProduct S * H.independentProduct S' -
         H.independentProduct S' * H.independentProduct S) +
       (H.independentProduct (symmDiff S Q) * H.independentProduct (symmDiff S' Q) -

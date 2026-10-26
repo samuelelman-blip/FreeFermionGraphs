@@ -31,7 +31,7 @@ sum runs over all pairs `(S, S')` of token configurations, with the indicator of
 `g(S, S') = (S ⊕ Q, S' ⊕ Q)`, `Q = chosenOddComponent S S'`, if `𝒬(S, S') ≠ ∅`,
 `g(S, S') = (S, S')` otherwise,
 
-where `𝒬(S, S')` (`SimpleGraph.oddComponents`) is the set of components `Q` of
+where `𝒬(S, S')` (`SimpleGraph.oddCrossComponents`) is the set of components `Q` of
 `G[S ⊕ S']` with `c(S ∩ Q, S' ∩ Q)` odd (the "paths of odd length" of v1 L895).  It is
 applied with `Finset.sum_involution`.
 
@@ -39,7 +39,7 @@ applied with `Finset.sum_involution`.
   components of `μ` and `ν`, by `card_and_tokenSlideReachable_symmDiff` and
   `tokenSlidingComponentMk_eq_of_tokenSlideReachable` (v1 L897: "`S ↔_TS S~`").
 * `g` is an involution because `𝒬(S ⊕ Q, S' ⊕ Q) = 𝒬(S, S')`
-  (`oddComponents_symmDiff`), so the same `Q` is chosen again, and `Q ⊕ Q = ∅`.
+  (`oddCrossComponents_symmDiff`), so the same `Q` is chosen again, and `Q ⊕ Q = ∅`.
 * `g` has no fixed point where it is not the identity because `Q` is a component,
   hence nonempty.
 * The summands of `(S, S')` and `g (S, S')` cancel by
@@ -67,11 +67,11 @@ variable {G : SimpleGraph V}
 /-- Toggling an odd component `Q ∈ 𝒬(S, T)` of `G[S ⊕ T]` in the `k`-configuration `S`
 gives again a `k`-configuration (v1 L897: `S~ = S ⊕ P` is an independent set reached from
 `S` by token slides). -/
-theorem isNIndepSet_symmDiff_of_mem_oddComponents [Fintype V] [DecidableEq V]
+theorem isNIndepSet_symmDiff_of_mem_oddCrossComponents [Fintype V] [DecidableEq V]
     (hclaw : G.IsClawFree) {k : ℕ} {S T Q : Finset V}
     (hS : G.IsNIndepSet k S) (hT : G.IsIndepSet (T : Set V))
-    (hQ : Q ∈ G.oddComponents S T) : G.IsNIndepSet k (symmDiff S Q) := by
-  obtain ⟨hQc, hodd⟩ := mem_oddComponents.mp hQ
+    (hQ : Q ∈ G.oddCrossComponents S T) : G.IsNIndepSet k (symmDiff S Q) := by
+  obtain ⟨hQc, hodd⟩ := mem_oddCrossComponents.mp hQ
   exact ⟨isIndepSet_symmDiff_of_isInducedComponent hS.isIndepSet hT hQc,
     (card_and_tokenSlideReachable_symmDiff hclaw hS.isIndepSet hT hQc hodd).1.trans
       hS.card_eq⟩
@@ -79,12 +79,12 @@ theorem isNIndepSet_symmDiff_of_mem_oddComponents [Fintype V] [DecidableEq V]
 /-- Toggling an odd component `Q ∈ 𝒬(S, T)` of `G[S ⊕ T]` keeps the configuration `S`
 in its component of the token-sliding solution graph (v1 L897: `S ↔_TS S~`, so `S~ ∈ μ`
 if `S ∈ μ`). -/
-theorem tokenSlidingComponentMk_eq_of_symmDiff_oddComponents [Fintype V] [DecidableEq V]
+theorem tokenSlidingComponentMk_eq_of_symmDiff_oddCrossComponents [Fintype V] [DecidableEq V]
     (hclaw : G.IsClawFree) {k : ℕ} (S S' : G.TokenConfiguration k) {T Q : Finset V}
-    (hT : G.IsIndepSet (T : Set V)) (hQ : Q ∈ G.oddComponents S.1 T)
+    (hT : G.IsIndepSet (T : Set V)) (hQ : Q ∈ G.oddCrossComponents S.1 T)
     (hS' : S'.1 = symmDiff S.1 Q) :
     G.tokenSlidingComponentMk k S' = G.tokenSlidingComponentMk k S := by
-  obtain ⟨hQc, hodd⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, hodd⟩ := mem_oddCrossComponents.mp hQ
   have hreach := (card_and_tokenSlideReachable_symmDiff hclaw S.2.isIndepSet hT hQc hodd).2
   rw [← hS'] at hreach
   exact (tokenSlidingComponentMk_eq_of_tokenSlideReachable hreach).symm
@@ -97,20 +97,20 @@ arguments; otherwise do nothing. -/
 noncomputable def chargePairToggle [Fintype V] [DecidableEq V] (hclaw : G.IsClawFree)
     (s t : ℕ) (p : G.TokenConfiguration s × G.TokenConfiguration t) :
     G.TokenConfiguration s × G.TokenConfiguration t :=
-  if h : (G.oddComponents p.1.1 p.2.1).Nonempty then
+  if h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty then
     (⟨symmDiff p.1.1 (G.chosenOddComponent p.1.1 p.2.1),
-        isNIndepSet_symmDiff_of_mem_oddComponents hclaw p.1.2 p.2.2.isIndepSet
+        isNIndepSet_symmDiff_of_mem_oddCrossComponents hclaw p.1.2 p.2.2.isIndepSet
           (chosenOddComponent_mem h)⟩,
       ⟨symmDiff p.2.1 (G.chosenOddComponent p.1.1 p.2.1),
-        isNIndepSet_symmDiff_of_mem_oddComponents hclaw p.2.2 p.1.2.isIndepSet
-          ((oddComponents_comm (G := G) p.1.1 p.2.1) ▸ chosenOddComponent_mem h)⟩)
+        isNIndepSet_symmDiff_of_mem_oddCrossComponents hclaw p.2.2 p.1.2.isIndepSet
+          ((oddCrossComponents_comm (G := G) p.1.1 p.2.1) ▸ chosenOddComponent_mem h)⟩)
   else p
 
 /-- On a pair with `𝒬(S, S')` nonempty, `chargePairToggle` toggles the chosen odd component
 in both arguments. -/
 theorem chargePairToggle_of_nonempty [Fintype V] [DecidableEq V] (hclaw : G.IsClawFree)
     {s t : ℕ} {p : G.TokenConfiguration s × G.TokenConfiguration t}
-    (h : (G.oddComponents p.1.1 p.2.1).Nonempty) :
+    (h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty) :
     ((chargePairToggle hclaw s t p).1.1 =
         symmDiff p.1.1 (G.chosenOddComponent p.1.1 p.2.1)) ∧
       ((chargePairToggle hclaw s t p).2.1 =
@@ -122,26 +122,26 @@ theorem chargePairToggle_of_nonempty [Fintype V] [DecidableEq V] (hclaw : G.IsCl
 /-- On a pair with `𝒬(S, S')` empty, `chargePairToggle` is the identity. -/
 theorem chargePairToggle_of_not_nonempty [Fintype V] [DecidableEq V] (hclaw : G.IsClawFree)
     {s t : ℕ} {p : G.TokenConfiguration s × G.TokenConfiguration t}
-    (h : ¬ (G.oddComponents p.1.1 p.2.1).Nonempty) :
+    (h : ¬ (G.oddCrossComponents p.1.1 p.2.1).Nonempty) :
     chargePairToggle hclaw s t p = p := by
   unfold chargePairToggle
   rw [dif_neg h]
 
 /-- `chargePairToggle` is an involution: the toggled pair has the same set of odd
-components (`oddComponents_symmDiff`), hence the same chosen component, and
+components (`oddCrossComponents_symmDiff`), hence the same chosen component, and
 `Q ⊕ Q = ∅`. -/
 theorem chargePairToggle_involutive [Fintype V] [DecidableEq V] (hclaw : G.IsClawFree)
     (s t : ℕ) (p : G.TokenConfiguration s × G.TokenConfiguration t) :
     chargePairToggle hclaw s t (chargePairToggle hclaw s t p) = p := by
-  by_cases h : (G.oddComponents p.1.1 p.2.1).Nonempty
+  by_cases h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty
   · obtain ⟨h1, h2⟩ := chargePairToggle_of_nonempty hclaw h
-    have hQ : G.chosenOddComponent p.1.1 p.2.1 ∈ G.oddComponents p.1.1 p.2.1 :=
+    have hQ : G.chosenOddComponent p.1.1 p.2.1 ∈ G.oddCrossComponents p.1.1 p.2.1 :=
       chosenOddComponent_mem h
-    have hodd : G.oddComponents (chargePairToggle hclaw s t p).1.1
-        (chargePairToggle hclaw s t p).2.1 = G.oddComponents p.1.1 p.2.1 := by
+    have hodd : G.oddCrossComponents (chargePairToggle hclaw s t p).1.1
+        (chargePairToggle hclaw s t p).2.1 = G.oddCrossComponents p.1.1 p.2.1 := by
       rw [h1, h2]
-      exact oddComponents_symmDiff hQ
-    have hne : (G.oddComponents (chargePairToggle hclaw s t p).1.1
+      exact oddCrossComponents_symmDiff hQ
+    have hne : (G.oddCrossComponents (chargePairToggle hclaw s t p).1.1
         (chargePairToggle hclaw s t p).2.1).Nonempty := by
       rw [hodd]
       exact h
@@ -161,12 +161,12 @@ theorem chargePairToggle_involutive [Fintype V] [DecidableEq V] (hclaw : G.IsCla
 of `G[S ⊕ S']`, hence nonempty, and `S ⊕ Q = S` would force `Q = ∅`. -/
 theorem chargePairToggle_ne_of_nonempty [Fintype V] [DecidableEq V] (hclaw : G.IsClawFree)
     {s t : ℕ} {p : G.TokenConfiguration s × G.TokenConfiguration t}
-    (h : (G.oddComponents p.1.1 p.2.1).Nonempty) :
+    (h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty) :
     chargePairToggle hclaw s t p ≠ p := by
   intro heq
   obtain ⟨h1, -⟩ := chargePairToggle_of_nonempty hclaw h
   have hQ := chosenOddComponent_mem h
-  obtain ⟨hQc, -⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, -⟩ := mem_oddCrossComponents.mp hQ
   have hne : (G.chosenOddComponent p.1.1 p.2.1).Nonempty := by
     obtain ⟨x⟩ := hQc.2.1.nonempty
     exact ⟨x.1, Finset.mem_coe.mp x.2⟩
@@ -229,15 +229,15 @@ theorem commutator_tokenSlidingChargeOp_eq_sum [Fintype V] [DecidableEq V]
 /-- If `𝒬(S, S')` is empty then the independent products `h_S`, `h_{S'}` commute: otherwise
 `c(S, S')` is odd (their product picks up the sign `(-1)^{c(S, S')}`), and some component
 of `G[S ⊕ S']` has an odd count (`exists_isInducedComponent_odd`). -/
-theorem commutator_independentProduct_eq_zero_of_oddComponents_eq_empty
+theorem commutator_independentProduct_eq_zero_of_oddCrossComponents_eq_empty
     [Fintype V] [DecidableEq V] (H : G.PauliFrustrationRepresentation A)
     {S S' : Finset V} (hS : G.IsIndepSet (S : Set V)) (hS' : G.IsIndepSet (S' : Set V))
-    (hempty : ¬ (G.oddComponents S S').Nonempty) :
+    (hempty : ¬ (G.oddCrossComponents S S').Nonempty) :
     H.independentProduct S * H.independentProduct S' -
       H.independentProduct S' * H.independentProduct S = 0 := by
   have heven : Even (G.crossCount S S') := by
     by_contra hodd
-    exact hempty (oddComponents_nonempty_of_odd hS hS' (Nat.not_even_iff_odd.mp hodd))
+    exact hempty (oddCrossComponents_nonempty_of_odd hS hS' (Nat.not_even_iff_odd.mp hodd))
   rw [sub_eq_zero]
   exact H.independentProduct_mul_independentProduct_of_even hS hS' heven
 
@@ -262,19 +262,19 @@ theorem paperTheorem1i [Fintype V] [DecidableEq V]
   refine Finset.sum_involution (fun p _ => chargePairToggle hclaw s t p) ?_ ?_ ?_ ?_
   · -- the terms of `p` and its partner cancel
     intro p _
-    by_cases h : (G.oddComponents p.1.1 p.2.1).Nonempty
+    by_cases h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty
     · obtain ⟨h1, h2⟩ := chargePairToggle_of_nonempty hclaw h
       set Q := G.chosenOddComponent p.1.1 p.2.1 with hQdef
-      have hQ : Q ∈ G.oddComponents p.1.1 p.2.1 := chosenOddComponent_mem h
-      have hQ' : Q ∈ G.oddComponents p.2.1 p.1.1 := by
-        rw [oddComponents_comm]; exact hQ
+      have hQ : Q ∈ G.oddCrossComponents p.1.1 p.2.1 := chosenOddComponent_mem h
+      have hQ' : Q ∈ G.oddCrossComponents p.2.1 p.1.1 := by
+        rw [oddCrossComponents_comm]; exact hQ
       -- the partner lies in the same pair of components
       have c1 : G.tokenSlidingComponentMk s (chargePairToggle hclaw s t p).1 =
           G.tokenSlidingComponentMk s p.1 :=
-        tokenSlidingComponentMk_eq_of_symmDiff_oddComponents hclaw p.1 _ p.2.2.isIndepSet hQ h1
+        tokenSlidingComponentMk_eq_of_symmDiff_oddCrossComponents hclaw p.1 _ p.2.2.isIndepSet hQ h1
       have c2 : G.tokenSlidingComponentMk t (chargePairToggle hclaw s t p).2 =
           G.tokenSlidingComponentMk t p.2 :=
-        tokenSlidingComponentMk_eq_of_symmDiff_oddComponents hclaw p.2 _ p.1.2.isIndepSet hQ' h2
+        tokenSlidingComponentMk_eq_of_symmDiff_oddCrossComponents hclaw p.2 _ p.1.2.isIndepSet hQ' h2
       rw [H.chargePairTerm_eq_ite μ ν p, H.chargePairTerm_eq_ite μ ν (chargePairToggle hclaw s t p),
         c1, c2]
       by_cases hc : G.tokenSlidingComponentMk s p.1 = μ ∧
@@ -284,17 +284,17 @@ theorem paperTheorem1i [Fintype V] [DecidableEq V]
           p.2.2.isIndepSet hQ
       · rw [if_neg hc, if_neg hc, add_zero]
     · rw [chargePairToggle_of_not_nonempty hclaw h, H.chargePairTerm_eq_ite,
-        commutator_independentProduct_eq_zero_of_oddComponents_eq_empty H p.1.2.isIndepSet
+        commutator_independentProduct_eq_zero_of_oddCrossComponents_eq_empty H p.1.2.isIndepSet
           p.2.2.isIndepSet h]
       simp
   · -- no fixed points among the nonzero terms
     intro p _ hne
-    by_cases h : (G.oddComponents p.1.1 p.2.1).Nonempty
+    by_cases h : (G.oddCrossComponents p.1.1 p.2.1).Nonempty
     · exact chargePairToggle_ne_of_nonempty hclaw h
     · exfalso
       apply hne
       rw [H.chargePairTerm_eq_ite,
-        commutator_independentProduct_eq_zero_of_oddComponents_eq_empty H p.1.2.isIndepSet
+        commutator_independentProduct_eq_zero_of_oddCrossComponents_eq_empty H p.1.2.isIndepSet
           p.2.2.isIndepSet h]
       simp
   · intro p _

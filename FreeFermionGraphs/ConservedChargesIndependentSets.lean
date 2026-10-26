@@ -73,10 +73,10 @@ theorem symmDiff_mem_independentFinsetsOfCardAvoid [Fintype V] [DecidableEq V]
     (hclaw : G.IsClawFree) {W : Set V} {k l : ℕ} {S T Q : Finset V}
     (hS : S ∈ G.independentFinsetsOfCardAvoid W k)
     (hT : T ∈ G.independentFinsetsOfCardAvoid W l)
-    (hQ : Q ∈ G.oddComponents S T) :
+    (hQ : Q ∈ G.oddCrossComponents S T) :
     symmDiff S Q ∈ G.independentFinsetsOfCardAvoid W k := by
   rw [mem_independentFinsetsOfCardAvoid] at hS hT ⊢
-  obtain ⟨hQc, hodd⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, hodd⟩ := mem_oddCrossComponents.mp hQ
   refine ⟨((card_and_tokenSlideReachable_symmDiff hclaw hS.2.1 hT.2.1 hQc hodd).1).trans hS.1,
     isIndepSet_symmDiff_of_isInducedComponent hS.2.1 hT.2.1 hQc, ?_⟩
   intro v hv
@@ -94,14 +94,14 @@ Unlike `chargePairToggle` it is defined on pairs of `Finset`s, so that it can be
 the independent sets avoiding a deleted carrier. -/
 noncomputable def finsetPairToggle [Fintype V] [DecidableEq V] (G : SimpleGraph V)
     (p : Finset V × Finset V) : Finset V × Finset V :=
-  if (G.oddComponents p.1 p.2).Nonempty then
+  if (G.oddCrossComponents p.1 p.2).Nonempty then
     (symmDiff p.1 (G.chosenOddComponent p.1 p.2), symmDiff p.2 (G.chosenOddComponent p.1 p.2))
   else p
 
 /-- On a pair with `𝒬(S, S')` nonempty, `finsetPairToggle` toggles the chosen odd component in
 both arguments. -/
 theorem finsetPairToggle_of_nonempty [Fintype V] [DecidableEq V] {p : Finset V × Finset V}
-    (h : (G.oddComponents p.1 p.2).Nonempty) :
+    (h : (G.oddCrossComponents p.1 p.2).Nonempty) :
     G.finsetPairToggle p =
       (symmDiff p.1 (G.chosenOddComponent p.1 p.2),
         symmDiff p.2 (G.chosenOddComponent p.1 p.2)) := by
@@ -110,25 +110,25 @@ theorem finsetPairToggle_of_nonempty [Fintype V] [DecidableEq V] {p : Finset V �
 
 /-- On a pair with `𝒬(S, S')` empty, `finsetPairToggle` is the identity. -/
 theorem finsetPairToggle_of_not_nonempty [Fintype V] [DecidableEq V] {p : Finset V × Finset V}
-    (h : ¬ (G.oddComponents p.1 p.2).Nonempty) :
+    (h : ¬ (G.oddCrossComponents p.1 p.2).Nonempty) :
     G.finsetPairToggle p = p := by
   unfold finsetPairToggle
   rw [if_neg h]
 
 /-- `finsetPairToggle` is an involution: the toggled pair has the same set of odd components
-(`oddComponents_symmDiff`), hence the same chosen component, and `Q ⊕ Q = ∅`. -/
+(`oddCrossComponents_symmDiff`), hence the same chosen component, and `Q ⊕ Q = ∅`. -/
 theorem finsetPairToggle_involutive [Fintype V] [DecidableEq V] (p : Finset V × Finset V) :
     G.finsetPairToggle (G.finsetPairToggle p) = p := by
-  by_cases h : (G.oddComponents p.1 p.2).Nonempty
-  · have hQ : G.chosenOddComponent p.1 p.2 ∈ G.oddComponents p.1 p.2 :=
+  by_cases h : (G.oddCrossComponents p.1 p.2).Nonempty
+  · have hQ : G.chosenOddComponent p.1 p.2 ∈ G.oddCrossComponents p.1 p.2 :=
       chosenOddComponent_mem h
     have h1 := finsetPairToggle_of_nonempty (G := G) h
     set Q := G.chosenOddComponent p.1 p.2 with hQdef
-    have hodd : G.oddComponents (G.finsetPairToggle p).1 (G.finsetPairToggle p).2 =
-        G.oddComponents p.1 p.2 := by
+    have hodd : G.oddCrossComponents (G.finsetPairToggle p).1 (G.finsetPairToggle p).2 =
+        G.oddCrossComponents p.1 p.2 := by
       rw [h1]
-      exact oddComponents_symmDiff hQ
-    have hne : (G.oddComponents (G.finsetPairToggle p).1 (G.finsetPairToggle p).2).Nonempty := by
+      exact oddCrossComponents_symmDiff hQ
+    have hne : (G.oddCrossComponents (G.finsetPairToggle p).1 (G.finsetPairToggle p).2).Nonempty := by
       rw [hodd]
       exact h
     have hchosen : G.chosenOddComponent (G.finsetPairToggle p).1 (G.finsetPairToggle p).2 = Q := by
@@ -145,12 +145,12 @@ theorem finsetPairToggle_involutive [Fintype V] [DecidableEq V] (p : Finset V ×
 /-- If `𝒬(S, S')` is nonempty then `finsetPairToggle` moves the pair: `Q` is a component of
 `G[S ⊕ S']`, hence nonempty, and `S ⊕ Q = S` would force `Q = ∅`. -/
 theorem finsetPairToggle_ne_of_nonempty [Fintype V] [DecidableEq V] {p : Finset V × Finset V}
-    (h : (G.oddComponents p.1 p.2).Nonempty) :
+    (h : (G.oddCrossComponents p.1 p.2).Nonempty) :
     G.finsetPairToggle p ≠ p := by
   intro heq
   have h1 := finsetPairToggle_of_nonempty (G := G) h
   have hQ := chosenOddComponent_mem h
-  obtain ⟨hQc, -⟩ := mem_oddComponents.mp hQ
+  obtain ⟨hQc, -⟩ := mem_oddCrossComponents.mp hQ
   have hne : (G.chosenOddComponent p.1 p.2).Nonempty := by
     obtain ⟨x⟩ := hQc.2.1.nonempty
     exact ⟨x.1, Finset.mem_coe.mp x.2⟩
@@ -168,10 +168,10 @@ theorem finsetPairToggle_mem_product [Fintype V] [DecidableEq V] (hclaw : G.IsCl
     G.finsetPairToggle p ∈
       G.independentFinsetsOfCardAvoid W s ×ˢ G.independentFinsetsOfCardAvoid W t := by
   rw [Finset.mem_product] at hp ⊢
-  by_cases h : (G.oddComponents p.1 p.2).Nonempty
+  by_cases h : (G.oddCrossComponents p.1 p.2).Nonempty
   · have hQ := chosenOddComponent_mem h
-    have hQ' : G.chosenOddComponent p.1 p.2 ∈ G.oddComponents p.2 p.1 := by
-      rw [oddComponents_comm]
+    have hQ' : G.chosenOddComponent p.1 p.2 ∈ G.oddCrossComponents p.2 p.1 := by
+      rw [oddCrossComponents_comm]
       exact hQ
     rw [finsetPairToggle_of_nonempty h]
     exact ⟨symmDiff_mem_independentFinsetsOfCardAvoid hclaw hp.1 hp.2 hQ,
@@ -229,7 +229,7 @@ theorem deletedCharge_commute [Fintype V] [DecidableEq V]
   · -- the terms of `p` and its partner cancel
     intro p hp
     rw [Finset.mem_product] at hp
-    by_cases h : (G.oddComponents p.1 p.2).Nonempty
+    by_cases h : (G.oddCrossComponents p.1 p.2).Nonempty
     · rw [finsetPairToggle_of_nonempty h]
       exact H.independentProduct_toggle_commutator_add_eq_zero
         (mem_independentFinsetsOfCardAvoid.mp hp.1).2.1
@@ -239,7 +239,7 @@ theorem deletedCharge_commute [Fintype V] [DecidableEq V]
           H.independentProduct p.2 * H.independentProduct p.1 = 0 := by
         have heven : Even (G.crossCount p.1 p.2) := by
           by_contra hodd
-          exact h (oddComponents_nonempty_of_odd
+          exact h (oddCrossComponents_nonempty_of_odd
             (mem_independentFinsetsOfCardAvoid.mp hp.1).2.1
             (mem_independentFinsetsOfCardAvoid.mp hp.2).2.1 (Nat.not_even_iff_odd.mp hodd))
         rw [sub_eq_zero]
@@ -251,13 +251,13 @@ theorem deletedCharge_commute [Fintype V] [DecidableEq V]
   · -- no fixed points among the nonzero terms
     intro p hp hne
     rw [Finset.mem_product] at hp
-    by_cases h : (G.oddComponents p.1 p.2).Nonempty
+    by_cases h : (G.oddCrossComponents p.1 p.2).Nonempty
     · exact finsetPairToggle_ne_of_nonempty h
     · exfalso
       apply hne
       have heven : Even (G.crossCount p.1 p.2) := by
         by_contra hodd
-        exact h (oddComponents_nonempty_of_odd
+        exact h (oddCrossComponents_nonempty_of_odd
           (mem_independentFinsetsOfCardAvoid.mp hp.1).2.1
           (mem_independentFinsetsOfCardAvoid.mp hp.2).2.1 (Nat.not_even_iff_odd.mp hodd))
       rw [sub_eq_zero]

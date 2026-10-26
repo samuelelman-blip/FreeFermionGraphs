@@ -355,3 +355,7 @@ import FreeFermionGraphs.PauliHoleOperator
 import FreeFermionGraphs.SetDeformationTether
 import FreeFermionGraphs.TheoremOneII
 import FreeFermionGraphs.ToggleCycleCharge
+import FreeFermionGraphs.Definition19TraceDegeneracyAudit
+import FreeFermionGraphs.HoleOperatorTransport
+import FreeFermionGraphs.PauliShiftModel
+import FreeFermionGraphs.HoleOperatorTransportExample

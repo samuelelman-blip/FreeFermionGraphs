@@ -401,3 +401,6 @@ import FreeFermionGraphs.T3ToggleStableExample
 import FreeFermionGraphs.T3TogglesInvariant
 import FreeFermionGraphs.T3BlockPathBridge
 import FreeFermionGraphs.T3PairingIndexUpdate
+import FreeFermionGraphs.T3SeparatorComponent
+import FreeFermionGraphs.T3SeparatorComponentExample
+import FreeFermionGraphs.T3SeparatorParity

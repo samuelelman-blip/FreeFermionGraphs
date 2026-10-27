@@ -399,3 +399,5 @@ import FreeFermionGraphs.T3StepCondsTransport
 import FreeFermionGraphs.T3ToggleStable
 import FreeFermionGraphs.T3ToggleStableExample
 import FreeFermionGraphs.T3TogglesInvariant
+import FreeFermionGraphs.T3BlockPathBridge
+import FreeFermionGraphs.T3PairingIndexUpdate

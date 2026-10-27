@@ -387,3 +387,9 @@ import FreeFermionGraphs.T3FrameSign
 import FreeFermionGraphs.T3OddBlock
 import FreeFermionGraphs.T3PairingIndex
 import FreeFermionGraphs.T3PairingIndexCount
+import FreeFermionGraphs.T3FixedPairingSymm
+import FreeFermionGraphs.T3Interaction
+import FreeFermionGraphs.T3InteractionSymm
+import FreeFermionGraphs.T3PairingIndexInvariance
+import FreeFermionGraphs.T3PalindromicCancel
+import FreeFermionGraphs.T3PalindromicToggles

@@ -404,3 +404,8 @@ import FreeFermionGraphs.T3PairingIndexUpdate
 import FreeFermionGraphs.T3SeparatorComponent
 import FreeFermionGraphs.T3SeparatorComponentExample
 import FreeFermionGraphs.T3SeparatorParity
+import FreeFermionGraphs.T3ComponentTether
+import FreeFermionGraphs.T3Existence
+import FreeFermionGraphs.T3GoodCandidate
+import FreeFermionGraphs.T3Lift
+import FreeFermionGraphs.T3NonVacuity

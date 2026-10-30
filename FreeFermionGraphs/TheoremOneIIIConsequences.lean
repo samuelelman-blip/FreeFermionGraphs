@@ -67,8 +67,10 @@ conditional theorem applied to `cycleSymmetriesCommute`.
   multiplication by `Π_l` (`Theorem3Sectors`), and `r_l = deg z_{∅,l}` modes per sector instead of
   `α(G)` (`FreeFermionSolution`).
 
-Non-vacuity of `paperTheorem3` and of the wrappers on the three-qubit `C₄` model is in
-`FreeFermionGraphs.TheoremOneIIIConsequencesExample`.
+Non-vacuity of `paperTheorem3`, `exists_jointSpectralProjections` and `exists_modeSectors` on
+the three-qubit `C₄` model is in `FreeFermionGraphs.TheoremOneIIIConsequencesExample`.  That model
+has uniform couplings, where the coprimality premise of the Theorem 2 wrappers fails in the
+sector `J = +1`; a multi-sector witness for `paperTheorem2_of_sectorCoprime` needs other couplings.
 -/
 
 open scoped BigOperators

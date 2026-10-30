@@ -172,9 +172,11 @@ end Star
 /-! ### The commutation hypothesis (v1 Theorem 1(iii)) -/
 
 /-- **The hypothesis `[J_{⟨C₀⟩}, J_{⟨C₁⟩}] = 0`** for even-hole carriers `C₀`, `C₁`
-(v1 Theorem 1(iii), L864-873).  Theorem 1(iii) is not formalised yet, so results that need it
-take `H.CycleSymmetriesCommute` as a hypothesis and are named `_of_cycleSymmetry_commute`.  (The
-case of weakly separated holes is `generalizedCycleSymmetryOp_commute_of_inducedCompatible`.) -/
+(v1 Theorem 1(iii), L864-873).  Results in this file take `H.CycleSymmetriesCommute` as a
+hypothesis and are named `_of_cycleSymmetry_commute`; for claw-free `G` it is discharged by
+`PauliFrustrationRepresentation.cycleSymmetriesCommute` (TheoremOneIII), and the unconditional
+forms are in TheoremOneIIIConsequences.  (The case of weakly separated holes is
+`generalizedCycleSymmetryOp_commute_of_inducedCompatible`.) -/
 def CycleSymmetriesCommute (H : G.PauliFrustrationRepresentation A) : Prop :=
   ∀ C₀ C₁, G.IsEvenHoleCarrier C₀ → G.IsEvenHoleCarrier C₁ →
     Commute (H.generalizedCycleSymmetryOp C₀) (H.generalizedCycleSymmetryOp C₁)

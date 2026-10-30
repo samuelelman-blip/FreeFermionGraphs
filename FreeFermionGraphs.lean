@@ -409,3 +409,6 @@ import FreeFermionGraphs.T3Existence
 import FreeFermionGraphs.T3GoodCandidate
 import FreeFermionGraphs.T3Lift
 import FreeFermionGraphs.T3NonVacuity
+import FreeFermionGraphs.TheoremOneIII
+import FreeFermionGraphs.TheoremOneIIIConsequences
+import FreeFermionGraphs.TheoremOneIIIConsequencesExample

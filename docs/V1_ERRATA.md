@@ -19,7 +19,7 @@ certified.
   groundwork for an entry (U6, U9) are named as groundwork and do not certify it.
 
 Every repository declaration cited below was checked to exist and to depend only on
-`propext`, `Classical.choice`, `Quot.sound` (2026-10-26). Names from Mathlib or Lean core
+`propext`, `Classical.choice`, `Quot.sound` (2026-11-03). Names from Mathlib or Lean core
 (for example `IsCoprime`, `Commute`) are not covered by that check.
 
 Summary of consequences for v1's headline results.
@@ -28,11 +28,11 @@ Summary of consequences for v1's headline results.
 |---|---|---|
 | Theorem 1(i) | correct | proved in Lean (`SimpleGraph.PauliFrustrationRepresentation.paperTheorem1i`); the pairing argument is sound as written (Part IV) |
 | Theorem 1(ii) | correct | proved in Lean (`SimpleGraph.PauliFrustrationRepresentation.paperTheorem1ii`); the proof needs arguments v1 omits (E4) |
-| Theorem 1(iii) | not proved in Lean; its statement is only the hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` of E16, E17 and of the joint-projector form of Theorem 3 (E12) | proof omissions U6, U8; groundwork E5 |
+| Theorem 1(iii) | statement correct; v1's proof does not argue the final pairing (L1241) and rests on the obstruction search (v1 Lemmas 7-10), whose proofs have the gaps U6-U8 | proved in Lean for every ring with no premise beyond claw-freeness, by a route that replaces the obstruction search (`SimpleGraph.PauliFrustrationRepresentation.paperTheorem1iii`, `SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute`, E18); v1's own route is not formalised |
 | Lemma 3 | premise missing | E3 |
-| Corollary 12, Result 2 | sign error in the formula for `M_jk`; the anticommutator identity is proved in Lean with the corrected sign, without even holes and on a symmetry sector; positive definiteness of `M` and the Majorana modes are not formalised | E1, U5 |
-| Theorem 2 | ill-defined without a non-degeneracy hypothesis | counterexample U1 (identified, not certified); proved in Lean with that hypothesis (per-sector coprimality) and the commutation of the cycle symmetries (Theorem 1(iii), open) as premises, with `deg z_{G,J}` modes per sector instead of `alpha(G)` (E17); the non-degeneracy consequences are certified in E16 |
-| Theorem 3 | existential statement; proof constants and case (b.iv) defective | E12, E14, U3, U4; proved in Lean on a symmetry sector for any `Pr` with `[H, Pr] = 0` and `J_c Pr = lambda_c Pr`, with the corrected matrix (E12); and over the joint spectral projectors `Pi_l` of the `J_c` themselves, in `Matrix (Fin d) (Fin d) ℂ`, with `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` (Theorem 1(iii), open) as the only premise beyond v1's setup (`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_cycleSymmetry_commute`, E12) |
+| Corollary 12, Result 2 | sign error in the formula for `M_jk`; the anticommutator identity is proved in Lean with the corrected sign over the joint eigenprojectors `Pi_l` (`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperCorollary1`, `chi^2 = 1` a hypothesis), on a symmetry sector and without even holes; positive definiteness of `M` and the Majorana modes are not formalised | E1, U5 |
+| Theorem 2 | ill-defined without a non-degeneracy hypothesis | counterexample U1 (identified, not certified); proved in Lean with that hypothesis (per-sector coprimality) as the only premise beyond v1's setup, with `deg z_{G,J}` modes per sector instead of `alpha(G)` (`SimpleGraph.SimplicialModeHamiltonian.paperTheorem2_of_sectorCoprime`, E17); the non-degeneracy consequences are certified in E16 |
+| Theorem 3 | existential statement; proof constants and case (b.iv) defective | E12, E14, U3, U4; proved in Lean over the joint spectral projectors `Pi_l` of the `J_c` themselves, in `Matrix (Fin d) (Fin d) ℂ`, with no premise beyond v1's setup and with the corrected matrix (`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3`, E12), and on a symmetry sector for any `Pr` with `[H, Pr] = 0` and `J_c Pr = lambda_c Pr` (`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_commute`, E12) |
 | Eq. (decoratedtree) normalisation (L1445), Lemma 16 | the lemma fails for the matrix with the literal normalisation | E11, E14: kernel-checked counterexample; the lemma is proved in Lean for the corrected matrix |
 
 ## Part I. Certified in Lean
@@ -81,12 +81,35 @@ Certified.
   entries above; reality and symmetry use
   `SimpleGraph.cliqueHoppingMatrix_pow_cliqueRootPath_eq_zero_of_odd`).
 
-Not certified: Corollary 12 for `Pr = Pi_J` as a single statement, with `Pi_J` the joint
-spectral projector produced under `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute`
-(E16): no committed declaration applies the sector identity to those projectors, and the
-existence of the complete family needs Theorem 1(iii); and, in every case, with or without
-even holes and on a sector alike, the positive definiteness of `M` and the Majorana
-construction (U5). The Lean statements above are the anticommutator identity only.
+Over the joint eigenprojectors (v1's `Pr = Pi_J`):
+`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperCorollary1`. Premises: finite claw-free `G`
+(`hclaw`), simplicial clique `K` (`hK`), Hermitian Pauli terms (`hstar`), `chi^2 = 1` (`hχ`); complex
+matrices, real couplings; connectivity of `G` is not needed. Conclusion: the joint spectral
+decomposition `(Lambda, Pi_l)` of the cycle symmetries (Hermitian, idempotent, nonzero, orthogonal,
+`sum_l Pi_l = 1`, `J_c Pi_l = l(c) Pi_l`, in the bicommutant) and, for each `l`,
+`Pi_l {ad_{iH}^j chi, ad_{iH}^k chi} = {ad_{iH}^j chi, ad_{iH}^k chi} Pi_l = 2 M_jk Pi_l` with `M`
+real symmetric, `M_jk = (-1)^j (-2i)^{j+k} (A_l^{j+k})_{{j*},{j*}}`, `A_l` the corrected matrix
+`SimpleGraph.cliqueHoppingMatrix` (E11). It follows from
+`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperCorollary1_of_bicommutant` (a single `Pr` in
+the bicommutant of the `J_c` with `J_c Pr = lambda_c Pr`) applied to the `Pi_l` of
+`SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections` (E16): `[H, Pi_l] = 0`
+by Theorem 1(ii), `[chi, Pi_l] = 0` by
+`SimpleGraph.PauliCliqueHamiltonianRepresentation.commute_rootOperator_of_forall_commute` (through `SimpleGraph.PauliCliqueHamiltonianRepresentation.commute_rootOperator_generalizedCycleOperator`). For the projectors of the
+`ModeSector`s of Theorem 2 (where `chi^2 = 1` and Hermiticity are structure fields):
+`SimpleGraph.SimplicialModeHamiltonian.paperCorollary1_modeSectors`. Non-vacuity:
+`SimpleGraph.Corollary1Example.paperCorollary1_two_sectors` (three-qubit `C_4` model, two sectors
+`J = +-1`, nonzero projections summing to `1`, `(A_l^4)_{{j*},{j*}} = 6 - 2l` as forced by the
+identity at `j = k = 2`) and `SimpleGraph.Corollary1Example.hopping_sector_dependent` (the values `4`
+and `8` differ, so the hoop arcs of the corrected matrix are present and sector-dependent; derived
+from `paperCorollary1_of_cycleAlgebra` with `Pr = 1 +- J` in `SimpleGraph.Corollary1Example.{hopping_plus,hopping_minus}`);
+`SimpleGraph.Corollary1Example.tree_entry` applies `paperCorollary1_of_evenHoleFree` to the
+one-vertex model. `printedCorollary1_fails_single_vertex` is a direct `2 x 2` computation that
+applies no theorem.
+
+Not certified: the positive definiteness of `M` and the Majorana construction (U5), in every case,
+with or without even holes, on a sector or over the `Pi_l`; no declaration states or constructs
+them. The Lean statements above are the anticommutator identity only; `chi^2 = 1` is an explicit
+hypothesis because `PauliCliqueHamiltonianRepresentation` has no such field.
 
 ### E2. Two inequivalent notions of "compatible" even holes
 
@@ -233,8 +256,12 @@ equals `C + dO` (`dO` is the union of the paths, L990) only when the paths are
 pairwise vertex-disjoint (Corollary 8, L1053, allows shared vertices); the Lean
 statements use `C^(m)` itself.
 
-Not certified: `h_O h_O^dagger = B^2 I` (L1236), anti-Hermiticity of `h_O`
-(L1227-1234), and the choice of partner (U8).
+Not certified: `h_O h_O^dagger = B^2 I` (L1236) and anti-Hermiticity of `h_O` (L1227-1234) (U8).
+
+Status (2026-10-30). The Lean proof of Theorem 1(iii) does not use these transport identities or
+the Definition 19 interface they are stated on; it uses the frame sign lemma, which needs no
+scale factors, and the choice of partner is certified there (E18, G1). The identities above
+remain certified at the stated interface.
 
 ### E6. Lemma 11 (generalized characteristic polynomial): Theorem 1 is not needed
 
@@ -278,6 +305,29 @@ Certified.
   `T_{G\W}(u) T_{G\W}(-u) Pi = z_{W,lambda}(-u^2) Pi` for `W = {}` or `W = Ks`
   (simplicial clique) whenever `J_<C_0> Pi = lambda_<C_0> Pi` for every even-hole
   carrier `C_0`, with the real polynomial `SimpleGraph.sectorPolynomial`.
+
+Bare form (repo Lemma 1 = v1 Lemma 11):
+`SimpleGraph.ScaledPauliFrustrationRepresentation.generalizedCharacteristicPolynomial` and
+`SimpleGraph.ScaledPauliFrustrationRepresentation.generalizedCharacteristicPolynomial_empty`
+(`W = {}`, v1 Lemma 11 itself) hold for a
+`SimpleGraph.ScaledPauliFrustrationRepresentation G ℝ A` (Pauli terms with `h_j^2 = b_j^2`; no root
+operator, no clique, no simplicial mode), with `u` in any commutative `ℝ`-algebra acting on `A` and
+`G.IsClawFree` as the only hypothesis. The proof is the one below re-run on the bare representation
+(`transfer_mul_transfer_neg_eq_holeOnly`, and `h_I h_I = prod b_j^2` for independent `I`,
+`SimpleGraph.ScaledPauliFrustrationRepresentation.independentProduct_mul_self`); the reduction
+`K = {}`, `chi = 1` is not used because it needs a nontrivial algebra.
+
+Scope of the older form. v1 Lemma 11 is about any Hamiltonian with a claw-free frustration
+graph. `SimpleGraph.PauliCliqueHamiltonianRepresentation.generalizedCharacteristicPolynomial` is stated for
+`H : G.PauliCliqueHamiltonianRepresentation K ℝ A`: a representation of the root-adjoined graph
+`G^+` with a root term `chi` that anticommutes exactly with the clique `K`, real couplings and
+`h_j^2 = b_j^2`. The transfer operators are those of `H.operator.restrictSome`, a representation
+of `G` itself, and the conclusion does not involve `chi` or `K`, so the root and the clique are
+extra data that v1's Lemma 11 does not have and that play no role in the conclusion; the bare form
+above is the faithful one. The sector form `transfer_mul_transfer_neg_mul_sector` is still stated
+for the root-adjoined representation
+(`SimpleGraph.PauliFrustrationRepresentation.transfer_mul_transfer_neg_eq_holeOnly` is the
+underlying identity, over any representation, with claw-freeness the only hypothesis).
 
 ### E7. The clique-deletion identity used without proof in the ladder argument
 
@@ -378,7 +428,10 @@ Problems and corrections.
 
 Scope: the Lean statements are over a `ModeSector` (the properties of the sector
 projector are explicit fields) and, for Lemmas 14 and 15, over `Nondegenerate`
-data, which E16 derives from a no-common-root hypothesis in matrix algebras.
+data, which E16 derives from a no-common-root hypothesis in matrix algebras. The statement for
+Lemma 14, `ladder_plus_minus`, is the case `J = J'` (one sector); the case `J != J'` is inside
+Theorem 2 (E17). The Lemma 15 statements are per sector; the sum over sectors is inside Theorem 2
+(E15).
 
 ### E10. Fundamental Identity is over-hypothesised
 
@@ -515,13 +568,16 @@ Certified.
   existential form over `ℝ` (a real matrix, nonzero entries `M_PQ` only where `|P| + |Q|` is
   odd, `ad = [iH, .]`, witness `A_lambda`):
   `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_commute_exists`.
-- Theorem 3 over the joint spectral projectors of the `J_c`, conditional on Theorem 1(iii)
-  (`hJ : H.operator.restrictSome.CycleSymmetriesCommute`) as the only premise beyond v1's setup,
-  for `H` over `ℝ` in `Matrix (Fin d) (Fin d) ℂ` with Hermitian terms:
-  `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_cycleSymmetry_commute`.
+- Theorem 3 over the joint spectral projectors of the `J_c`, with no premise beyond v1's setup
+  and the standing assumptions (`K` simplicial, `G` claw-free), for `H` over `ℝ` in
+  `Matrix (Fin d) (Fin d) ℂ` with Hermitian terms (`hstar`):
+  `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3`. It is
+  `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_cycleSymmetry_commute`
+  (premise `hJ : H.operator.restrictSome.CycleSymmetriesCommute`, kept) with `hJ` supplied by
+  Theorem 1(iii) (`SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute`, E18).
   For every sector `l` of the joint spectral decomposition `(Lambda, Pi_l)`
-  (`SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections_of_cycleSymmetry_commute`,
-  E16), `A_l = SimpleGraph.cliqueHoppingMatrix` is real and bipartite (nonzero entries only where
+  (`SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections`, E16),
+  `A_l = SimpleGraph.cliqueHoppingMatrix` is real and bipartite (nonzero entries only where
   `|P| + |Q|` is odd), `Pi_l` commutes with every `ad_{iH}^k chi`, and
   `Pi_l ad_{iH}^k chi = ad_{iH}^k chi Pi_l = sum_P ((-2i)^k (A_l^k)_{{j*},P}) h_P Pi_l`. It is
   derived from
@@ -529,10 +585,15 @@ Certified.
   the bicommutant of the `J_c` with `J_c Pr = lambda_c Pr`: `[H, Pr] = 0` by Theorem 1(ii) and
   `[chi, Pr] = 0` are derived, `Pr^2 = Pr` is not assumed). The same `Pi_l` are the projectors of
   the `ModeSector`s of E16, E17:
-  `SimpleGraph.SimplicialModeHamiltonian.paperTheorem3_modeSectors_of_cycleSymmetry_commute`.
+  `SimpleGraph.SimplicialModeHamiltonian.paperTheorem3_modeSectors` (conditional form
+  `SimpleGraph.SimplicialModeHamiltonian.paperTheorem3_modeSectors_of_cycleSymmetry_commute`).
   The hypotheses are satisfiable with `J` acting non-trivially, and the left side is not zero at
-  `k = 1`, on the three-qubit 4-cycle model of E16
-  (`SimpleGraph.Theorem3SectorsExample.theorem3_two_sectors`, two sectors `J = +-1`).
+  `k = 1`, on the three-qubit 4-cycle model of E16, with two sectors `J = +-1`:
+  `SimpleGraph.TheoremOneIIIConsequencesExample.paperTheorem3_two_sectors` (no commutation
+  hypothesis supplied) and, for the conditional form,
+  `SimpleGraph.Theorem3SectorsExample.theorem3_two_sectors`. Deviations from v1: the corrected
+  matrix; "over each mutual eigenspace" is read as right multiplication of the path operators by
+  `Pi_l` (U3 (b)).
 
 - Eq. (pathcircle) for the corrected matrix `SimpleGraph.cliqueHoppingMatrix`, with
   hole terms and any number of hole classes: `SimpleGraph.sectorRow_pow_wandReverse`
@@ -540,10 +601,10 @@ Certified.
   hoop) and `SimpleGraph.sectorRow_pow_eq_of_sameHandle` (sources of one handle and
   one hoop class).
 
-Not certified: Theorem 3 without the hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` (Theorem 1(iii)): the
-complete family of projectors `Pi_J` exists only under it. The anticommutator identity of
-Corollary 12 on a sector is certified in E1; the positive definiteness of `M` and the Majorana
-modes are not, in any case (U5).
+Not certified: that the reading of "over each mutual eigenspace" as right multiplication is v1's
+intent (U3 (b)); the positive definiteness of `M` and the Majorana modes (U5). (The anticommutator identity of
+Corollary 12 over the `Pi_l` is `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperCorollary1`,
+E1.)
 
 ### E13. Implicit facts used but never stated
 
@@ -655,16 +716,20 @@ Certified.
   `k > r`; `SimpleGraph.SimplicialModeHamiltonian.ModeSector.Nondegenerate.hamiltonian_mul_Pi_matrix`:
   the same in matrix algebras with no hypothesis on the charges (E16).
 
-Certified, conditional on Theorem 1(iii) and on per-sector coprimality (E17): the sum over
+Certified, with per-sector coprimality (E17) as the only premise beyond v1's setup: the sum over
 sectors, `H = sum_J (sum_j epsilon_{J,j} [psi_{J,j}, psi_{J,j}^dagger]) Pi_J`, using
-`sum_J Pi_J = 1` from the joint spectral decomposition of the `J`'s, which is available only
-under the hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute`, i.e.
-Theorem 1(iii) (`SimpleGraph.SimplicialModeHamiltonian.freeFermionSolution_of_cycleSymmetry_commute`;
-the projectors: `SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors_of_cycleSymmetry_commute`,
-E16).
+`sum_J Pi_J = 1` from the joint spectral decomposition of the `J`'s, which exists for every claw-free
+Hamiltonian by Theorem 1(iii) (E18)
+(`SimpleGraph.SimplicialModeHamiltonian.paperTheorem2_of_sectorCoprime`; the conditional form,
+which takes the commutation of the `J`'s as a hypothesis, is
+`SimpleGraph.SimplicialModeHamiltonian.freeFermionSolution_of_cycleSymmetry_commute`; the
+projectors: `SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors`, E16).
 
-The Lean sum runs to `r = deg z_{G,J}`, as item 4 requires. Not certified: the sum over
-sectors without those two hypotheses.
+The Lean sum runs to `r = deg z_{G,J}`, as item 4 requires. Scope: `hamiltonian_mul_Pi` is the
+one-sector reconstruction and assumes `Q^(k) Pi = 0` for `k > r` (item 2: used silently by v1),
+which `hamiltonian_mul_Pi_matrix` discharges in matrix algebras; the sum over sectors is only
+inside Theorem 2. Not certified: the sum over sectors without the coprimality premise, or in
+algebras other than matrix algebras.
 
 ### E16. Theorem 2: reality, positivity, simplicity, top charges, non-degeneracy
 
@@ -702,32 +767,42 @@ simplicial clique `Ks` and a `SimpleGraph.SimplicialModeHamiltonian.ModeSector` 
   `SimpleGraph.SimplicialModeHamiltonian.ModeSector.card_roots_zG_eq_natDegree`:
   `z_G` has `deg z_G` roots (counted with multiplicity) under coprimality.
 
-Certified, conditional on Theorem 1(iii): a `ModeSector` for the joint projectors of the
-`J`'s. In `Matrix (Fin d) (Fin d) ℂ`, for claw-free `G` and a simplicial clique `Ks`,
-`SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors_of_cycleSymmetry_commute`
-builds, from the hypothesis `H.frustration.CycleSymmetriesCommute` (that is,
-`[J_{C_0}, J_{C_1}] = 0` for even-hole carriers: Theorem 1(iii)), a finite set `Lambda` of
+Certified: a `ModeSector` for the joint projectors of the `J`'s. In `Matrix (Fin d) (Fin d) ℂ`, for
+claw-free `G` and a simplicial clique `Ks` (no other premise),
+`SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors` builds a finite set `Lambda` of
 tuples `l` and Hermitian idempotents `Pi_l != 0` that are pairwise orthogonal, satisfy
-`sum_l Pi_l = 1` and `J_{C_0} Pi_l = l(<C_0>) Pi_l`, and for each `l` a
-`SimpleGraph.SimplicialModeHamiltonian.ModeSector` with projector `Pi_l`,
-`zG = SimpleGraph.sectorPolynomial H.coupling {} l` and
-`zK = SimpleGraph.sectorPolynomial H.coupling Ks l`. The hypothesis is
-`SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute`; Theorem 1(iii) itself
-is open (E5, U6, U8). The supporting declarations are
+`sum_l Pi_l = 1`, `J_{C_0} Pi_l = l(<C_0>) Pi_l`, commute with every matrix that commutes with all
+the `J_{C_0}`, and for each `l` a `SimpleGraph.SimplicialModeHamiltonian.ModeSector` with
+projector `Pi_l`, `zG = SimpleGraph.sectorPolynomial H.coupling {} l` and
+`zK = SimpleGraph.sectorPolynomial H.coupling Ks l`. The commutation `[J_{C_0}, J_{C_1}] = 0`
+for even-hole carriers that the construction needs is Theorem 1(iii),
+`SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute` (E18). The spectral part alone
+is `SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections` (claw-free `G`,
+Hermitian terms). Both are the conditional forms
+`SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors_of_cycleSymmetry_commute` and
+`SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections_of_cycleSymmetry_commute`
+(hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute`, kept) applied to
+Theorem 1(iii). The supporting declarations are
 `exists_joint_spectral_projections` (for pairwise commuting Hermitian matrices: orthogonal
 Hermitian idempotents `P l != 0` with `sum_l P l = 1`, `J i P l = l i P l`, every matrix
 commuting with all `J i` commuting with every `P l`, and `l` in the index set exactly when the
-joint eigenspace is nonzero),
-`SimpleGraph.PauliFrustrationRepresentation.exists_jointSpectralProjections_of_cycleSymmetry_commute`
-(the same for the cycle symmetries, with `hstar` and `hJ`; no claw-freeness, no simplicial clique) and `SimpleGraph.SimplicialModeHamiltonian.jointModeSector` (the
+joint eigenspace is nonzero) and `SimpleGraph.SimplicialModeHamiltonian.jointModeSector` (the
 `ModeSector` of a Hermitian idempotent with `J P = l P` that commutes with everything
-commuting with the `J`'s; it takes no commutation hypothesis on the `J`'s). The hypotheses
-are satisfiable with `J` acting non-trivially: on a three-qubit model with frustration graph
-the 4-cycle, `SimpleGraph.CycleSymmetrySectorsExample.ham_cycleSymmetriesCommute` and
-`SimpleGraph.CycleSymmetrySectorsExample.exists_two_sectors` (two sectors, `J = +-1`).
+commuting with the `J`'s; it takes no commutation hypothesis on the `J`'s). The conditional form
+is non-vacuous with `J` acting non-trivially: on a three-qubit model with frustration graph the
+4-cycle, `SimpleGraph.CycleSymmetrySectorsExample.ham_cycleSymmetriesCommute` and
+`SimpleGraph.CycleSymmetrySectorsExample.exists_two_sectors` (two sectors, `J = +-1`). The
+unconditional `exists_modeSectors` is instantiated on the same model only for `sum_l Pi_l = 1`
+and the existence of the `ModeSector`s
+(`SimpleGraph.TheoremOneIIIConsequencesExample.exists_modeSectors_ham`); no committed example
+states `exists_jointSpectralProjections` on its own, but it is used inside `paperCorollary1`,
+which is instantiated (`SimpleGraph.Corollary1Example.paperCorollary1_two_sectors`).
+`paperTheorem3` restates the same decomposition through the conditional
+`exists_jointSpectralProjections_of_cycleSymmetry_commute`
+(`SimpleGraph.TheoremOneIIIConsequencesExample.paperTheorem3_two_sectors`); the example file does
+not instantiate `exists_jointSpectralProjections`.
 
-Not certified: that coprimality fails in the example of U1 (hand computation);
-Theorem 1(iii), hence the sector construction without a hypothesis; the statements for
+Not certified: that coprimality fails in the example of U1 (hand computation); the statements for
 algebras other than `Matrix (Fin d) (Fin d) ℂ` (the proofs use the Hilbert-Schmidt trace
 form). The assembly of these results into Theorem 2 is E17.
 
@@ -744,12 +819,15 @@ the sum over sectors, which needs `sum_J Pi_J = 1`; and that the objects (`Pi_J`
 `N_{J,j}`, `psi_{J,j}`) are the specific ones of Definition 9 and L2097 rather than
 existentially chosen. The non-degeneracy and index-range defects are E15, E16 and U1.
 
-Certified, conditional on two premises beyond v1's setup, for
+Certified, with one premise beyond v1's setup, for
 `H : G.SimplicialModeHamiltonian Ks (Matrix (Fin d) (Fin d) ℂ)` with claw-free `G` and
 simplicial clique `Ks`:
-`SimpleGraph.SimplicialModeHamiltonian.freeFermionSolution_of_cycleSymmetry_commute`.
-- `hJ : H.frustration.CycleSymmetriesCommute`, Theorem 1(iii) as a hypothesis (open: E5, U6,
-  U8). It is used only to produce the joint spectral projectors.
+`SimpleGraph.SimplicialModeHamiltonian.paperTheorem2_of_sectorCoprime`. It is
+`SimpleGraph.SimplicialModeHamiltonian.freeFermionSolution_of_cycleSymmetry_commute` (the form
+that takes `hJ : H.frustration.CycleSymmetriesCommute` as a hypothesis, kept) with `hJ` supplied
+by Theorem 1(iii) (`SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute`, E18). The
+structure `SimplicialModeHamiltonian` supplies Hermiticity of all Pauli terms and of `chi`
+(`term_selfAdjoint`), `chi^2 = 1` (`root_sq`) and `h_j^2 = b_j^2`. The premise:
 - `hND`: for every `l : G.EvenHoleDeformationClass → ℝ` that is a joint eigenvalue tuple of the
   `J_{C_0}` (some `v != 0` with `J_{C_0} v = l(<C_0>) v` for every even-hole carrier `C_0`, and
   `l = 0` on every class that contains no even-hole carrier),
@@ -758,10 +836,21 @@ simplicial clique `Ks`:
   of Algebra: coprime real polynomials have no common complex root
   (`ModeSectorPositivity.aeval_ne_zero_of_isCoprime`); the converse is
   `ModeSectorPositivity.isCoprime_of_forall_aeval_ne_zero`, with the Fundamental Theorem of
-  Algebra as a hypothesis.
+  Algebra as a hypothesis. Through the fields `Z_scalar` and `ZK_scalar` of the `ModeSector` the polynomials are
+  those by which `T(u) T(-u)` and its deleted version act on `Pi_l`
+  (`SimpleGraph.PauliCliqueHamiltonianRepresentation.transfer_mul_transfer_neg_mul_sector`).
+
+Why `hND` is necessary. `N_{J,j} = 4 u_j sqrt(z_{Ks,J}(-u_j^2) z_{{},J}'(-u_j^2))` vanishes at a
+common root of the two sector polynomials, so v1's `psi_{J,j} = N_{J,j}^{-1} Pi_J T(-u_j) chi T(u_j)`
+is undefined there, and v1 does not state the condition. For `C_4` with uniform couplings and
+`Ks` an edge, in the sector `J = +1` the double root `x = -1/2` of `z = (1+2x)^2` is a root of
+`z_{Ks} = 1+2x` (U1; hand computation, not a Lean statement), so v1's Theorem 2 fails there.
+The Lean statement certifies the converse direction only: coprimality gives all the consequences
+of E16.
+
 Conclusion, with the objects fixed by formulas (`N`, `epsilon`, `psi` are bound by `exists`
 only to be named): the finite set `Lambda` of joint eigenvalue tuples that occur, and the
-projectors `Pi_l` of `SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors_of_cycleSymmetry_commute` (E16), each with a
+projectors `Pi_l` of `SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors` (E16), each with a
 `ModeSector` of `zG = z_{{},l}`, `zK = z_{Ks,l}`; in every sector `r_l = deg z_{{},l}` distinct
 positive `u_{l,j}` with `z_{{},l} = prod_j (1 + x/u_{l,j}^2)`, `T(u) T(-u) Pi_l = 0` at
 `u = u_{l,j}` and `z_{Ks,l}(-u^2) z_{{},l}'(-u^2) > 0` there;
@@ -774,8 +863,9 @@ positive `u_{l,j}` with `z_{{},l} = prod_j (1 + x/u_{l,j}^2)`, `T(u) T(-u) Pi_l 
 `[H, psi_{l,j}^dagger] = -2 epsilon_{l,j} psi_{l,j}^dagger`;
 `H = sum_l (sum_j epsilon_{l,j} [psi_{l,j}, psi_{l,j}^dagger]) Pi_l`.
 Supporting declarations: the cross-sector statements
-`SimpleGraph.SimplicialModeHamiltonian.exists_crossSectorModes_of_cycleSymmetry_commute`
-(same premises), which use only `Pi_l Pi_{l'} = 0`
+`SimpleGraph.SimplicialModeHamiltonian.exists_crossSectorModes_of_sectorCoprime` (conditional
+form `SimpleGraph.SimplicialModeHamiltonian.exists_crossSectorModes_of_cycleSymmetry_commute`),
+which use only `Pi_l Pi_{l'} = 0`
 (`SimpleGraph.SimplicialModeHamiltonian.ModeSector.Orthogonal`,
 `SimpleGraph.SimplicialModeHamiltonian.ModeSector.Orthogonal.commute_psiPlus`,
 `SimpleGraph.SimplicialModeHamiltonian.ModeSector.Orthogonal.psiPlus_anticomm_psiMinus`,
@@ -786,27 +876,184 @@ and in one sector, from raw non-degeneracy data,
 `SimpleGraph.SimplicialModeHamiltonian.ModeSector.solution_on_sector`, with
 `SimpleGraph.SimplicialModeHamiltonian.ModeSector.Nondegenerate.commutator_psiPlus` and
 `SimpleGraph.SimplicialModeHamiltonian.ModeSector.Nondegenerate.commutator_psiMinus`.
-The inner index runs over `Fin (r_l)`, `r_l = deg z_{{},l}`, not `alpha(G)` (E15, item 4; U1).
-`psi_{J,-j}` of v1, never defined there (E9, item 1), is `psi_{J,j}^dagger`.
 
-Non-vacuity: all premises hold, and the conclusion is computed (`Lambda = {0}`, `r = 1`,
-`u = 1`, `psi = sigma^+`, `H = Z = [psi, psi^dagger]`), for the one-vertex model with `Ks = {0}`,
-`H = Z`, `chi = X`, which has no even hole:
+The statement is weaker than v1's in three ways, all documented. (1) The premise `hND`, which v1
+omits. (2) The inner index runs over `Fin (r_l)`, `r_l = deg z_{{},l}`, not `alpha(G)` (E15, item
+4; U1). (3) Only `Matrix (Fin d) (Fin d) ℂ` is covered (E16); for Pauli strings this loses
+nothing. `psi_{J,-j}` of v1, never defined there (E9, item 1), is `psi_{J,j}^dagger`. `hND` is
+all-or-nothing: the theorem says nothing for a Hamiltonian with even one sector in which the
+polynomials share a root (uniform `C_4`: `J = -1` is fine, `J = +1` is not); a per-sector form
+that assumes coprimality for the sectors used only is not committed.
+
+Non-vacuity with an even hole and two sectors:
+`SimpleGraph.FreeFermionSolutionMultiSectorExample.theorem2_two_sectors`, the conclusion of
+`paperTheorem2_of_sectorCoprime` for the three-qubit `C_4` model with couplings
+`(b_0, b_1, b_2, b_3) = (1, 1, 1, 2)` (`h_3 = 2 X_0 Z_2`), `Ks = {0, 1}`, `J = 2 Z_2` with
+`J^2 = 4` (`SimpleGraph.FreeFermionSolutionMultiSectorExample.cycleSymmetry2_eq`): sector
+polynomials `z_{{}} = 1 + 7x + 9x^2` (`J = +2`), `1 + 7x + x^2` (`J = -2`), `z_{Ks} = 1 + 5x`
+(`SimpleGraph.FreeFermionSolutionMultiSectorExample.z_empty`, `SimpleGraph.FreeFermionSolutionMultiSectorExample.z_Ks`), coprime in both sectors (`SimpleGraph.FreeFermionSolutionMultiSectorExample.coprime_plus`, `SimpleGraph.FreeFermionSolutionMultiSectorExample.coprime_minus`; `SimpleGraph.FreeFermionSolutionMultiSectorExample.ham2_hND`),
+`r_l = 2 = alpha(G)`, with `2 <= |Lambda|`, both signs of `J` occurring, `u, N > 0`,
+`T(u) T(-u) Pi_l = 0`, the explicit modes, `{psi, psi^dagger} = delta Pi_l` across sectors, and
+`H = sum_l (sum_j eps [psi, psi^dagger]) Pi_l`.
+
+Non-vacuity of the conditional form: for the one-vertex model with `Ks = {0}`, `H = Z`, `chi = X`, which has no even hole
+(every `J` is `0`, `hJ` is vacuous), `hND` holds and the conclusion is computed (`Lambda = {0}`,
+`r = 1`, `u = 1`, `psi = sigma^+`, `H = Z = [psi, psi^dagger]`):
 `SimpleGraph.FreeFermionSolutionExample.freeFermionSolution_ham1`,
-`SimpleGraph.CrossSectorRelationsExample.exists_crossSectorModes_ham1`. For that model
-`hJ` is vacuous (every `J` is `0`). The 4-cycle model of E16 satisfies `hJ` and has two
-sectors, but fails `hND` in the sector `J = +1` (U1, hand computation), so no committed
-example verifies `hJ` and `hND` with a non-trivial `J`.
+`SimpleGraph.CrossSectorRelationsExample.exists_crossSectorModes_ham1`; both instantiate the
+conditional forms with `hJ`. The 4-cycle model of E16 (uniform couplings) satisfies `hJ` and has two
+sectors, but fails `hND` in the sector `J = +1` (U1, hand computation). Open: no committed example
+instantiates `exists_crossSectorModes_of_sectorCoprime` itself.
 
-Not certified: Theorem 1(iii), hence the statement without `hJ`; that v1's Theorem 2 as printed
-fails without `hND` (the `C_4` computation of U1); the statements for algebras other than
-`Matrix (Fin d) (Fin d) ℂ`.
+Not certified: that v1's Theorem 2 as printed fails without `hND` (the `C_4` computation of U1);
+the statements for algebras other than `Matrix (Fin d) (Fin d) ℂ`; the per-sector form of `hND`.
+
+### E18. Theorem 1(iii): the repository's proof route, and the v1 gaps it closes
+
+Location: Theorem 1(iii), L864-871; proof L929-1243 (palindromic example L944-966, definitions
+L973-1024, fixed-pairing deformations L1025-1116, solution criterion L1117-1127, search process
+L1128-1169, correctness L1170-1198, proof of cancellation L1199-1243); appendix proofs of v1
+Lemmas 7-9 (L1757-1921); tether pairing L913 (cited as L906-911 in the module documentation of
+`T3ComponentTether`).
+
+Lean. `SimpleGraph.PauliFrustrationRepresentation.paperTheorem1iii`: for a claw-free finite `G`,
+`H : G.PauliFrustrationRepresentation A` over any ring `A`, and even-hole carriers `C_0`, `C_0'`,
+`[J_{C_0}, J_{C_0'}] = 0`. `SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute` is
+the same in the form `H.CycleSymmetriesCommute` of the sector theory. The premises are the
+representation, finiteness of `V`, claw-freeness, and `C_0`, `C_0'` being even-hole carriers (v1
+defines `J` only for even holes); the same premise set as `paperTheorem1ii`. No relation
+`h_j^2 = b_j^2` and no invertibility of 2 is used. The statement is v1's; the proof is not.
+
+Route (declarations under `SimpleGraph`; hole-class states `s = (C_a, C_b)`, `SimpleGraph.IsHoleClasses`):
+
+1. Expansion `[J_{C_0}, J_{C_0'}] = sum_{C, C'} [h_C, h_{C'}]` (v1 L934-936):
+   `SimpleGraph.PauliFrustrationRepresentation.commutator_generalizedCycleSymmetryOp_pair_eq_sum`.
+2. Frame sign lemma: for hole-class states `s, s', t, t'` with `t_i = s_i (+) Q_i`,
+   `t'_i = s'_i (+) Q_i`, `Q_i` inside `s_i (+) s'_i`,
+   `[h_{C_t}, h_{C_t'}] = (-1)^{c(Q_1 (+) Q_2, C)} [h_C, h_{C'}]`
+   (`SimpleGraph.PauliFrustrationRepresentation.commutator_toggle_holeClasses`; also
+   `SimpleGraph.PauliFrustrationRepresentation.evenHoleOperator_mul_evenHoleOperator_holeClasses`,
+   `h_C h_{C'} = (-1)^{c(C, C')} h_{C'} h_C`). No anticommutation, scale-factor or claw-free
+   hypothesis; any ring. It is the closed form of v1's three-line display L1218-1220.
+3. For a palindromic fixed-pairing deformation `D` of `(s, s')` with toggle `T`, the end carriers
+   are `C (+) T` and `C' (+) T` (`SimpleGraph.FPDeformation.carrier_fwdEnd`, `SimpleGraph.FPDeformation.carrier_bwdEnd`)
+   and `[h_{C+T}, h_{C'+T}] = (-1)^{c(T, C)} [h_C, h_{C'}]`
+   (`SimpleGraph.PauliFrustrationRepresentation.commutator_palindromic`); if `Odd c(T, C)` the two terms
+   cancel (`SimpleGraph.PauliFrustrationRepresentation.commutator_palindromic_add_eq_zero_of_isOdd`).
+4. Pairing index `Psi(s, s') = sum_{x,y} chi_s(x) chi_{s'}(y) (A + 2I)_{xy}` (`SimpleGraph.pairingIndex`; no
+   counterpart in v1). For claw-free `G`, `Psi = |crossedW| - |matchedW|` (`SimpleGraph.pairingIndex_eq_card_sub_card`,
+   `SimpleGraph.matchedW`, `SimpleGraph.crossedW`, `SimpleGraph.anticommutingVertices_eq_matchedW_union_crossedW`: the vertices of `C'`
+   anticommuting with `h_C`, v1's `W` of Definition 20, split by pairing type), `Psi` has the
+   parity of `c(C, C')` (`SimpleGraph.pairingIndex_emod_two`), and it is invariant along a palindromic
+   deformation (`SimpleGraph.FPDeformation.pairingIndex_ends`). `Psi < 0` selects v1's source type
+   (Definition 21).
+5. Candidate set `K*(C, C')` (`SimpleGraph.palindromicToggles`): toggles of odd palindromic deformations of
+   hole-class states with carriers `C`, `C'` and `Psi < 0`; it depends on the carriers only, and
+   `K*(C+T, C'+T) = K*(C, C')` for `T` in `K*` (`SimpleGraph.palindromicToggles_toggle`, from
+   `SimpleGraph.FPDeformation.palindromic_iff_stepConds` and `SimpleGraph.FPDeformation.toggle_stable`). The pairing
+   `SimpleGraph.holePairToggle` (`T` from `SimpleGraph.chosenPalToggle`, a function of the set `K*` alone) is an
+   involution (`SimpleGraph.holePairToggle_involutive`), has no fixed point where `K*` is nonempty
+   (`SimpleGraph.holePairToggle_ne`), preserves `<C_0> x <C_0'>` (`SimpleGraph.holePairToggle_mem_closure`) and reverses
+   the sign of the term (`SimpleGraph.PauliFrustrationRepresentation.commutator_holePairToggle`). Terms with
+   `K*` empty vanish
+   (`SimpleGraph.PauliFrustrationRepresentation.commutator_evenHoleOperator_eq_zero_of_palindromicToggles_eq_empty`);
+   `Finset.sum_involution` concludes.
+6. Existence: `Odd c(C, C')` implies `K*(C, C')` nonempty (`SimpleGraph.palindromicToggles_nonempty`), from
+   `SimpleGraph.FPDeformation.exists_palindromic_odd` (an odd palindromic deformation whenever `Psi < 0`),
+   by strong induction on `|s_1 (+) s'_1| + |s_2 (+) s'_2|` (source-block induction):
+   - component tether lemma: on a component of a side graph `G[C_a (+) C'_c]`, either the matched
+     `W` vertices are at most the crossed ones, or the component is a forward-running block with
+     one matched vertex (`SimpleGraph.component_matched_le_crossed`; a block contains at most one matched
+     vertex, `SimpleGraph.OddBlock.card_matchedW_le_one`); the bridge from the untethered paths of Theorem
+     1(ii) is `SimpleGraph.OddBlock.exists_of_untethered`;
+   - a good candidate block exists when `Psi < 0`, by counting over the side components
+     (`SimpleGraph.exists_goodCandidate`);
+   - the update of `Psi` after toggling a forward-running block `Q`:
+     `Psi(toggled) = Psi + |Q n matched W'| - |Q n crossed W'|` (`SimpleGraph.OddBlock.pairingIndex_fwdState`),
+     where `W'` is the mirror set of `W`, the vertices of `C` anticommuting with `h_{C'}`, split by pairing
+     type as `SimpleGraph.matchedW s' s` and `SimpleGraph.crossedW s' s` (the roles of the two states
+     exchanged relative to item 4, where `matchedW`, `crossedW` split `W` as `matchedW s s'`, `crossedW s s'`);
+   - separator lemma: for a good source, the separators of the block in `C'_d` lie in one
+     component of `G[C_b (+) C'_d]` (`SimpleGraph.OddBlock.separators_sameComponent`; general bound
+     `SimpleGraph.OddBlock.separators_components_le`), with `c(Q, C) = |Q n W|` mod 2
+     (`SimpleGraph.OddBlock.crossCount_carrier_mod_two`), `c(Q, C'_d) = 1 + |Q n W'|` mod 2
+     (`SimpleGraph.OddBlock.separatorIncidence_mod_two`) and the requirement lemma
+     (`SimpleGraph.OddBlock.requires_contains_separator`);
+   - lift lemma: an odd palindromic deformation of the reduced pair lifts to the original pair
+     with the parity of the toggle preserved (`SimpleGraph.FPDeformation.lift`).
+
+Gaps of v1 closed by this route (certified as Lean statements; not statements that v1's route is
+wrong):
+
+- G1. Final pairing (L1237-1241): v1 cancels the terms "by fixing a deformation" for each
+  collection of terms and does not argue that the assignment `(C, C') -> (C+T, C'+T)` is an
+  involution without fixed points on the nonzero terms (the same issue as E4 item 4 for Theorem
+  1(ii); U8 item 3). Certified: `SimpleGraph.holePairToggle_involutive`, `SimpleGraph.holePairToggle_ne`,
+  `SimpleGraph.holePairToggle_mem_closure`, `SimpleGraph.palindromicToggles_toggle`, `SimpleGraph.FPDeformation.toggle_stable`.
+- G2. Tether injectivity (L913, "they can be uniquely paired"; E4 item 1 for Theorem 1(ii)): the
+  existence argument uses it componentwise, as `m <= x` on a side component unless the component
+  is a forward-running block with one matched vertex. Certified: `SimpleGraph.component_matched_le_crossed`,
+  `SimpleGraph.OddBlock.card_matchedW_le_one` (the tether map is injective because tethering is symmetric
+  with unique partners, `SimpleGraph.EvenHoleLabeling.TetherPair.symm`,
+  `SimpleGraph.EvenHoleLabeling.TetherPair.unique`).
+- G3. Obstruction search replaced: the existence of an odd palindromic deformation is proved
+  without the search process (L1128-1198), so the questions of U6 (the deleted source in (C31),
+  termination, identification of "no outgoing arc" with unobstructed) and of U7 (appendix proofs
+  of v1 Lemmas 8-10) are not needed for the Lean proof of Theorem 1(iii); they remain open
+  questions about v1's own argument. In the role they play there, the pigeonhole of L1158 is
+  replaced by `SimpleGraph.exists_goodCandidate`, and the statement of v1 Lemma 8 (iii)-(iv) / Lemma 9
+  ("`j''` is the only member of exactly one of `U_j`, `U_{j'}`", L1174-1189) by
+  `SimpleGraph.OddBlock.separators_sameComponent`. v1 Lemmas 7-10 (repo Lemmas 12, 14, 15, 16) are not
+  used.
+- G4. Oddness of `|W n dO|` (L1234, U8 item 1): the sign of the cancellation is the crossing
+  parity `c(T, C)`, odd for `T` in `K*`; anti-Hermiticity of `h_O` and `h_O h_O^dagger = B^2 I`
+  (L1227-1236, E5) are not needed. The one-block closed forms are
+  `SimpleGraph.OddBlock.crossCount_carrier_mod_two` and `SimpleGraph.OddBlock.separatorIncidence_mod_two`.
+- G5. The deformed hole (U8 item 4): for the repository's `SimpleGraph.FPDeformation` (a list of side blocks
+  with distinct supports) for palindromic `D` the carrier reached is `C (+) T` with `T = toggle_1 (+) toggle_2`
+  (`SimpleGraph.FPDeformation.carrier_fwdEnd`), v1's `C^(m) = C (+) (+)_r P^(r)` (L986), and the union
+  formula `C (+) dO` (L990) fails when two blocks share a vertex
+  (`SimpleGraph.fpExD_shared_vertex`, `SimpleGraph.fpExD_union_formula_fails`).
+
+The transport identities of E5 (scale factors `kappa_1`, `kappa_2`) are not used by this proof;
+the frame sign lemma replaces them.
+
+Dependencies. The Lean proof uses the Theorem 1(ii) deformation-path machinery (E4) and repo
+Lemmas 7 and 8 and Corollary 3 (v1 Lemmas 2, 3 and Corollary 2). A scan of the compiled proof
+term (a one-off check, not a repository declaration) finds no declaration of the Definition 19 interface layer audited in
+`docs/PAPER_FIDELITY.md` (Audit 2026-10-26) in the proof of `paperTheorem1iii`.
+
+Non-vacuity. `SimpleGraph.T3Example.exists_palindromic`, `SimpleGraph.T3Example.toggles_mem`
+(a seven-vertex claw-free graph, two 4-holes, `Psi = -1`, an odd palindromic two-block
+deformation, `K*` nonempty); `SimpleGraph.exists_palindromic_two_block_deformation` (two blocks
+sharing a vertex); `SimpleGraph.fpEx_separators_sameComponent` (separator lemma with two distinct
+separators); `SimpleGraph.fpExD_toggle_stable`. In the first two the end carrier is
+`C (+) T = C'` (`SimpleGraph.fpExD_fwdEnd`; for the first, the module documentation of
+`T3NonVacuity`), so the two holes lie in one deformation class and `J_C = J_{C'}`; the
+commutation is trivial there, and the 4-cycle model has one hole. These witness the existence layer
+(`K*` nonempty), not the content of (iii).
+
+Witness for the content: `SimpleGraph.TheoremOneExample.thm1iii_content`. Graph `g8` on eight
+vertices with edges `01 12 23 03 45 56 67 47 05 15 25 04 14 26 16` (claw-free,
+`SimpleGraph.TheoremOneExample.clawFree`), a three-qubit Pauli representation `rep`
+(`SimpleGraph.TheoremOneExample.T_anti`, `SimpleGraph.TheoremOneExample.T_comm`, `SimpleGraph.TheoremOneExample.T_not_anti`), 4-holes `C = {0,1,2,3}` and `C' = {4,5,6,7}`
+(`SimpleGraph.TheoremOneExample.carrierC`, `SimpleGraph.TheoremOneExample.carrierC'`) in different deformation classes
+(`SimpleGraph.TheoremOneExample.not_same_class`), crossing number `c(C, C') = 7` (read off `SimpleGraph.TheoremOneExample.edges8`, no Lean statement), non-commuting
+terms (`SimpleGraph.TheoremOneExample.terms_anticommute` states only `h_C h_{C'} != h_{C'} h_C`) and
+`[J_C, J_{C'}] = 0` by `paperTheorem1iii`. Companions on the same model:
+`SimpleGraph.TheoremOneExample.thm1ii_content` (`[J_C, q_{1,mu}] = 0` although
+`[h_C, h_{{5}}] != 0`) and `SimpleGraph.TheoremOneExample.thm1i_content` (`[q_{1,mu}, q_{2,nu}] = 0`
+although `[h_{{4}}, h_{{3,7}}] != 0`).
+
+Not certified: v1's own proof of Theorem 1(iii) (the obstruction search, v1 Lemmas 7-10 and their
+appendix proofs) is not formalised and is not claimed defective beyond U6-U8; the Definition 19
+interface layer remains degenerate (`docs/PAPER_FIDELITY.md`, Audit 2026-10-26).
 
 ## Part II. Identified, not yet certified
 
 No entry below is certified: no Lean statement establishes the defect or the correction it
 proposes. Part I entries certify related corrected statements, and the `Lean` paragraph of an
-entry points to them by entry number (U1 to U3: E4, E6, E8, E9, E11, E12, E14 to E17), naming
+entry points to them by entry number (U1 to U3: E4, E6, E8, E9, E11, E12, E14 to E18; U6 to U8: E18), naming
 the declarations where useful; those results are certified in the cited Part I entries and
 nowhere in this part. Where a Lean declaration records related groundwork (U6, U9) it is
 named as groundwork, and what it does not cover is stated.
@@ -821,8 +1068,8 @@ Theorem 3 (L1328), which say "SCF Hamiltonian" or nothing.
 
 Problem. Per symmetry sector `J`, v1 silently needs that `Z_{G,J}` and
 `Z_{G\Ks,J}` have no common root (E16 certifies the non-degeneracy consequences of
-this hypothesis in matrix algebras, on a `ModeSector`; the corrected Theorem 2 is proved
-conditional on Theorem 1(iii) in E17).
+this hypothesis in matrix algebras, on a `ModeSector`; the corrected Theorem 2, with this
+hypothesis, is E17).
 Counterexample to the printed statement: `G = C_4` with uniform couplings and `Ks`
 an edge (claw-free, simplicial, connected). In the sector `J = +1`,
 `z = (1+2x)^2` and `z_K = 1+2x`, so `N = 0` and `psi` is undefined. In the sector
@@ -833,16 +1080,30 @@ component not containing `Ks` contributes common roots of `Z_G` and `Z_{G\Ks}`, 
 `N = 0`; Theorem 2 and Lemmas 13-15 omit connectedness, which is subsumed by the
 no-common-root hypothesis.
 
+The hypothesis is satisfiable together with a non-trivial `J` (hand computation from Lemma 11 and
+exact arithmetic outside Lean). For `C_4` with `Ks = {0, 1}` and couplings `(b_0, b_1, b_2, b_3)`,
+in the sector `J = lambda`, `lambda^2 = (b_0 b_1 b_2 b_3)^2`: `z_{Ks} = 1 + (b_2^2 + b_3^2) x` and
+`z = 1 + (b_0^2 + b_1^2 + b_2^2 + b_3^2) x + (b_0^2 b_2^2 + b_1^2 b_3^2 + 2 lambda) x^2`. At the
+root `x_0 = -1/(b_2^2 + b_3^2)` of `z_{Ks}`,
+`z(x_0) = -(b_0^2 b_3^2 + b_1^2 b_2^2 - 2 lambda)/(b_2^2 + b_3^2)^2`, which vanishes exactly when
+`b_0 b_3 = +- b_1 b_2` in the sector `lambda = +- b_0 b_1 b_2 b_3`. For `(1, 1, 1, 2)`:
+`z_{Ks} = 1 + 5x`, `z = 1 + 7x + 9x^2` (`lambda = 2`) and `1 + 7x + x^2` (`lambda = -2`),
+`z(-1/5) = -1/25` and `-9/25`, so the polynomials are coprime in both sectors, and
+`deg z = 2 = alpha(G)` in both. This instance is committed:
+`SimpleGraph.FreeFermionSolutionMultiSectorExample.theorem2_two_sectors` (E17).
+
 Correction. Add the hypothesis "no common root of `Z_{G,J}` and `Z_{G\Ks,J}`" and
 replace `alpha(G)` by `deg Z_{G,J}` in each sector.
 
 Lean. Nothing in this entry is certified. Related certified results, in Part I: the ladder
 and reconstruction statements over `Nondegenerate` data with `r = deg z_G` (E9, E15), which
-E16 derives from coprimality; and the corrected Theorem 2, with `hND` and `r_l = deg z_{{},l}`
-modes in the sector `l`, conditional on Theorem 1(iii) (E17,
-`SimpleGraph.SimplicialModeHamiltonian.freeFermionSolution_of_cycleSymmetry_commute`). Not
-certified: the counterexample itself, that the printed statement fails without the
-hypothesis, and the corrected Theorem 2 without Theorem 1(iii).
+E16 derives from coprimality; and the corrected Theorem 2, with `hND` as the only premise beyond
+v1's setup and `r_l = deg z_{{},l}` modes in the sector `l` (E17,
+`SimpleGraph.SimplicialModeHamiltonian.paperTheorem2_of_sectorCoprime`). Not certified: the
+counterexample itself, that the printed statement fails without the hypothesis, and the hand
+computations of this entry. A committed model with an even hole satisfying `hND` is
+`SimpleGraph.FreeFermionSolutionMultiSectorExample.theorem2_two_sectors` (`C_4`, couplings
+`(1, 1, 1, 2)`); the 4-cycle with uniform couplings fails it in the sector `J = +1`.
 
 ### U2. Theorem 2: omitted steps of "Combining Lemmas 13-15 proves Theorem 2"
 
@@ -857,12 +1118,12 @@ polynomials; the cross-sector `delta_{J,J'}`.
 Lean. Nothing in this entry is certified. Related certified results, in Part I:
 `[chi, J] = 0` (E8); `[H, J] = 0` (E4); the reduction of `Z_{G\W} Pi` to a polynomial (E6);
 existence of joint spectral projections for commuting Hermitian matrices
-(`exists_joint_spectral_projections`, E16); and, conditional on the hypothesis
-`SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` (Theorem 1(iii)), the joint
+(`exists_joint_spectral_projections`, E16); `[J, J'] = 0`, Theorem 1(iii)
+(`SimpleGraph.PauliFrustrationRepresentation.cycleSymmetriesCommute`, E18); the joint
 projectors `Pi_J` with `sum_J Pi_J = 1` and a `SimpleGraph.SimplicialModeHamiltonian.ModeSector`
-at each of them (E16), the cross-sector relations, the sum over sectors and the assembly (E17).
-Not certified: Theorem 1(iii) (needed for the `J`'s to commute), hence all of these without
-that hypothesis.
+at each of them (`SimpleGraph.SimplicialModeHamiltonian.exists_modeSectors`, E16); the
+cross-sector relations, the sum over sectors and the assembly (E17). Not certified: the omitted
+steps as steps of v1's text.
 
 ### U3. Theorem 3: statement, and the operator identity on a sector
 
@@ -885,15 +1146,14 @@ content of (a): E12, `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheo
 and `J_c Pr = lambda_c Pr`, with `A_lambda` the corrected matrix of E11, and its
 algebra-generated and existential forms `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_cycleAlgebra` and
 `SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_commute_exists`; for `Pr = Pi_J`, the joint spectral projector, as a single
-statement, under the hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` (Theorem 1(iii)) only,
-`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3_of_cycleSymmetry_commute`.
+statement with no premise beyond v1's setup (the commutation of the `J_c` is Theorem 1(iii), E18),
+`SimpleGraph.PauliCliqueHamiltonianRepresentation.paperTheorem3`.
 (d): E14, `SimpleGraph.krylovRow_mul_sectorIndepSeries`, a closed form of the Krylov rows for
 the corrected matrix and any number of hole classes, as an identity of power series with
 `Z_U = SimpleGraph.sectorIndepSeries` as defined there.
 Not certified: that this is the divisibility of the generalized characteristic
-polynomial that the section title refers to (E14, "Not certified"); Theorem 3 over the
-joint spectral projectors without the hypothesis `SimpleGraph.PauliFrustrationRepresentation.CycleSymmetriesCommute` (Theorem 1(iii);
-E16), which the complete family of sector projectors needs.
+polynomial that the section title refers to (E14, "Not certified"); that the reading of
+"over each mutual eigenspace" as right multiplication by `Pi_J` is v1's intent.
 
 ### U4. Theorem 3, the third case of the induction step
 
@@ -945,6 +1205,14 @@ arcs from the larger class) and `SimpleGraph.ArcGraph.odd_and_lt_after_removal`
 inequality). Not covered: oddness of `|W|`, item 1, and the identification in
 item 2.
 
+Status (2026-10-30). The Lean proof of Theorem 1(iii) does not use the search process or this
+termination argument (E18, G3); the existence of the cancelling deformation is
+`SimpleGraph.palindromicToggles_nonempty`. Items 1 and 2 remain unexamined questions about v1's
+own argument, neither certified nor refuted. In the Lean proof the pigeonhole of ingredient 3 is
+replaced by `SimpleGraph.exists_goodCandidate` and the parity input by
+`SimpleGraph.pairingIndex_emod_two`; the groundwork declarations above are not used by
+`SimpleGraph.PauliFrustrationRepresentation.paperTheorem1iii`.
+
 ### U7. Appendix proofs of Lemmas 8, 9, 10 (repo Lemmas 14, 15, 16)
 
 Location: Lemma 8 (iv), L1853-1874; Lemma 9, L1876-1921; Lemma 10, L1192-1200.
@@ -960,6 +1228,9 @@ Problem.
    occurrence-indexed transport argument, and rely without saying so on Lemma 7-type
    reverse-clone data.
 3. Lemma 8 (iv) is a long case analysis of which only parts are written out.
+
+Status (2026-10-30). Not used by the Lean proof of Theorem 1(iii) (E18, G3); the appendix proofs
+remain unexamined.
 
 ### U8. Theorem 1(iii): remaining proof omissions
 
@@ -982,6 +1253,18 @@ Problem.
    example writes `C~ = C + P` (L965). This is why
    `SimpleGraph.FixedPairingPathFamily.FullDefinition19Deformation.lemma12_carrier_of_residualData`
    (E5) speaks about `C^(m)`.
+
+Status (2026-10-30). The Lean proof of Theorem 1(iii) does not follow this argument (E18). Item 1
+(oddness of `|W n dO|`): the sign of the cancellation is `c(T, C)`, odd for `T` in `K*`, with the
+one-block closed forms `SimpleGraph.OddBlock.crossCount_carrier_mod_two` and
+`SimpleGraph.OddBlock.separatorIncidence_mod_two`; the induction proposed in item 1 is not
+formalised. Item 2: not needed (the frame sign lemma
+`SimpleGraph.PauliFrustrationRepresentation.commutator_toggle_holeClasses` has no anticommutation
+hypothesis). Item 3: certified for the repository's route (E18, G1):
+`SimpleGraph.holePairToggle_involutive`, `SimpleGraph.holePairToggle_ne`. Item 4: certified for the
+repository's `SimpleGraph.FPDeformation` for palindromic `D` (E18, G5): `SimpleGraph.FPDeformation.carrier_fwdEnd`,
+`SimpleGraph.fpExD_union_formula_fails`. What stays open is v1's own proof, which is not
+formalised.
 
 ### U9. Definition 8: existence of `chi`
 
@@ -1040,3 +1323,7 @@ Each was read off `main.tex`; none has a Lean statement.
   2026-10-26).
 - The graph `G*` of Definition 17 (L846) is claw-free when `G` is claw-free and `K` is
   a simplicial clique: `SimpleGraph.IsSimplicialClique.isClawFree_adjoinRootAt`.
+- The expansion of Theorem 1(iii) (L934-936), `[J_{C_0}, J_{C_0'}] = sum_{C, C'} [h_C, h_{C'}]`,
+  is a purely formal consequence of bilinearity: no defect. Certified:
+  `SimpleGraph.PauliFrustrationRepresentation.commutator_generalizedCycleSymmetryOp_pair_eq_sum`
+  (arbitrary ring and carriers, no claw-freeness).
